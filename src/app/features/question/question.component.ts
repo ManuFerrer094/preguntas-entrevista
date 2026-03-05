@@ -205,7 +205,8 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       color-scheme: normal;
     }
 
-    :host ::ng-deep .markdown-content pre code.language-javascript {
+    :host ::ng-deep .markdown-content pre code.language-javascript,
+    :host ::ng-deep .markdown-content pre code.language-typescript {
       color: #ffffff !important;
     }
     :host ::ng-deep .markdown-content code {

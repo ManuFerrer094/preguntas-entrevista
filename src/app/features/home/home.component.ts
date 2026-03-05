@@ -23,11 +23,6 @@ import { ProgressService } from '../../core/services/progress.service';
         Preparación completa para ingenieros de software. Accede a preguntas reales
         de entrevistas técnicas organizadas por tecnología.
       </p>
-      <div class="hero-actions">
-        <a mat-flat-button color="primary" routerLink="/" fragment="technologies" class="hero-btn-primary">
-          Empezar Ahora
-        </a>
-      </div>
     </section>
 
     <!-- Explore by Technology -->
