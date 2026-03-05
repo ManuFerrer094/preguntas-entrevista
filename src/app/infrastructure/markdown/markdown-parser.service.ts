@@ -17,19 +17,20 @@ export class MarkdownParserService {
   }
 
   parseQuestions(content: string, technology: string): Question[] {
-    const sections = content.split(/\n---\n/);
+    const sections = content.split(/\r?\n---\r?\n/);
     return sections
       .map((section, index) => this.parseSection(section.trim(), technology, index))
       .filter((q): q is Question => q !== null);
   }
 
   private parseSection(section: string, technology: string, index: number): Question | null {
-    const lines = section.split('\n');
-    const titleLine = lines.find(l => l.startsWith('# '));
+    const lines = section.split(/\r?\n/);
+    const titleLine = lines.find(l => l.trim().startsWith('# '));
     if (!titleLine) return null;
 
     const title = titleLine.replace(/^#\s+/, '').trim();
-    const content = lines.slice(lines.indexOf(titleLine) + 1).join('\n').trim();
+    const startIdx = lines.indexOf(titleLine);
+    const content = lines.slice(startIdx + 1).join('\n').trim();
     const slug = generateSlug(title);
     const id = `${technology}-${slug}`;
 
