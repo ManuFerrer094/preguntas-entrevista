@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
+import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 
 @Component({
@@ -17,129 +18,333 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
   imports: [RouterLink, CommonModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSnackBarModule],
   template: `
     @if (question()) {
-      <nav aria-label="Ruta de navegación">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
         <a routerLink="/">Inicio</a>
-        <span aria-hidden="true"> / </span>
+        <span aria-hidden="true"> &rsaquo; </span>
         <a [routerLink]="['/', question()!.technology]">{{ technologyName() }}</a>
-        <span aria-hidden="true"> / </span>
-        <span>{{ question()!.title }}</span>
+        <span aria-hidden="true"> &rsaquo; </span>
+        <span class="breadcrumb-current">{{ question()!.title }}</span>
       </nav>
 
-      <article id="content" aria-labelledby="question-title">
-        <header class="question-header">
-          <h1 id="question-title">{{ question()!.title }}</h1>
-          <div class="question-actions">
+      <div class="question-layout">
+        <!-- Main Content -->
+        <article class="main-col" aria-labelledby="question-title">
+          <header class="question-header">
+            <h1 id="question-title">{{ question()!.title }}</h1>
+          </header>
+
+          <div
+            class="markdown-content"
+            [innerHTML]="renderedContent()"
+            aria-live="polite"
+          ></div>
+
+          <!-- Mark as read -->
+          <div class="mark-read-card">
+            <div class="mark-read-content">
+              @if (isRead()) {
+                <mat-icon class="mark-read-icon done">check_circle</mat-icon>
+                <div>
+                  <strong>¡Sección completada!</strong>
+                  <p>Ya has leído esta pregunta.</p>
+                </div>
+              } @else {
+                <mat-icon class="mark-read-icon pending">radio_button_unchecked</mat-icon>
+                <div>
+                  <strong>¿Completaste esta sección?</strong>
+                  <p>Marcarla como leída actualiza tu progreso.</p>
+                </div>
+              }
+            </div>
             <button
-              mat-icon-button
-              (click)="copyLink()"
-              matTooltip="Copiar enlace"
-              aria-label="Copiar enlace a esta pregunta"
+              mat-flat-button
+              [color]="isRead() ? 'accent' : 'primary'"
+              (click)="toggleRead()"
             >
-              <mat-icon>link</mat-icon>
+              {{ isRead() ? 'Marcar como no leída' : 'Marcar como Leída' }}
             </button>
           </div>
-        </header>
 
-        <div
-          class="markdown-content"
-          [innerHTML]="renderedContent()"
-          aria-live="polite"
-        ></div>
-      </article>
+          <!-- Prev / Next Navigation -->
+          <nav class="question-navigation" aria-label="Navegación entre preguntas">
+            @if (previousQuestion()) {
+              <a
+                [routerLink]="['/', question()!.technology, previousQuestion()!.slug]"
+                class="nav-card nav-prev"
+              >
+                <span class="nav-direction">
+                  <mat-icon>arrow_back</mat-icon> ANTERIOR
+                </span>
+                <span class="nav-title">{{ previousQuestion()!.title }}</span>
+              </a>
+            } @else {
+              <span></span>
+            }
 
-      <nav class="question-navigation" aria-label="Navegación entre preguntas">
-        @if (previousQuestion()) {
-          <a
-            mat-button
-            [routerLink]="['/', question()!.technology, previousQuestion()!.slug]"
-            class="nav-prev"
-            [attr.aria-label]="'Pregunta anterior: ' + previousQuestion()!.title"
-          >
-            <mat-icon>navigate_before</mat-icon>
-            <span class="nav-label">{{ previousQuestion()!.title }}</span>
-          </a>
-        } @else {
-          <span></span>
-        }
+            @if (nextQuestion()) {
+              <a
+                [routerLink]="['/', question()!.technology, nextQuestion()!.slug]"
+                class="nav-card nav-next"
+              >
+                <span class="nav-direction">
+                  SIGUIENTE <mat-icon>arrow_forward</mat-icon>
+                </span>
+                <span class="nav-title">{{ nextQuestion()!.title }}</span>
+              </a>
+            }
+          </nav>
+        </article>
 
-        @if (nextQuestion()) {
-          <a
-            mat-button
-            [routerLink]="['/', question()!.technology, nextQuestion()!.slug]"
-            class="nav-next"
-            [attr.aria-label]="'Siguiente pregunta: ' + nextQuestion()!.title"
-          >
-            <span class="nav-label">{{ nextQuestion()!.title }}</span>
-            <mat-icon>navigate_next</mat-icon>
-          </a>
-        }
-      </nav>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- Progress -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-header">
+              <mat-icon class="sidebar-icon">trending_up</mat-icon>
+              <strong>Tu Progreso</strong>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" [style.width.%]="progressPct()"></div>
+            </div>
+            <span class="progress-detail">{{ progressPct() }}% de "{{ technologyName() }}" completado</span>
+          </div>
+
+          <!-- Related Questions -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-header">
+              <mat-icon class="sidebar-icon">quiz</mat-icon>
+              <strong>Preguntas Relacionadas</strong>
+            </div>
+            <div class="related-list">
+              @for (rq of relatedQuestions(); track rq.id) {
+                <a [routerLink]="['/', question()!.technology, rq.slug]" class="related-item">
+                  {{ rq.title }}
+                </a>
+              }
+            </div>
+            <a [routerLink]="['/', question()!.technology]" class="view-all-link">
+              Ver todas las preguntas de {{ technologyName() }}
+            </a>
+          </div>
+
+          <!-- Actions -->
+          <div class="sidebar-card actions-card">
+            <button
+              mat-button
+              (click)="copyLink()"
+              class="action-btn"
+            >
+              <mat-icon>link</mat-icon>
+              Copiar enlace
+            </button>
+          </div>
+        </aside>
+      </div>
     } @else {
       <p>Pregunta no encontrada.</p>
       <a mat-button routerLink="/">Volver al inicio</a>
     }
   `,
   styles: [`
-    nav {
+    .breadcrumb {
       margin-bottom: 24px;
-      font-size: 0.875rem;
+      font-size: 0.85rem;
     }
-    nav a {
+    .breadcrumb a {
       color: var(--mat-sys-primary);
       text-decoration: none;
     }
-    nav a:hover { text-decoration: underline; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb-current { font-weight: 600; }
+
+    .question-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* Main column */
     .question-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
       margin-bottom: 32px;
     }
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
+    .question-header h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
       margin: 0;
-      flex: 1;
+      line-height: 1.25;
     }
+
     .markdown-content {
-      line-height: 1.8;
-      font-size: 1.0625rem;
+      line-height: 1.85;
+      font-size: 1.05rem;
     }
     :host ::ng-deep .markdown-content pre {
-      background: var(--mat-sys-surface-variant);
-      border-radius: 8px;
-      padding: 16px;
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
       overflow-x: auto;
+      font-size: 0.9rem;
+      margin: 20px 0;
     }
     :host ::ng-deep .markdown-content code {
-      font-family: 'Courier New', monospace;
-      font-size: 0.9em;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.88em;
     }
+    :host ::ng-deep .markdown-content p code {
+      background: var(--mat-sys-surface-variant, #f1f5f9);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.88em;
+    }
+    :host ::ng-deep .markdown-content h2,
+    :host ::ng-deep .markdown-content h3 {
+      margin-top: 32px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    :host ::ng-deep .markdown-content ul,
+    :host ::ng-deep .markdown-content ol {
+      padding-left: 24px;
+    }
+    :host ::ng-deep .markdown-content li {
+      margin-bottom: 6px;
+    }
+
+    /* Mark as read card */
+    .mark-read-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 24px;
+      margin: 40px 0 32px;
+      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border-radius: 14px;
+      background: var(--mat-sys-surface, #fff);
+    }
+    .mark-read-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mark-read-icon.done { color: #43a047; font-size: 28px; width: 28px; height: 28px; }
+    .mark-read-icon.pending { color: #bdbdbd; font-size: 28px; width: 28px; height: 28px; }
+    .mark-read-content strong { display: block; }
+    .mark-read-content p { margin: 2px 0 0; font-size: 0.82rem; opacity: 0.6; }
+
+    /* Navigation cards */
     .question-navigation {
       display: flex;
       justify-content: space-between;
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--mat-sys-outline-variant);
+      gap: 16px;
+      margin-top: 16px;
     }
-    .nav-prev, .nav-next {
+    .nav-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 16px 20px;
+      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .nav-card:hover {
+      border-color: var(--mat-sys-primary, #1976d2);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-direction {
       display: flex;
       align-items: center;
       gap: 4px;
-      max-width: 45%;
-      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      opacity: 0.5;
     }
-    .nav-label {
-      white-space: nowrap;
+    .nav-direction mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    .nav-next { text-align: right; }
+    .nav-next .nav-direction { justify-content: flex-end; }
+    .nav-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      line-height: 1.3;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .sidebar-card {
+      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border-radius: 14px;
+      padding: 20px;
+      background: var(--mat-sys-surface, #fff);
+    }
+    .sidebar-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+    .sidebar-icon { font-size: 20px; width: 20px; height: 20px; color: var(--mat-sys-primary, #1976d2); }
+
+    .progress-bar-track {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--mat-sys-surface-variant, #e3e3e3);
       overflow: hidden;
-      text-overflow: ellipsis;
+      margin-bottom: 8px;
     }
-    @media (max-width: 600px) {
-      h1 { font-size: 1.375rem; }
-      .question-header { flex-direction: column; gap: 8px; }
-      .question-navigation { flex-direction: column; gap: 12px; align-items: stretch; }
-      .nav-prev, .nav-next { max-width: 100%; }
-      .nav-next { justify-content: flex-end; }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--mat-sys-primary, #1976d2);
+      transition: width 0.4s ease;
+    }
+    .progress-detail { font-size: 0.78rem; opacity: 0.6; }
+
+    .related-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .related-item {
+      font-size: 0.85rem;
+      color: var(--mat-sys-on-surface, #333);
+      text-decoration: none;
+      line-height: 1.4;
+    }
+    .related-item:hover { color: var(--mat-sys-primary, #1976d2); }
+    .view-all-link {
+      font-size: 0.82rem;
+      color: var(--mat-sys-primary, #1976d2);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .view-all-link:hover { text-decoration: underline; }
+
+    .actions-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; }
+    .action-btn { justify-content: flex-start; }
+
+    @media (max-width: 900px) {
+      .question-layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar { position: static; order: -1; }
+      .mark-read-card { flex-direction: column; text-align: center; }
+      .question-navigation { flex-direction: column; }
     }
   `]
 })
@@ -151,6 +356,7 @@ export class QuestionComponent {
   private sanitizer = inject(DomSanitizer);
   private snackBar = inject(MatSnackBar);
   private platformId = inject(PLATFORM_ID);
+  progress = inject(ProgressService);
 
   private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
 
@@ -172,6 +378,18 @@ export class QuestionComponent {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   });
 
+  isRead = computed(() => {
+    const q = this.question();
+    return q ? this.progress.isRead(q.id) : false;
+  });
+
+  progressPct = computed(() => {
+    const q = this.question();
+    if (!q) return 0;
+    const allQ = this.store.getQuestionsByTechnology(q.technology);
+    return this.progress.getProgressPercentage(allQ.map(x => x.id));
+  });
+
   previousQuestion = computed(() => {
     const q = this.question();
     if (!q) return null;
@@ -186,6 +404,13 @@ export class QuestionComponent {
     const questions = this.store.getQuestionsByTechnology(q.technology);
     const idx = questions.findIndex(x => x.slug === q.slug);
     return idx < questions.length - 1 ? questions[idx + 1] : null;
+  });
+
+  relatedQuestions = computed(() => {
+    const q = this.question();
+    if (!q) return [];
+    const questions = this.store.getQuestionsByTechnology(q.technology);
+    return questions.filter(x => x.slug !== q.slug).slice(0, 3);
   });
 
   constructor() {
@@ -203,6 +428,15 @@ export class QuestionComponent {
         });
       }
     });
+  }
+
+  toggleRead(): void {
+    const q = this.question();
+    if (q) {
+      this.progress.toggleRead(q.id);
+      const msg = this.progress.isRead(q.id) ? '¡Pregunta marcada como leída!' : 'Pregunta marcada como no leída';
+      this.snackBar.open(msg, 'Cerrar', { duration: 2000 });
+    }
   }
 
   copyLink(): void {

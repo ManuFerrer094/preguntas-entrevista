@@ -5,5 +5,7 @@ export interface Technology {
   description: string;
   questionCount: number;
   icon: string;
+  devicon: string;
   color: string;
+  keywords: string;
 }

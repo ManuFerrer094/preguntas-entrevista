@@ -11,54 +11,73 @@ import { ContentStore } from '../../../core/stores/content.store';
   standalone: true,
   imports: [RouterLink, MatToolbarModule, MatButtonModule, MatIconModule, MatTooltipModule],
   template: `
-    <mat-toolbar color="primary" role="navigation" aria-label="Navegación principal">
+    <nav class="navbar" role="navigation" aria-label="Navegación principal">
       <a routerLink="/" class="brand" aria-label="Ir al inicio">
-        <mat-icon>quiz</mat-icon>
-        <span class="brand-name">Preguntas Entrevista</span>
+        <div class="brand-icon">
+          <mat-icon>terminal</mat-icon>
+        </div>
+        <span class="brand-name">InterviewPrep</span>
       </a>
-      <span class="spacer"></span>
-      <button
-        mat-icon-button
-        (click)="store.toggleDarkMode()"
-        [matTooltip]="store.darkMode() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
-        aria-label="Cambiar tema"
-      >
-        <mat-icon>{{ store.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-      </button>
-      <a
-        mat-icon-button
-        href="https://github.com/ManuFerrer094/preguntas-entrevista"
-        target="_blank"
-        rel="noopener noreferrer"
-        [matTooltip]="'Ver en GitHub'"
-        aria-label="Ver en GitHub"
-      >
-        <mat-icon>code</mat-icon>
-      </a>
-    </mat-toolbar>
+      <div class="nav-actions">
+        <button
+          mat-icon-button
+          (click)="store.toggleDarkMode()"
+          [matTooltip]="store.darkMode() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+          aria-label="Cambiar tema"
+        >
+          <mat-icon>{{ store.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+        <a
+          mat-icon-button
+          href="https://github.com/ManuFerrer094/preguntas-entrevista"
+          target="_blank"
+          rel="noopener noreferrer"
+          matTooltip="Ver en GitHub"
+          aria-label="Ver en GitHub"
+        >
+          <mat-icon>code</mat-icon>
+        </a>
+      </div>
+    </nav>
   `,
   styles: [`
-    mat-toolbar {
+    .navbar {
       position: sticky;
       top: 0;
       z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 64px;
+      background: var(--mat-sys-surface, #fff);
+      border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      backdrop-filter: blur(12px);
     }
     .brand {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       text-decoration: none;
       color: inherit;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.15rem;
     }
-    .brand-name {
-      font-size: 1.1rem;
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1565c0, #1976d2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
     }
-    .spacer {
-      flex: 1;
-    }
+    .brand-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .nav-actions { display: flex; align-items: center; gap: 4px; }
     @media (max-width: 600px) {
       .brand-name { display: none; }
+      .navbar { padding: 0 12px; }
     }
   `]
 })

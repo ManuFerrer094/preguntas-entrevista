@@ -5,14 +5,14 @@ import { Question } from '../../domain/models/question.model';
 import { Technology } from '../../domain/models/technology.model';
 
 const TECHNOLOGIES: Technology[] = [
-  { id: 'angular', name: 'Angular', slug: 'angular', description: 'Framework para construir aplicaciones web escalables', questionCount: 0, icon: 'code', color: '#DD0031' },
-  { id: 'react', name: 'React', slug: 'react', description: 'Biblioteca para construir interfaces de usuario', questionCount: 0, icon: 'web', color: '#61DAFB' },
-  { id: 'vue', name: 'Vue', slug: 'vue', description: 'Framework progresivo para interfaces de usuario', questionCount: 0, icon: 'view_quilt', color: '#42B883' },
-  { id: 'nodejs', name: 'Node.js', slug: 'nodejs', description: 'Entorno de ejecución JavaScript del lado del servidor', questionCount: 0, icon: 'dns', color: '#339933' },
-  { id: 'typescript', name: 'TypeScript', slug: 'typescript', description: 'Superconjunto tipado de JavaScript', questionCount: 0, icon: 'data_object', color: '#3178C6' },
-  { id: 'javascript', name: 'JavaScript', slug: 'javascript', description: 'El lenguaje de programación de la web', questionCount: 0, icon: 'javascript', color: '#F7DF1E' },
-  { id: 'testing', name: 'Testing', slug: 'testing', description: 'Pruebas de software y calidad del código', questionCount: 0, icon: 'bug_report', color: '#E33332' },
-  { id: 'system-design', name: 'System Design', slug: 'system-design', description: 'Diseño de sistemas escalables y distribuidos', questionCount: 0, icon: 'architecture', color: '#7B1FA2' },
+  { id: 'angular', name: 'Angular', slug: 'angular', description: 'Framework para construir aplicaciones web escalables', questionCount: 0, icon: 'code', devicon: 'devicon-angular-plain', color: '#DD0031', keywords: 'Dependency Injection, RxJS, Modules y Lifecycle hooks' },
+  { id: 'react', name: 'React', slug: 'react', description: 'Biblioteca para construir interfaces de usuario', questionCount: 0, icon: 'web', devicon: 'devicon-react-original', color: '#61DAFB', keywords: 'Hooks, Virtual DOM, State Management y Performance' },
+  { id: 'vue', name: 'Vue', slug: 'vue', description: 'Framework progresivo para interfaces de usuario', questionCount: 0, icon: 'view_quilt', devicon: 'devicon-vuejs-plain', color: '#42B883', keywords: 'Composition API, Vuex, Directives y Reactivity' },
+  { id: 'nodejs', name: 'Node.js', slug: 'nodejs', description: 'Entorno de ejecución JavaScript del lado del servidor', questionCount: 0, icon: 'dns', devicon: 'devicon-nodejs-plain', color: '#339933', keywords: 'Event Loop, Streams, Express.js y Backend patterns' },
+  { id: 'typescript', name: 'TypeScript', slug: 'typescript', description: 'Superconjunto tipado de JavaScript', questionCount: 0, icon: 'data_object', devicon: 'devicon-typescript-plain', color: '#3178C6', keywords: 'Types, Generics, Interfaces y Utility Types' },
+  { id: 'javascript', name: 'JavaScript', slug: 'javascript', description: 'El lenguaje de programación de la web', questionCount: 0, icon: 'javascript', devicon: 'devicon-javascript-plain', color: '#F7DF1E', keywords: 'Closures, Prototypes, Async/Await y ES6+' },
+  { id: 'testing', name: 'Testing', slug: 'testing', description: 'Pruebas de software y calidad del código', questionCount: 0, icon: 'bug_report', devicon: 'devicon-jest-plain', color: '#E33332', keywords: 'Unit Testing, E2E, Mocking y Coverage' },
+  { id: 'system-design', name: 'System Design', slug: 'system-design', description: 'Diseño de sistemas escalables y distribuidos', questionCount: 0, icon: 'architecture', devicon: 'devicon-amazonwebservices-plain-wordmark', color: '#7B1FA2', keywords: 'Scalability, Load Balancing, Microservices y Databases' },
 ];
 
 @Injectable({ providedIn: 'root' })
