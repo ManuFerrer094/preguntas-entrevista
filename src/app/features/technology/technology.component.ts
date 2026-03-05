@@ -142,7 +142,7 @@ import { ProgressService } from '../../core/services/progress.service';
       font-size: 0.85rem;
     }
     .breadcrumb a {
-      color: var(--mat-sys-primary);
+      color: var(--app-primary);
       text-decoration: none;
     }
     .breadcrumb a:hover { text-decoration: underline; }
@@ -154,14 +154,13 @@ import { ProgressService } from '../../core/services/progress.service';
       align-items: start;
     }
 
-    /* Sidebar */
     .sidebar {
       position: sticky;
       top: 80px;
     }
     .progress-card {
-      background: var(--mat-sys-surface, #fff);
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
       border-radius: 14px;
       padding: 20px;
       margin-bottom: 16px;
@@ -174,18 +173,18 @@ import { ProgressService } from '../../core/services/progress.service';
       font-weight: 600;
       margin-bottom: 12px;
     }
-    .progress-pct { color: var(--mat-sys-primary, #1976d2); }
+    .progress-pct { color: var(--app-primary); }
     .progress-bar-track {
       height: 8px;
       border-radius: 4px;
-      background: var(--mat-sys-surface-variant, #e3e3e3);
+      background: var(--app-surface-variant);
       overflow: hidden;
       margin-bottom: 8px;
     }
     .progress-bar-fill {
       height: 100%;
       border-radius: 4px;
-      background: var(--mat-sys-primary, #1976d2);
+      background: var(--app-primary);
       transition: width 0.4s ease;
     }
     .progress-detail { font-size: 0.78rem; opacity: 0.6; }
@@ -205,14 +204,13 @@ import { ProgressService } from '../../core/services/progress.service';
       color: inherit;
       transition: background 0.15s;
     }
-    .sidebar-btn:hover { background: var(--mat-sys-surface-variant, #f0f0f0); }
+    .sidebar-btn:hover { background: var(--app-surface-variant); }
     .sidebar-btn.active {
-      background: var(--mat-sys-primary, #1976d2);
-      color: white;
+      background: var(--app-primary);
+      color: var(--app-on-primary);
       font-weight: 600;
     }
 
-    /* Main content */
     .tech-header {
       display: flex;
       align-items: center;
@@ -235,17 +233,17 @@ import { ProgressService } from '../../core/services/progress.service';
     .search-container {
       display: flex;
       align-items: center;
-      background: var(--mat-sys-surface-variant, #f5f5f5);
+      background: var(--app-surface-variant);
       border-radius: 12px;
       padding: 0 16px;
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border: 1px solid var(--app-border);
       margin-bottom: 20px;
       transition: border-color 0.2s;
     }
     .search-container:focus-within {
-      border-color: var(--mat-sys-primary, #1976d2);
+      border-color: var(--app-primary);
     }
-    .search-icon { color: var(--mat-sys-on-surface-variant, #666); margin-right: 12px; }
+    .search-icon { color: var(--app-text-muted); margin-right: 12px; }
     .search-input {
       flex: 1;
       border: none;
@@ -257,23 +255,22 @@ import { ProgressService } from '../../core/services/progress.service';
       color: inherit;
     }
 
-    /* Question rows */
     .questions-list { display: flex; flex-direction: column; gap: 8px; }
     .question-row {
       display: flex;
       align-items: center;
       gap: 14px;
       padding: 16px 20px;
-      background: var(--mat-sys-surface, #fff);
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
       border-radius: 12px;
       text-decoration: none;
-      color: inherit;
+      color: var(--app-text);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .question-row:hover {
-      border-color: var(--mat-sys-primary, #1976d2);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-color: var(--app-primary);
+      box-shadow: var(--app-shadow-sm);
     }
     .question-row.is-read { opacity: 0.75; }
     .status-done { color: #43a047; }
@@ -288,7 +285,7 @@ import { ProgressService } from '../../core/services/progress.service';
       opacity: 0.55;
     }
     .meta-icon { font-size: 14px; width: 14px; height: 14px; }
-    .chevron { color: var(--mat-sys-on-surface-variant, #999); }
+    .chevron { color: var(--app-text-subtle); }
 
     .loading-container { display: flex; justify-content: center; padding: 48px; }
     .empty-message {

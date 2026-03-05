@@ -50,9 +50,10 @@ import { ContentStore } from '../../../core/stores/content.store';
       justify-content: space-between;
       padding: 0 24px;
       height: 64px;
-      background: var(--mat-sys-surface, #fff);
-      border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      background: var(--app-surface);
+      border-bottom: 1px solid var(--app-border);
       backdrop-filter: blur(12px);
+      color: var(--app-text);
     }
     .brand {
       display: flex;

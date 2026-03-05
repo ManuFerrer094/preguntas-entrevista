@@ -31,6 +31,50 @@ html {
   color-scheme: dark;
 }
 
+// ─── Design tokens ─────────────────────────────────────────────────────────────
+// Todos los componentes deben usar ESTAS variables, nunca colores hardcodeados.
+:root {
+  // Fondos
+  --app-bg:               #f0f4f8;
+  --app-surface:          #ffffff;
+  --app-surface-raised:   #f8fafc;
+  --app-surface-variant:  #eef2f7;
+  // Texto
+  --app-text:             #0f172a;
+  --app-text-muted:       #64748b;
+  --app-text-subtle:      #94a3b8;
+  // Bordes
+  --app-border:           #e2e8f0;
+  --app-border-focus:     #1976d2;
+  // Primario
+  --app-primary:          #1565c0;
+  --app-primary-hover:    #1976d2;
+  --app-on-primary:       #ffffff;
+  // Sombras
+  --app-shadow-sm:        0 1px 4px rgba(0,0,0,0.07);
+  --app-shadow-md:        0 4px 16px rgba(0,0,0,0.09);
+  --app-shadow-lg:        0 8px 32px rgba(0,0,0,0.11);
+}
+
+.dark-theme {
+  --app-bg:               #0d1117;
+  --app-surface:          #161b22;
+  --app-surface-raised:   #1c2128;
+  --app-surface-variant:  #21262d;
+  --app-text:             #e6edf3;
+  --app-text-muted:       #8b949e;
+  --app-text-subtle:      #6e7681;
+  --app-border:           #30363d;
+  --app-border-focus:     #58a6ff;
+  --app-primary:          #388bfd;
+  --app-primary-hover:    #58a6ff;
+  --app-on-primary:       #0d1117;
+  --app-shadow-sm:        0 1px 4px rgba(0,0,0,0.4);
+  --app-shadow-md:        0 4px 16px rgba(0,0,0,0.5);
+  --app-shadow-lg:        0 8px 32px rgba(0,0,0,0.6);
+}
+// ───────────────────────────────────────────────────────────────────────────────
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -42,6 +86,44 @@ html, body {
 }
 
 body {
-  background-color: var(--mat-sys-background);
-  color: var(--mat-sys-on-background);
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
+
+html, body {
+  overflow-x: hidden;
+}
+
+pre, code, .markdown-content pre, .markdown-content code {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+img, table, blockquote, .technologies-grid, .questions-list {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.markdown-content, .markdown-content * {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.markdown-content pre,
+.markdown-content pre * {
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.markdown-content pre {
+  box-sizing: border-box;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--app-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--app-text-subtle); }

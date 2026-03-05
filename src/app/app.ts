@@ -18,11 +18,14 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
     :host {
       display: block;
       min-height: 100vh;
+      background: var(--app-bg);
+      color: var(--app-text);
     }
     .main-content {
       max-width: 1200px;
       margin: 0 auto;
       padding: 24px 16px;
+      overflow-x: hidden;
     }
     @media (max-width: 600px) {
       .main-content { padding: 16px 12px; }

@@ -146,12 +146,16 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
     }
   `,
   styles: [`
+    :host {
+      display: block;
+      overflow: hidden;
+    }
     .breadcrumb {
       margin-bottom: 24px;
       font-size: 0.85rem;
     }
     .breadcrumb a {
-      color: var(--mat-sys-primary);
+      color: var(--app-primary);
       text-decoration: none;
     }
     .breadcrumb a:hover { text-decoration: underline; }
@@ -164,7 +168,10 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       align-items: start;
     }
 
-    /* Main column */
+    .main-col {
+      min-width: 0;
+      overflow: hidden;
+    }
     .question-header {
       margin-bottom: 32px;
     }
@@ -178,22 +185,36 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
     .markdown-content {
       line-height: 1.85;
       font-size: 1.05rem;
+      overflow: hidden;
     }
     :host ::ng-deep .markdown-content pre {
       background: #1e293b;
-      color: #e2e8f0;
       border-radius: 12px;
       padding: 20px;
       overflow-x: auto;
       font-size: 0.9rem;
+      line-height: 1.6;
       margin: 20px 0;
+      max-width: min(100%, calc(100vw - 16px));
+      color-scheme: normal;
+    }
+
+    :host ::ng-deep .markdown-content pre code.hljs {
+      background: transparent;
+      padding: 0;
+      color-scheme: normal;
+    }
+
+    :host ::ng-deep .markdown-content pre code.language-javascript {
+      color: #ffffff !important;
     }
     :host ::ng-deep .markdown-content code {
       font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-      font-size: 0.88em;
+      font-size: 1em;
     }
     :host ::ng-deep .markdown-content p code {
-      background: var(--mat-sys-surface-variant, #f1f5f9);
+      background: var(--app-surface-variant);
+      color: var(--app-text);
       padding: 2px 8px;
       border-radius: 6px;
       font-size: 0.88em;
@@ -212,7 +233,6 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       margin-bottom: 6px;
     }
 
-    /* Mark as read card */
     .mark-read-card {
       display: flex;
       align-items: center;
@@ -220,9 +240,10 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       gap: 16px;
       padding: 20px 24px;
       margin: 40px 0 32px;
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 14px;
-      background: var(--mat-sys-surface, #fff);
+      background: var(--app-surface);
+      color: var(--app-text);
     }
     .mark-read-content {
       display: flex;
@@ -234,7 +255,6 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
     .mark-read-content strong { display: block; }
     .mark-read-content p { margin: 2px 0 0; font-size: 0.82rem; opacity: 0.6; }
 
-    /* Navigation cards */
     .question-navigation {
       display: flex;
       justify-content: space-between;
@@ -247,15 +267,16 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       flex-direction: column;
       gap: 6px;
       padding: 16px 20px;
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 12px;
       text-decoration: none;
-      color: inherit;
+      color: var(--app-text);
+      background: var(--app-surface);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .nav-card:hover {
-      border-color: var(--mat-sys-primary, #1976d2);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-color: var(--app-primary);
+      box-shadow: var(--app-shadow-sm);
     }
     .nav-direction {
       display: flex;
@@ -276,7 +297,6 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       line-height: 1.3;
     }
 
-    /* Sidebar */
     .sidebar {
       position: sticky;
       top: 80px;
@@ -285,10 +305,11 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       gap: 16px;
     }
     .sidebar-card {
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 14px;
       padding: 20px;
-      background: var(--mat-sys-surface, #fff);
+      background: var(--app-surface);
+      color: var(--app-text);
     }
     .sidebar-card-header {
       display: flex;
@@ -297,19 +318,19 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       font-size: 0.9rem;
       margin-bottom: 14px;
     }
-    .sidebar-icon { font-size: 20px; width: 20px; height: 20px; color: var(--mat-sys-primary, #1976d2); }
+    .sidebar-icon { font-size: 20px; width: 20px; height: 20px; color: var(--app-primary); }
 
     .progress-bar-track {
       height: 8px;
       border-radius: 4px;
-      background: var(--mat-sys-surface-variant, #e3e3e3);
+      background: var(--app-surface-variant);
       overflow: hidden;
       margin-bottom: 8px;
     }
     .progress-bar-fill {
       height: 100%;
       border-radius: 4px;
-      background: var(--mat-sys-primary, #1976d2);
+      background: var(--app-primary);
       transition: width 0.4s ease;
     }
     .progress-detail { font-size: 0.78rem; opacity: 0.6; }
@@ -322,14 +343,14 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
     }
     .related-item {
       font-size: 0.85rem;
-      color: var(--mat-sys-on-surface, #333);
+      color: var(--app-text-muted);
       text-decoration: none;
       line-height: 1.4;
     }
-    .related-item:hover { color: var(--mat-sys-primary, #1976d2); }
+    .related-item:hover { color: var(--app-primary); }
     .view-all-link {
       font-size: 0.82rem;
-      color: var(--mat-sys-primary, #1976d2);
+      color: var(--app-primary);
       text-decoration: none;
       font-weight: 600;
     }

@@ -104,18 +104,21 @@ import { ProgressService } from '../../core/services/progress.service';
 
     <!-- Footer -->
     <footer class="footer">
-      <p>&copy; 2024 Preguntas Entrevista. Construido con Angular.</p>
+      <p>&copy; 2026 Preguntas Entrevista. Construido con Angular.</p>
     </footer>
   `,
   styles: [`
     /* Hero */
     .hero {
       text-align: center;
-      padding: 64px 24px 80px;
+      padding: 64px 16px 80px;
       background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
       color: white;
       border-radius: 0 0 24px 24px;
-      margin: -24px -16px 0;
+      margin: 0 0 24px 0;
+      box-sizing: border-box;
+      overflow: hidden;
+      width: 100%;
     }
     .hero-badge {
       display: inline-block;
@@ -162,16 +165,16 @@ import { ProgressService } from '../../core/services/progress.service';
       align-items: center;
       max-width: 480px;
       margin: 0 auto 40px;
-      background: var(--mat-sys-surface-variant, #f5f5f5);
+      background: var(--app-surface-variant);
       border-radius: 12px;
       padding: 0 16px;
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      border: 1px solid var(--app-border);
       transition: border-color 0.2s;
     }
     .search-container:focus-within {
-      border-color: var(--mat-sys-primary, #1976d2);
+      border-color: var(--app-primary);
     }
-    .search-icon { color: var(--mat-sys-on-surface-variant, #666); margin-right: 12px; }
+    .search-icon { color: var(--app-text-muted); margin-right: 12px; }
     .search-input {
       flex: 1;
       border: none;
@@ -193,17 +196,17 @@ import { ProgressService } from '../../core/services/progress.service';
       display: flex;
       flex-direction: column;
       text-decoration: none;
-      color: inherit;
-      background: var(--mat-sys-surface, #fff);
-      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      color: var(--app-text);
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
       border-radius: 16px;
       padding: 24px;
       transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     }
     .tech-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      border-color: var(--mat-sys-primary, #1976d2);
+      box-shadow: var(--app-shadow-lg);
+      border-color: var(--app-primary);
     }
     .tech-card-icon {
       width: 52px;
@@ -243,7 +246,7 @@ import { ProgressService } from '../../core/services/progress.service';
       display: flex;
       align-items: center;
       gap: 4px;
-      color: var(--mat-sys-primary, #1976d2);
+      color: var(--app-primary);
       font-weight: 600;
     }
     .link-arrow { font-size: 18px; width: 18px; height: 18px; }

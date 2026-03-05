@@ -36,7 +36,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/highlight.js/styles/atom-one-dark.min.css"
             ],
             "server": "src/main.server.ts",
             "outputMode": "server",

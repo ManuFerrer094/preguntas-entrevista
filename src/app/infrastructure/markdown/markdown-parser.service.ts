@@ -2,8 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js';
 import { Question } from '../../domain/models/question.model';
 import { generateSlug } from '../../core/utils/slug-generator';
+
+marked.use(markedHighlight({
+  emptyLangClass: 'hljs',
+  highlight(code: string, lang: string) {
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    return hljs.highlight(code, { language }).value;
+  }
+}));
 
 @Injectable({ providedIn: 'root' })
 export class MarkdownParserService {
