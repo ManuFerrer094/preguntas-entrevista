@@ -1,0 +1,47 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, system-ui, sans-serif',
+    plain-family: 'Inter, system-ui, sans-serif',
+  ),
+));
+
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+  ),
+));
+
+html {
+  @include mat.all-component-themes($theme);
+}
+
+.dark-theme {
+  @include mat.all-component-colors($dark-theme);
+  color-scheme: dark;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--mat-sys-background);
+  color: var(--mat-sys-on-background);
+}
