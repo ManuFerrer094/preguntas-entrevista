@@ -363,7 +363,7 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       .question-layout {
         grid-template-columns: 1fr;
       }
-      .sidebar { position: static; order: -1; }
+      .sidebar { position: static; order: 0; }
       .mark-read-card { flex-direction: column; text-align: center; }
       .question-navigation { flex-direction: column; }
     }
