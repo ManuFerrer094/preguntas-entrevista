@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { Component, inject, computed, effect, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -99,17 +100,23 @@ import { SeoService } from '../../core/services/seo.service';
       text-align: center;
       padding: 48px;
     }
+    @media (max-width: 600px) {
+      .tech-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .tech-icon { font-size: 2rem; width: 2rem; height: 2rem; }
+    }
   `]
 })
-export class TechnologyComponent implements OnInit {
+export class TechnologyComponent {
   private route = inject(ActivatedRoute);
   store = inject(ContentStore);
   private seo = inject(SeoService);
 
   searchQuery = signal('');
 
+  private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+
   technology = computed(() => {
-    const slug = this.route.snapshot.paramMap.get('technology') ?? '';
+    const slug = this.routeParams().get('technology') ?? '';
     return this.store.technologies().find(t => t.slug === slug) ?? null;
   });
 
@@ -122,15 +129,17 @@ export class TechnologyComponent implements OnInit {
     return questions.filter(q => q.title.toLowerCase().includes(query));
   });
 
-  ngOnInit(): void {
-    const tech = this.technology();
-    if (tech) {
-      this.store.loadQuestionsForTechnology(tech.slug);
-      this.seo.setPageMeta({
-        title: tech.name,
-        description: `Preguntas de entrevista para ${tech.name}. ${tech.description}`,
-        keywords: `${tech.name.toLowerCase()}, entrevistas, preguntas técnicas`
-      });
-    }
+  constructor() {
+    effect(() => {
+      const tech = this.technology();
+      if (tech) {
+        this.store.loadQuestionsForTechnology(tech.slug);
+        this.seo.setPageMeta({
+          title: tech.name,
+          description: `Preguntas de entrevista para ${tech.name}. ${tech.description}`,
+          keywords: `${tech.name.toLowerCase()}, entrevistas, preguntas técnicas`
+        });
+      }
+    });
   }
 }

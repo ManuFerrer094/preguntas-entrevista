@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, computed, PLATFORM_ID } from '@angular/core';
+import { Component, inject, computed, effect, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -133,9 +134,16 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    @media (max-width: 600px) {
+      h1 { font-size: 1.375rem; }
+      .question-header { flex-direction: column; gap: 8px; }
+      .question-navigation { flex-direction: column; gap: 12px; align-items: stretch; }
+      .nav-prev, .nav-next { max-width: 100%; }
+      .nav-next { justify-content: flex-end; }
+    }
   `]
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent {
   private route = inject(ActivatedRoute);
   store = inject(ContentStore);
   private seo = inject(SeoService);
@@ -144,9 +152,11 @@ export class QuestionComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private platformId = inject(PLATFORM_ID);
 
+  private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+
   question = computed(() => {
-    const tech = this.route.snapshot.paramMap.get('technology') ?? '';
-    const slug = this.route.snapshot.paramMap.get('slug') ?? '';
+    const tech = this.routeParams().get('technology') ?? '';
+    const slug = this.routeParams().get('slug') ?? '';
     return this.store.getQuestion(tech, slug);
   });
 
@@ -178,20 +188,21 @@ export class QuestionComponent implements OnInit {
     return idx < questions.length - 1 ? questions[idx + 1] : null;
   });
 
-  ngOnInit(): void {
-    const tech = this.question()?.technology ?? this.route.snapshot.paramMap.get('technology') ?? '';
-    if (!this.question()) {
-      this.store.loadQuestionsForTechnology(tech);
-    }
-
-    const q = this.question();
-    if (q) {
-      this.seo.setPageMeta({
-        title: q.title,
-        description: q.content.slice(0, 160).replace(/[#`*]/g, ''),
-        keywords: `${q.technology}, ${q.title}, entrevista técnica`
-      });
-    }
+  constructor() {
+    effect(() => {
+      const tech = this.routeParams().get('technology') ?? '';
+      if (!this.store.questionsByTechnology().has(tech)) {
+        this.store.loadQuestionsForTechnology(tech);
+      }
+      const q = this.question();
+      if (q) {
+        this.seo.setPageMeta({
+          title: q.title,
+          description: q.content.slice(0, 160).replace(/[#`*]/g, ''),
+          keywords: `${q.technology}, ${q.title}, entrevista técnica`
+        });
+      }
+    });
   }
 
   copyLink(): void {
