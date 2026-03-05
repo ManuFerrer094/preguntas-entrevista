@@ -11,8 +11,6 @@ const TECHNOLOGIES: Technology[] = [
   { id: 'nodejs', name: 'Node.js', slug: 'nodejs', description: 'Entorno de ejecución JavaScript del lado del servidor', questionCount: 0, icon: 'dns', devicon: 'devicon-nodejs-plain', color: '#339933', keywords: 'Event Loop, Streams, Express.js y Backend patterns' },
   { id: 'typescript', name: 'TypeScript', slug: 'typescript', description: 'Superconjunto tipado de JavaScript', questionCount: 0, icon: 'data_object', devicon: 'devicon-typescript-plain', color: '#3178C6', keywords: 'Types, Generics, Interfaces y Utility Types' },
   { id: 'javascript', name: 'JavaScript', slug: 'javascript', description: 'El lenguaje de programación de la web', questionCount: 0, icon: 'javascript', devicon: 'devicon-javascript-plain', color: '#F7DF1E', keywords: 'Closures, Prototypes, Async/Await y ES6+' },
-  { id: 'testing', name: 'Testing', slug: 'testing', description: 'Pruebas de software y calidad del código', questionCount: 0, icon: 'bug_report', devicon: 'devicon-jest-plain', color: '#E33332', keywords: 'Unit Testing, E2E, Mocking y Coverage' },
-  { id: 'system-design', name: 'System Design', slug: 'system-design', description: 'Diseño de sistemas escalables y distribuidos', questionCount: 0, icon: 'architecture', devicon: 'devicon-amazonwebservices-plain-wordmark', color: '#7B1FA2', keywords: 'Scalability, Load Balancing, Microservices y Databases' },
 ];
 
 @Injectable({ providedIn: 'root' })
