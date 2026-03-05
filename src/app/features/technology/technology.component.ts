@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
+import { Difficulty } from '../../domain/models/question.model';
 
 @Component({
   selector: 'app-technology',
@@ -63,6 +64,49 @@ import { ProgressService } from '../../core/services/progress.service';
               Pendientes
             </button>
           </nav>
+
+          <!-- Difficulty filter -->
+          <div class="filter-section">
+            <p class="filter-label">Dificultad</p>
+            <div class="difficulty-filters">
+              <button
+                class="diff-btn"
+                [class.active]="difficultyFilter() === null"
+                (click)="difficultyFilter.set(null)"
+              >Todas</button>
+              <button
+                class="diff-btn easy"
+                [class.active]="difficultyFilter() === 'easy'"
+                (click)="difficultyFilter.set('easy')"
+              >Fácil</button>
+              <button
+                class="diff-btn medium"
+                [class.active]="difficultyFilter() === 'medium'"
+                (click)="difficultyFilter.set('medium')"
+              >Media</button>
+              <button
+                class="diff-btn hard"
+                [class.active]="difficultyFilter() === 'hard'"
+                (click)="difficultyFilter.set('hard')"
+              >Difícil</button>
+            </div>
+          </div>
+
+          <!-- Tag filter -->
+          @if (availableTags().length > 0) {
+            <div class="filter-section">
+              <p class="filter-label">Etiquetas</p>
+              <div class="tag-filters">
+                @for (tag of availableTags(); track tag) {
+                  <button
+                    class="tag-chip"
+                    [class.active]="activeTag() === tag"
+                    (click)="toggleTag(tag)"
+                  >{{ tag }}</button>
+                }
+              </div>
+            </div>
+          }
         </aside>
 
         <!-- Main Content -->
@@ -82,7 +126,7 @@ import { ProgressService } from '../../core/services/progress.service';
             <input
               type="text"
               class="search-input"
-              placeholder="Buscar por palabra clave o tema..."
+              placeholder="Buscar por palabra clave, tema o etiqueta..."
               [value]="searchQuery()"
               (input)="searchQuery.set($any($event.target).value)"
               aria-label="Buscar preguntas"
@@ -95,7 +139,7 @@ import { ProgressService } from '../../core/services/progress.service';
             </div>
           } @else {
             <div class="questions-list" role="list" aria-label="Lista de preguntas">
-              @for (question of filteredQuestions(); track question.id; let i = $index) {
+              @for (question of filteredQuestions(); track question.id) {
                 <a
                   [routerLink]="['/', technology()!.slug, question.slug]"
                   class="question-row"
@@ -111,13 +155,21 @@ import { ProgressService } from '../../core/services/progress.service';
                   </div>
                   <div class="question-info">
                     <span class="question-title">{{ question.title }}</span>
-                    <span class="question-meta">
-                      @if (progress.isRead(question.id)) {
-                        <mat-icon class="meta-icon">visibility</mat-icon> Leída
-                      } @else {
-                        <mat-icon class="meta-icon">visibility_off</mat-icon> Sin leer
+                    <div class="question-meta">
+                      <span class="difficulty-badge" [class]="'badge-' + question.difficulty">
+                        {{ difficultyLabel(question.difficulty) }}
+                      </span>
+                      @for (tag of question.tags.slice(0, 3); track tag) {
+                        <span class="tag-badge">{{ tag }}</span>
                       }
-                    </span>
+                      <span class="read-status">
+                        @if (progress.isRead(question.id)) {
+                          <mat-icon class="meta-icon">visibility</mat-icon> Leída
+                        } @else {
+                          <mat-icon class="meta-icon">visibility_off</mat-icon> Sin leer
+                        }
+                      </span>
+                    </div>
                   </div>
                   <mat-icon class="chevron">chevron_right</mat-icon>
                 </a>
@@ -189,7 +241,7 @@ import { ProgressService } from '../../core/services/progress.service';
     }
     .progress-detail { font-size: 0.78rem; opacity: 0.6; }
 
-    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
     .sidebar-btn {
       display: flex;
       align-items: center;
@@ -208,6 +260,60 @@ import { ProgressService } from '../../core/services/progress.service';
     .sidebar-btn.active {
       background: var(--app-primary);
       color: var(--app-on-primary);
+      font-weight: 600;
+    }
+
+    .filter-section {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .filter-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.55;
+      margin: 0 0 10px;
+    }
+
+    .difficulty-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .diff-btn {
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--app-border);
+      background: transparent;
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      color: inherit;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .diff-btn:hover { background: var(--app-surface-variant); }
+    .diff-btn.active { border-color: currentColor; font-weight: 600; }
+    .diff-btn.easy.active { background: #e8f5e9; color: #2e7d32; border-color: #2e7d32; }
+    .diff-btn.medium.active { background: #fff3e0; color: #e65100; border-color: #e65100; }
+    .diff-btn.hard.active { background: #fce4ec; color: #c62828; border-color: #c62828; }
+
+    .tag-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-chip {
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--app-border);
+      background: transparent;
+      font-size: 0.77rem;
+      font-family: inherit;
+      cursor: pointer;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .tag-chip:hover { background: var(--app-surface-variant); }
+    .tag-chip.active {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border-color: var(--app-primary);
       font-weight: 600;
     }
 
@@ -275,17 +381,48 @@ import { ProgressService } from '../../core/services/progress.service';
     .question-row.is-read { opacity: 0.75; }
     .status-done { color: #43a047; }
     .status-pending { color: #bdbdbd; }
-    .question-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .question-info { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
     .question-title { font-weight: 600; font-size: 0.95rem; }
     .question-meta {
       display: flex;
       align-items: center;
-      gap: 4px;
+      flex-wrap: wrap;
+      gap: 6px;
       font-size: 0.78rem;
+    }
+
+    .difficulty-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-easy { background: #e8f5e9; color: #2e7d32; }
+    .badge-medium { background: #fff3e0; color: #e65100; }
+    .badge-hard { background: #fce4ec; color: #c62828; }
+
+    .tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      background: var(--app-surface-variant);
+      color: var(--app-text-muted);
+      border: 1px solid var(--app-border);
+    }
+
+    .read-status {
+      display: flex;
+      align-items: center;
+      gap: 3px;
       opacity: 0.55;
+      margin-left: auto;
     }
     .meta-icon { font-size: 14px; width: 14px; height: 14px; }
-    .chevron { color: var(--app-text-subtle); }
+    .chevron { color: var(--app-text-subtle); flex-shrink: 0; }
 
     .loading-container { display: flex; justify-content: center; padding: 48px; }
     .empty-message {
@@ -311,6 +448,8 @@ export class TechnologyComponent {
 
   searchQuery = signal('');
   filter = signal<'all' | 'completed' | 'pending'>('all');
+  difficultyFilter = signal<Difficulty | null>(null);
+  activeTag = signal<string | null>(null);
 
   private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
 
@@ -323,6 +462,16 @@ export class TechnologyComponent {
     const tech = this.technology();
     if (!tech) return [];
     return this.store.getQuestionsByTechnology(tech.slug);
+  });
+
+  availableTags = computed(() => {
+    const tagSet = new Set<string>();
+    for (const q of this.allQuestions()) {
+      for (const t of q.tags) {
+        tagSet.add(t);
+      }
+    }
+    return Array.from(tagSet).sort();
   });
 
   readCount = computed(() => {
@@ -339,7 +488,19 @@ export class TechnologyComponent {
     let questions = this.allQuestions();
     const query = this.searchQuery().toLowerCase();
     if (query) {
-      questions = questions.filter(q => q.title.toLowerCase().includes(query));
+      questions = questions.filter(
+        q =>
+          q.title.toLowerCase().includes(query) ||
+          q.tags.some(t => t.toLowerCase().includes(query)),
+      );
+    }
+    const diff = this.difficultyFilter();
+    if (diff) {
+      questions = questions.filter(q => q.difficulty === diff);
+    }
+    const tag = this.activeTag();
+    if (tag) {
+      questions = questions.filter(q => q.tags.includes(tag));
     }
     const f = this.filter();
     if (f === 'completed') {
@@ -349,6 +510,14 @@ export class TechnologyComponent {
     }
     return questions;
   });
+
+  difficultyLabel(d: Difficulty): string {
+    return d === 'easy' ? 'Fácil' : d === 'medium' ? 'Media' : 'Difícil';
+  }
+
+  toggleTag(tag: string): void {
+    this.activeTag.update(current => (current === tag ? null : tag));
+  }
 
   constructor() {
     effect(() => {

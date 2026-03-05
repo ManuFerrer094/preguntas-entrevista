@@ -11,6 +11,7 @@ import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
+import { Difficulty } from '../../domain/models/question.model';
 
 @Component({
   selector: 'app-question',
@@ -31,6 +32,14 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
         <article class="main-col" aria-labelledby="question-title">
           <header class="question-header">
             <h1 id="question-title">{{ question()!.title }}</h1>
+            <div class="question-badges">
+              <span class="difficulty-badge" [class]="'badge-' + question()!.difficulty">
+                {{ difficultyLabel(question()!.difficulty) }}
+              </span>
+              @for (tag of question()!.tags; track tag) {
+                <span class="tag-badge">{{ tag }}</span>
+              }
+            </div>
           </header>
 
           <div
@@ -118,7 +127,10 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
             <div class="related-list">
               @for (rq of relatedQuestions(); track rq.id) {
                 <a [routerLink]="['/', question()!.technology, rq.slug]" class="related-item">
-                  {{ rq.title }}
+                  <span class="related-title">{{ rq.title }}</span>
+                  <span class="difficulty-badge sm" [class]="'badge-' + rq.difficulty">
+                    {{ difficultyLabel(rq.difficulty) }}
+                  </span>
                 </a>
               }
             </div>
@@ -178,8 +190,38 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
     .question-header h1 {
       font-size: 1.85rem;
       font-weight: 800;
-      margin: 0;
+      margin: 0 0 14px;
       line-height: 1.25;
+    }
+    .question-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .difficulty-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .difficulty-badge.sm { font-size: 0.68rem; padding: 2px 7px; }
+    .badge-easy { background: #e8f5e9; color: #2e7d32; }
+    .badge-medium { background: #fff3e0; color: #e65100; }
+    .badge-hard { background: #fce4ec; color: #c62828; }
+
+    .tag-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: var(--app-surface-variant);
+      color: var(--app-text-muted);
+      border: 1px solid var(--app-border);
     }
 
     .markdown-content {
@@ -343,12 +385,18 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       margin-bottom: 14px;
     }
     .related-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .related-title {
       font-size: 0.85rem;
       color: var(--app-text-muted);
-      text-decoration: none;
       line-height: 1.4;
     }
-    .related-item:hover { color: var(--app-primary); }
+    .related-item:hover .related-title { color: var(--app-primary); }
     .view-all-link {
       font-size: 0.82rem;
       color: var(--app-primary);
@@ -435,6 +483,10 @@ export class QuestionComponent {
     return questions.filter(x => x.slug !== q.slug).slice(0, 3);
   });
 
+  difficultyLabel(d: Difficulty): string {
+    return d === 'easy' ? 'Fácil' : d === 'medium' ? 'Media' : 'Difícil';
+  }
+
   constructor() {
     effect(() => {
       const tech = this.routeParams().get('technology') ?? '';
@@ -446,7 +498,7 @@ export class QuestionComponent {
         this.seo.setPageMeta({
           title: q.title,
           description: q.content.slice(0, 160).replace(/[#`*]/g, ''),
-          keywords: `${q.technology}, ${q.title}, entrevista técnica`
+          keywords: `${q.technology}, ${q.title}, ${q.tags.join(', ')}, entrevista técnica`
         });
       }
     });
