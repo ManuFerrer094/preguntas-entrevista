@@ -13,10 +13,7 @@ import { ContentStore } from '../../../core/stores/content.store';
   template: `
     <nav class="navbar" role="navigation" aria-label="Navegación principal">
       <a routerLink="/" class="brand" aria-label="Ir al inicio">
-        <div class="brand-icon">
-          <mat-icon>terminal</mat-icon>
-        </div>
-        <span class="brand-name">InterviewPrep</span>
+        <span class="brand-name">Preguntas Entrevista</span>
       </a>
       <div class="nav-actions">
         <button

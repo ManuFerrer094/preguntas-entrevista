@@ -23,26 +23,26 @@ import { ProgressService } from '../../core/services/progress.service';
         Preparación completa para ingenieros de software. Accede a preguntas reales
         de entrevistas técnicas organizadas por tecnología.
       </p>
+
+      <div class="hero-explore">
+        <p class="hero-explore-title">Explorar por Tecnología</p>
+        <p class="hero-explore-subtitle">Selecciona una tecnología para empezar tu preparación</p>
+        <div class="search-container">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar React, Angular, Node.js..."
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)"
+            aria-label="Buscar tecnología"
+          />
+        </div>
+      </div>
     </section>
 
     <!-- Explore by Technology -->
     <section id="technologies" class="tech-section" aria-label="Explorar por tecnología">
-      <div class="section-header">
-        <h2 class="section-title">Explorar por Tecnología</h2>
-        <p class="section-subtitle">Selecciona una tecnología para empezar tu preparación</p>
-      </div>
-
-      <div class="search-container">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Buscar React, Angular, Node.js..."
-          [value]="searchQuery()"
-          (input)="onSearchInput($event)"
-          aria-label="Buscar tecnología"
-        />
-      </div>
 
       <div class="technologies-grid">
         @for (tech of filteredTechnologies(); track tech.id) {
@@ -106,11 +106,11 @@ import { ProgressService } from '../../core/services/progress.service';
     /* Hero */
     .hero {
       text-align: center;
-      padding: 64px 16px 80px;
+      padding: 64px 16px 48px;
       background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
       color: white;
-      border-radius: 0 0 24px 24px;
-      margin: 0 0 24px 0;
+      border-radius: 0 0 28px 28px;
+      margin: 0 0 32px 0;
       box-sizing: border-box;
       overflow: hidden;
       width: 100%;
@@ -137,39 +137,44 @@ import { ProgressService } from '../../core/services/progress.service';
     .hero-subtitle {
       font-size: 1.125rem;
       max-width: 560px;
-      margin: 0 auto 32px;
+      margin: 0 auto 0;
       line-height: 1.7;
       opacity: 0.92;
     }
-    .hero-actions { display: flex; justify-content: center; gap: 12px; }
-    .hero-btn-primary {
-      font-size: 1rem;
-      padding: 12px 36px;
-      border-radius: 28px;
-      font-weight: 600;
+
+    /* Hero explore block */
+    .hero-explore {
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
     }
-
-    /* Tech Section */
-    .tech-section { padding: 56px 0 32px; }
-    .section-header { text-align: center; margin-bottom: 32px; }
-    .section-title { font-size: 1.75rem; font-weight: 700; margin: 0 0 8px; }
-    .section-subtitle { font-size: 1rem; opacity: 0.7; margin: 0; }
-
+    .hero-explore-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 6px;
+    }
+    .hero-explore-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 0 0 20px;
+    }
     .search-container {
       display: flex;
       align-items: center;
       max-width: 480px;
-      margin: 0 auto 40px;
-      background: var(--app-surface-variant);
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 12px;
       padding: 0 16px;
-      border: 1px solid var(--app-border);
-      transition: border-color 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: border-color 0.2s, background 0.2s;
     }
     .search-container:focus-within {
-      border-color: var(--app-primary);
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.18);
     }
-    .search-icon { color: var(--app-text-muted); margin-right: 12px; }
+    .search-icon { color: rgba(255, 255, 255, 0.65); margin-right: 12px; }
     .search-input {
       flex: 1;
       border: none;
@@ -178,14 +183,19 @@ import { ProgressService } from '../../core/services/progress.service';
       font-size: 0.95rem;
       outline: none;
       font-family: inherit;
-      color: inherit;
+      color: white;
     }
+    .search-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+    /* Tech Section */
+    .tech-section { padding: 0 0 32px; }
 
     /* Tech Grid */
     .technologies-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 20px;
+      margin-top: 32px;
     }
     .tech-card {
       display: flex;
@@ -276,9 +286,10 @@ import { ProgressService } from '../../core/services/progress.service';
     .empty { text-align: center; grid-column: 1 / -1; padding: 32px; opacity: 0.6; }
 
     @media (max-width: 600px) {
-      .hero { padding: 48px 16px 56px; }
+      .hero { padding: 48px 16px 40px; }
       .hero-title { font-size: 1.85rem; }
-      .technologies-grid { grid-template-columns: 1fr; }
+      .hero-explore { margin-top: 32px; padding-top: 24px; }
+      .technologies-grid { grid-template-columns: 1fr; margin-top: 24px; }
       .why-section { padding: 32px 20px; }
     }
   `]

@@ -247,6 +247,11 @@ import { difficultyLabel } from '../../core/utils/difficulty';
     }
 
     :host ::ng-deep .markdown-content pre code.language-javascript,
+    :host ::ng-deep .markdown-content pre code.language-html,
+    :host ::ng-deep .markdown-content pre code.language-css,
+    :host ::ng-deep .markdown-content pre code.language-tsx,
+    :host ::ng-deep .markdown-content pre code.language-jsx,
+    :host ::ng-deep .markdown-content pre code.language-bash,
     :host ::ng-deep .markdown-content pre code.language-typescript {
       color: #ffffff !important;
     }
