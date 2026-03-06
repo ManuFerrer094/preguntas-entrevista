@@ -1,6 +1,16 @@
-import PDFDocument from 'pdfkit';
+import { createRequire } from 'node:module';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+
+// Use createRequire so esbuild does NOT bundle pdfkit inline.
+// When pdfkit is bundled by esbuild its internal __dirname points to the
+// bundle output directory instead of node_modules/pdfkit/js/, which makes
+// the fs.readFileSync(__dirname + '/data/*.afm') calls fail.  Loading it
+// via createRequire forces Node.js to resolve and execute it from its real
+// location at runtime, keeping __dirname correct.
+const nodeRequire = createRequire(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PDFDocument = nodeRequire('pdfkit') as new (options?: Record<string, unknown>) => any;
 
 export const TECHNOLOGY_NAMES: Record<string, string> = {
   angular: 'Angular',
