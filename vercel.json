@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/**/*.ts": {
-      "includeFiles": "questions/**/*"
+      "includeFiles": "questions/**/*,node_modules/pdfkit/js/data/**"
     }
   }
 }
