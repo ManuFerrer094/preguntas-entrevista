@@ -1,14 +1,13 @@
+import { createRequire } from 'node:module';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Dynamic require so bundlers (esbuild/ncc) do NOT inline pdfkit.
-// pdfkit uses __dirname + '/data/*.afm' internally; if bundled, __dirname
-// points to the output dir instead of node_modules/pdfkit/js/, breaking
-// font loading.  Using new Function hides the require call from static
-// analysis, so the bundler leaves it as a runtime require.
-// eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-explicit-any
-const loadModule = new Function('m', 'return require(m)') as (m: string) => any;
-const PDFDocument = loadModule('pdfkit') as new (options?: Record<string, unknown>) => any;
+// createRequire is the standard way to use require() from ESM.
+// pdfkit must NOT be bundled because it reads .afm font files via
+// fs.readFileSync(__dirname + '/data/...') at runtime.
+const require = createRequire(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PDFDocument = require('pdfkit') as new (options?: Record<string, unknown>) => any;
 
 export const TECHNOLOGY_NAMES: Record<string, string> = {
   angular: 'Angular',

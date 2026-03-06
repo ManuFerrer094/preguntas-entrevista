@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { generateDossierPdf, TECHNOLOGY_NAMES } from '../../lib/generate-dossier';
+import { generateDossierPdf, TECHNOLOGY_NAMES } from '../../lib/generate-dossier.js';
 
 interface HandlerRequest {
   method?: string;
