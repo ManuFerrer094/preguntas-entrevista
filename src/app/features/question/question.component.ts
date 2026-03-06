@@ -11,7 +11,7 @@ import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
-import { Difficulty } from '../../domain/models/question.model';
+import { difficultyLabel } from '../../core/utils/difficulty';
 
 @Component({
   selector: 'app-question',
@@ -45,7 +45,6 @@ import { Difficulty } from '../../domain/models/question.model';
           <div
             class="markdown-content"
             [innerHTML]="renderedContent()"
-            aria-live="polite"
           ></div>
 
           <!-- Mark as read -->
@@ -507,9 +506,7 @@ export class QuestionComponent {
     return questions.filter(x => x.slug !== q.slug).slice(0, 3);
   });
 
-  difficultyLabel(d: Difficulty): string {
-    return d === 'easy' ? 'Fácil' : d === 'medium' ? 'Media' : 'Difícil';
-  }
+  readonly difficultyLabel = difficultyLabel;
 
   constructor() {
     effect(() => {
