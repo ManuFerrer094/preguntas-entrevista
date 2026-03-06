@@ -37,10 +37,14 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
 
   try {
     const pdfBuffer = await generateDossierPdf(questionsDir, technologyName);
+
+    res.status(200);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${technology}-dossier.pdf"`);
     res.setHeader('Content-Length', pdfBuffer.length);
+
     res.send(pdfBuffer);
+
   } catch {
     res.status(500).json({ error: 'Failed to generate PDF' });
   }
