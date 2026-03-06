@@ -45,8 +45,7 @@ Visita `http://localhost:4200`
 ```bash
 npm run dev          # Servidor de desarrollo con SSR
 npm run build        # Build de producción
-npm run test         # Tests unitarios (Vitest)
-npm run lint         # Linter (ESLint)
+npm run test         # Tests unitarios (Vitest + Playwright)
 npm run format       # Formatear código (Prettier)
 ```
 
@@ -82,15 +81,30 @@ questions/
 
 ## Añadir una nueva pregunta
 
-1. Abre el archivo `questions/<tecnología>/questions.md`
-2. Añade una nueva sección al final:
+Cada pregunta es un archivo Markdown independiente dentro de la carpeta de su tecnología
+(`questions/<tecnología>/q<N>.md`), con un bloque de YAML frontmatter obligatorio al comienzo.
+
+1. Añade el nuevo archivo, por ejemplo `questions/angular/q16.md`:
 
 ```markdown
 ---
-
-# ¿Tu nueva pregunta aquí?
+title: ¿Qué es el Change Detection en Angular?
+difficulty: medium
+tags: [Change Detection, Performance]
+---
 
 Respuesta detallada con ejemplos de código si es necesario.
+
+```typescript
+@Component({ ... })
+export class MyComponent { }
+```
+```
+
+2. Registra el archivo en `questions/angular/index.json`:
+
+```json
+["q1.md", "q2.md", ..., "q16.md"]
 ```
 
 3. Haz commit y crea un Pull Request
@@ -98,25 +112,29 @@ Respuesta detallada con ejemplos de código si es necesario.
 ## Añadir una nueva tecnología
 
 1. Crea la carpeta: `questions/<nueva-tecnologia>/`
-2. Crea el archivo: `questions/<nueva-tecnologia>/questions.md` con el formato de preguntas
-3. Añade la tecnología al array `TECHNOLOGIES` en `src/app/core/stores/content.store.ts`
-4. Crea un Pull Request
+2. Crea los archivos de preguntas: `questions/<nueva-tecnologia>/q1.md`, `q2.md`, etc., con el formato de frontmatter descrito arriba
+3. Crea el índice: `questions/<nueva-tecnologia>/index.json` con la lista de archivos (e.g. `["q1.md","q2.md"]`)
+4. Añade la tecnología al array `TECHNOLOGIES` en `src/app/core/stores/content.store.ts`
+5. Crea un Pull Request
 
 ## Formato de Markdown
 
-Cada pregunta se define con un H1 (`#`). El contenido posterior es la respuesta. Las preguntas se separan con `---`.
+Cada pregunta tiene su propio archivo `.md` con frontmatter YAML al inicio:
 
 ```markdown
-# ¿Qué es Angular?
-
-Angular es un framework de desarrollo web...
-
+---
+title: ¿Qué es Angular?
+difficulty: easy
+tags: [Framework, Google]
 ---
 
-# ¿Qué es Change Detection?
-
-Change detection es el mecanismo...
+Angular es un framework de desarrollo web...
 ```
+
+Campos del frontmatter:
+- `title` (requerido) — título de la pregunta tal como se mostrará en la UI
+- `difficulty` — `easy`, `medium` o `hard` (por defecto `medium`)
+- `tags` — lista de etiquetas para filtrar (e.g. `[Hooks, State]`)
 
 Los slugs se generan automáticamente desde el título:
 - `¿Qué es Angular?` → `/angular/que-es-angular`

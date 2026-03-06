@@ -9,6 +9,7 @@ import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { Difficulty } from '../../domain/models/question.model';
+import { difficultyLabel } from '../../core/utils/difficulty';
 
 const PAGE_SIZE = 10;
 
@@ -610,9 +611,7 @@ export class TechnologyComponent {
     return pages;
   });
 
-  difficultyLabel(d: Difficulty): string {
-    return d === 'easy' ? 'Fácil' : d === 'medium' ? 'Media' : 'Difícil';
-  }
+  readonly difficultyLabel = difficultyLabel;
 
   toggleTag(tag: string): void {
     this.activeTag.update(current => (current === tag ? null : tag));

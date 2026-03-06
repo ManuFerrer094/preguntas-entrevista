@@ -1,6 +1,7 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { generateSlug } from './core/utils/slug-generator';
 
 const QUESTIONS_DIR = join(process.cwd(), 'questions');
 
@@ -29,17 +30,6 @@ function extractTitle(content: string): string | null {
   }
   const titleLine = content.split(/\r?\n/).find(l => l.trim().startsWith('# '));
   return titleLine ? titleLine.replace(/^#\s+/, '').trim() : null;
-}
-
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[¿¡?!.,;:'"()\[\]{}]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 export const serverRoutes: ServerRoute[] = [

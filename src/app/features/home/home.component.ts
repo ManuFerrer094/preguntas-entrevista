@@ -39,7 +39,7 @@ import { ProgressService } from '../../core/services/progress.service';
           class="search-input"
           placeholder="Buscar React, Angular, Node.js..."
           [value]="searchQuery()"
-          (input)="searchQuery.set($any($event.target).value)"
+          (input)="onSearchInput($event)"
           aria-label="Buscar tecnología"
         />
       </div>
@@ -307,5 +307,9 @@ export class HomeComponent implements OnInit {
       description: 'Preguntas típicas de entrevistas técnicas para Angular, React, Vue, Node.js, TypeScript, JavaScript, Testing y System Design.',
       keywords: 'entrevistas técnicas, angular, react, vue, nodejs, typescript, javascript, preguntas'
     });
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 }

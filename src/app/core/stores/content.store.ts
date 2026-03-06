@@ -26,6 +26,9 @@ export class ContentStore {
   readonly loading = signal<boolean>(false);
   readonly darkMode = signal<boolean>(false);
 
+  /** Tracks which technology slugs are currently being fetched to prevent duplicate requests. */
+  private readonly loadingTechs = new Set<string>();
+
   readonly questionsByTechnology = computed(() => {
     const map = new Map<string, Question[]>();
     for (const q of this.questions()) {
@@ -46,14 +49,22 @@ export class ContentStore {
   }
 
   loadQuestionsForTechnology(technology: string): void {
-    if (this.questionsByTechnology().has(technology)) return;
+    if (this.questionsByTechnology().has(technology) || this.loadingTechs.has(technology)) return;
+    this.loadingTechs.add(technology);
     this.loading.set(true);
-    this.markdownParser.parseMarkdownFile(technology).subscribe(questions => {
-      this.questions.update(current => [...current, ...questions]);
-      this.technologies.update(techs =>
-        techs.map(t => t.slug === technology ? { ...t, questionCount: questions.length } : t)
-      );
-      this.loading.set(false);
+    this.markdownParser.parseMarkdownFile(technology).subscribe({
+      next: questions => {
+        this.questions.update(current => [...current, ...questions]);
+        this.technologies.update(techs =>
+          techs.map(t => t.slug === technology ? { ...t, questionCount: questions.length } : t)
+        );
+        this.loadingTechs.delete(technology);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadingTechs.delete(technology);
+        this.loading.set(false);
+      },
     });
   }
 
