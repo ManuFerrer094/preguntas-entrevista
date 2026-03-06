@@ -29,6 +29,7 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
 
   const technologyName = TECHNOLOGY_NAMES[technology];
   const questionsDir = join(process.cwd(), 'questions', technology);
+  console.log('Generating PDF for', technology, 'questionsDir=', questionsDir);
 
   if (!existsSync(questionsDir)) {
     res.status(404).json({ error: 'Technology not found' });
@@ -45,7 +46,11 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
 
     res.send(pdfBuffer);
 
-  } catch {
-    res.status(500).json({ error: 'Failed to generate PDF' });
-  }
+  } catch (err) {
+  console.error('PDF generation error:', err);
+  res.status(500).json({
+    error: 'Failed to generate PDF',
+    details: String(err)
+  });
+}
 }
