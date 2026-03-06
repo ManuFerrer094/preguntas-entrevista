@@ -6,23 +6,19 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { createPdfRouter } from './api/pdf.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const questionsDir = join(browserDistFolder, 'questions');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
+ * PDF generation API — returns a downloadable PDF with all questions for a technology.
+ * GET /api/pdf/:technology
  */
+app.use('/api/pdf', createPdfRouter(questionsDir));
 
 /**
  * Serve static files from /browser

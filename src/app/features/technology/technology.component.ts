@@ -118,10 +118,20 @@ const PAGE_SIZE = 10;
             <div class="tech-header-icon" [style.background]="technology()!.color + '15'">
               <i [class]="technology()!.devicon" [style.color]="technology()!.color"></i>
             </div>
-            <div>
+            <div class="tech-header-info">
               <h1>{{ technology()!.name }}</h1>
               <p class="tech-desc">{{ technology()!.description }}</p>
             </div>
+            <a
+              class="pdf-btn"
+              [href]="'/api/pdf/' + technology()!.slug"
+              download
+              aria-label="Descargar dosier PDF con todas las preguntas"
+              title="Descargar todas las preguntas en PDF"
+            >
+              <mat-icon>picture_as_pdf</mat-icon>
+              Descargar PDF
+            </a>
           </header>
 
           <div class="search-container">
@@ -376,8 +386,34 @@ const PAGE_SIZE = 10;
       flex-shrink: 0;
     }
     .tech-header-icon i { font-size: 30px; }
-    .tech-header h1 { margin: 0 0 4px; font-size: 1.5rem; }
+    .tech-header-info { flex: 1; }
+    .tech-header-info h1 { margin: 0 0 4px; font-size: 1.5rem; }
     .tech-desc { margin: 0; opacity: 0.7; font-size: 0.9rem; }
+
+    .pdf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--app-border);
+      background: var(--app-surface);
+      color: var(--app-text);
+      font-size: 0.85rem;
+      font-family: inherit;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .pdf-btn:hover {
+      background: var(--app-surface-variant);
+      border-color: var(--app-primary);
+      box-shadow: var(--app-shadow-sm);
+    }
+    .pdf-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
     .search-container {
       display: flex;
@@ -516,6 +552,8 @@ const PAGE_SIZE = 10;
       }
       .sidebar { position: static; order: 2; }
       .main-col { order: 1; }
+      .tech-header { flex-wrap: wrap; }
+      .pdf-btn { width: 100%; justify-content: center; }
     }
   `]
 })
