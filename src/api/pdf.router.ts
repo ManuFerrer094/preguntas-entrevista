@@ -20,14 +20,12 @@ const DIFFICULTY_LABELS: Record<string, string> = {
   hard: 'Difícil',
 };
 
-// Color palette matching the web design tokens (print-friendly)
 const C = {
   primary:    '#1565c0',
   text:       '#0f172a',
   textMuted:  '#64748b',
   textSubtle: '#94a3b8',
   border:     '#e2e8f0',
-  // Code blocks: print-friendly (white bg, dark text)
   codeBg:     '#f8f9fa',
   codeBorder: '#d0d7de',
   codeText:   '#24292f',
@@ -52,8 +50,6 @@ const CODE_PAD_Y = 10;
 const CODE_RADIUS = 6;
 const BODY_FONT_SIZE = 10;
 const BODY_LINE_GAP = 3;
-
-// ─── Frontmatter parsing ────────────────────────────────────────────────────
 
 interface Frontmatter {
   title?: string;
@@ -83,8 +79,6 @@ function parseFrontmatter(content: string): { metadata: Frontmatter; body: strin
   return { metadata, body };
 }
 
-// ─── Question loading ────────────────────────────────────────────────────────
-
 interface Question {
   title: string;
   difficulty: string;
@@ -113,8 +107,6 @@ async function loadQuestions(questionsDir: string, technology: string): Promise<
     .filter((r): r is PromiseFulfilledResult<Question> => r.status === 'fulfilled' && r.value !== null)
     .map((r) => r.value);
 }
-
-// ─── PDF helpers ─────────────────────────────────────────────────────────────
 
 /** Returns usable content width for the current page. */
 function contentW(doc: PDFKit.PDFDocument): number {
@@ -149,8 +141,6 @@ function ensureSpace(doc: PDFKit.PDFDocument, needed: number): boolean {
   }
   return false;
 }
-
-// ─── Inline markdown rendering ───────────────────────────────────────────────
 
 interface Segment { text: string; bold?: boolean; italic?: boolean; code?: boolean; }
 
@@ -188,7 +178,6 @@ function renderInline(
   const lg = opts.lineGap ?? BODY_LINE_GAP;
   const w = contentW(doc) - (opts.indent ?? 0);
 
-  // Ensure we have at least one line of space
   ensureSpace(doc, fs + lg + 4);
 
   const x = MARGIN + (opts.indent ?? 0);
@@ -215,12 +204,9 @@ function renderInline(
     }
   }
 
-  // Reset
   doc.x = MARGIN;
   doc.font('Helvetica').fontSize(fs).fillColor(color);
 }
-
-// ─── Badge helpers ───────────────────────────────────────────────────────────
 
 function drawBadge(
   doc: PDFKit.PDFDocument,
@@ -239,12 +225,6 @@ function drawBadge(
   return bw;
 }
 
-// ─── Code block rendering ────────────────────────────────────────────────────
-
-/**
- * Measures the actual height each code line will occupy when rendered
- * with word-wrap enabled. This prevents lines from overlapping.
- */
 function measureCodeLineHeight(doc: PDFKit.PDFDocument, line: string, textW: number): number {
   doc.font('Courier').fontSize(CODE_FONT_SIZE);
   const lineW = doc.widthOfString(line || ' ');
@@ -284,7 +264,6 @@ function drawSingleCodeBlock(doc: PDFKit.PDFDocument, lines: string[], lang: str
   const x = MARGIN;
   const startY = doc.y;
 
-  // Light background with border for print
   doc.save()
     .roundedRect(x, startY, w, blockH, CODE_RADIUS)
     .fill(C.codeBg)
@@ -372,8 +351,6 @@ function renderSplitCodeBlock(doc: PDFKit.PDFDocument, lines: string[], lang: st
   }
 }
 
-// ─── Table rendering ─────────────────────────────────────────────────────────
-
 function parseTableRow(line: string): string[] {
   return line.split('|').slice(1, -1).map(cell => cell.trim());
 }
@@ -390,7 +367,6 @@ function renderTable(doc: PDFKit.PDFDocument, rows: string[][]): void {
   const fontSize = 8;
   const colW = w / numCols;
 
-  // Measure total height
   doc.font('Helvetica').fontSize(fontSize);
   const rowHeights: number[] = rows.map(row => {
     let maxH = fontSize + cellPadY * 2;
@@ -403,14 +379,13 @@ function renderTable(doc: PDFKit.PDFDocument, rows: string[][]): void {
   });
   const totalH = rowHeights.reduce((a, b) => a + b, 0);
 
-  ensureSpace(doc, Math.min(totalH, 100)); // at least room for header + a few rows
+  ensureSpace(doc, Math.min(totalH, 100));
 
   const x0 = MARGIN;
 
   rows.forEach((row, ri) => {
     const rh = rowHeights[ri];
 
-    // Page break if needed
     if (doc.y + rh > bottomY(doc)) {
       freshPage(doc);
     }
@@ -418,20 +393,16 @@ function renderTable(doc: PDFKit.PDFDocument, rows: string[][]): void {
     const rowY = doc.y;
     const isHeader = ri === 0;
 
-    // Row background
     if (isHeader) {
       doc.save().rect(x0, rowY, w, rh).fill(C.tableHeaderBg).restore();
     } else if (ri % 2 === 0) {
       doc.save().rect(x0, rowY, w, rh).fill(C.tableStripeBg).restore();
     }
 
-    // Cell borders and text
     row.forEach((cell, ci) => {
       const cx = x0 + ci * colW;
-      // Cell border
       doc.save().rect(cx, rowY, colW, rh)
         .strokeColor(C.tableBorder).lineWidth(0.5).stroke().restore();
-      // Cell text
       const font = isHeader ? 'Helvetica-Bold' : 'Helvetica';
       doc.font(font).fontSize(fontSize).fillColor(C.text)
         .text(cell, cx + cellPadX, rowY + cellPadY, {
@@ -449,8 +420,6 @@ function renderTable(doc: PDFKit.PDFDocument, rows: string[][]): void {
   resetCursor(doc);
 }
 
-// ─── Markdown → PDF body renderer ────────────────────────────────────────────
-
 function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
   const lines = markdown.split('\n');
   let inCode = false;
@@ -462,7 +431,6 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Code fence
     if (trimmed.startsWith('```')) {
       if (inCode) {
         renderCodeBlock(doc, codeLines, codeLang);
@@ -478,10 +446,8 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
     }
     if (inCode) { codeLines.push(line); i++; continue; }
 
-    // Empty line
     if (trimmed === '') { doc.moveDown(0.3); i++; continue; }
 
-    // Table: collect all consecutive | rows, skip separator, render
     if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
       const tableRows: string[][] = [];
       while (i < lines.length) {
@@ -499,7 +465,6 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
       continue;
     }
 
-    // Heading
     const hm = trimmed.match(/^(#{1,3})\s+(.+)$/);
     if (hm) {
       const level = hm[1].length;
@@ -515,7 +480,6 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
       continue;
     }
 
-    // Horizontal rule
     if (/^(---|\*\*\*|___)$/.test(trimmed)) {
       doc.moveDown(0.4);
       doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + contentW(doc), doc.y)
@@ -525,7 +489,6 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
       continue;
     }
 
-    // Blockquote
     if (trimmed.startsWith('> ')) {
       const qText = trimmed.slice(2);
       ensureSpace(doc, 18);
@@ -546,7 +509,6 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
       continue;
     }
 
-    // Bullet list
     const ul = line.match(/^(\s*)[-*+]\s+(.+)$/);
     if (ul) {
       const depth = Math.min(Math.floor(ul[1].length / 2), 3);
@@ -559,7 +521,6 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
       continue;
     }
 
-    // Ordered list
     const ol = line.match(/^(\s*)(\d+)\.\s+(.+)$/);
     if (ol) {
       const depth = Math.min(Math.floor(ol[1].length / 2), 3);
@@ -583,18 +544,14 @@ function renderMarkdown(doc: PDFKit.PDFDocument, markdown: string): void {
       continue;
     }
 
-    // Normal paragraph
     renderInline(doc, trimmed, { lineGap: BODY_LINE_GAP });
     i++;
   }
 
-  // Flush any unterminated code block
   if (inCode && codeLines.length > 0) {
     renderCodeBlock(doc, codeLines, codeLang);
   }
 }
-
-// ─── PDF builder ─────────────────────────────────────────────────────────────
 
 function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
   const techName = TECH_DISPLAY_NAMES[technology]
@@ -604,7 +561,7 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
     const doc = new PDFDocument({
       margin: MARGIN,
       size: 'A4',
-      autoFirstPage: false, // we control all pages
+      autoFirstPage: false,
       info: {
         Title: `${techName} — Preguntas de Entrevista`,
         Author: 'Manuel Ferrer',
@@ -617,14 +574,11 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    // ── Cover page ────────────────────────────────────────────────────────
     doc.addPage();
     const pw = doc.page.width;
 
-    // Top accent bar
     doc.save().rect(0, 0, pw, 6).fill(C.primary).restore();
 
-    // Centered content
     doc.y = doc.page.height / 2 - 100;
 
     doc.font('Helvetica').fontSize(11).fillColor(C.textMuted)
@@ -637,7 +591,6 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
       .text('Preguntas de Entrevista', MARGIN, doc.y, { width: contentW(doc), align: 'center' });
     doc.moveDown(1.8);
 
-    // Short divider
     const cx = pw / 2;
     doc.moveTo(cx - 50, doc.y).lineTo(cx + 50, doc.y)
       .strokeColor(C.border).lineWidth(1).stroke();
@@ -650,21 +603,17 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
     doc.font('Helvetica').fontSize(10).fillColor(C.textSubtle)
       .text(date, MARGIN, doc.y, { width: contentW(doc), align: 'center' });
 
-    // Bottom accent bar
     doc.save().rect(0, doc.page.height - 6, pw, 6).fill(C.primary).restore();
 
-    // ── Questions ──────────────────────────────────────────────────────────
     freshPage(doc);
 
     const HEADER_SPACE = 80;
 
     questions.forEach((question, index) => {
       if (index > 0) {
-        // Check if there's room for the header, otherwise new page
         if (doc.y + HEADER_SPACE > bottomY(doc)) {
           freshPage(doc);
         } else {
-          // Inter-question separator
           doc.moveDown(1);
           doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + contentW(doc), doc.y)
             .strokeColor(C.border).lineWidth(0.5).stroke();
@@ -672,18 +621,14 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
         }
       }
 
-      // ── Question header ──────────────────────────────────────────────────
       const headerY = doc.y;
 
-      // Blue left accent bar
       doc.save().rect(MARGIN - 8, headerY - 2, 3, 22).fill(C.primary).restore();
 
-      // Question number + title
       doc.font('Helvetica-Bold').fontSize(13).fillColor(C.text)
         .text(`${index + 1}. ${question.title}`, MARGIN, doc.y, { width: contentW(doc), lineGap: 3 });
       doc.moveDown(0.5);
 
-      // Difficulty + tag badges
       const diffLabel = DIFFICULTY_LABELS[question.difficulty] ?? question.difficulty;
       const diffTextColor = question.difficulty === 'easy' ? C.easyText : question.difficulty === 'hard' ? C.hardText : C.mediumText;
       const diffBgColor = question.difficulty === 'easy' ? C.easyBg : question.difficulty === 'hard' ? C.hardBg : C.mediumBg;
@@ -700,12 +645,10 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
       doc.y = by + 18;
       doc.moveDown(0.5);
 
-      // Thin separator under header
       doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + contentW(doc), doc.y)
         .strokeColor(C.border).lineWidth(0.4).stroke();
       doc.moveDown(0.7);
 
-      // ── Body ──────────────────────────────────────────────────────────────
       resetCursor(doc);
       if (question.body) {
         renderMarkdown(doc, question.body);
@@ -715,8 +658,6 @@ function buildPdf(technology: string, questions: Question[]): Promise<Buffer> {
     doc.end();
   });
 }
-
-// ─── Router ──────────────────────────────────────────────────────────────────
 
 export function createPdfRouter(questionsDir: string): Router {
   const router = Router();

@@ -12,7 +12,6 @@ import { ProgressService } from '../../core/services/progress.service';
   standalone: true,
   imports: [RouterLink, CommonModule, MatButtonModule, MatIconModule],
   template: `
-    <!-- Hero Section -->
     <section class="hero" aria-labelledby="hero-title">
       <span class="hero-badge">PREPARA TU ENTREVISTA</span>
       <h1 id="hero-title" class="hero-title">
@@ -41,7 +40,6 @@ import { ProgressService } from '../../core/services/progress.service';
       </div>
     </section>
 
-    <!-- Explore by Technology -->
     <section id="technologies" class="tech-section" aria-label="Explorar por tecnología">
 
       <div class="technologies-grid">
@@ -67,7 +65,6 @@ import { ProgressService } from '../../core/services/progress.service';
       </div>
     </section>
 
-    <!-- Why Section -->
     <section class="why-section" aria-label="Por qué usar esta herramienta">
       <div class="why-content">
         <h2>¿Por qué prepararte aquí?</h2>
@@ -97,13 +94,11 @@ import { ProgressService } from '../../core/services/progress.service';
       </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
-      <p>&copy; 2026 Preguntas Entrevista. Construido con Angular.</p>
+      <p>Creado por <a href="https://manuelferrer.vercel.app/" target="_blank" rel="noopener noreferrer" class="footer-link">Manuel Ferrer</a></p>
     </footer>
   `,
   styles: [`
-    /* Hero */
     .hero {
       text-align: center;
       padding: 64px 16px 48px;
@@ -142,7 +137,6 @@ import { ProgressService } from '../../core/services/progress.service';
       opacity: 0.92;
     }
 
-    /* Hero explore block */
     .hero-explore {
       margin-top: 40px;
       padding-top: 32px;
@@ -187,10 +181,8 @@ import { ProgressService } from '../../core/services/progress.service';
     }
     .search-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
-    /* Tech Section */
     .tech-section { padding: 0 0 32px; }
 
-    /* Tech Grid */
     .technologies-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -256,7 +248,6 @@ import { ProgressService } from '../../core/services/progress.service';
     }
     .link-arrow { font-size: 18px; width: 18px; height: 18px; }
 
-    /* Why Section */
     .why-section {
       margin-top: 40px;
       padding: 48px 32px;
@@ -275,12 +266,18 @@ import { ProgressService } from '../../core/services/progress.service';
     .why-item strong { display: block; margin-bottom: 4px; }
     .why-item p { margin: 0; opacity: 0.88; font-size: 0.9rem; line-height: 1.5; }
 
-    /* Footer */
     .footer {
       text-align: center;
       padding: 32px 0 16px;
       font-size: 0.85rem;
       opacity: 0.5;
+    }
+    .footer-link {
+      color: inherit;
+      text-decoration: underline;
+    }
+    .footer-link:hover {
+      opacity: 0.8;
     }
 
     .empty { text-align: center; grid-column: 1 / -1; padding: 32px; opacity: 0.6; }

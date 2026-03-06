@@ -8,7 +8,7 @@ Wiki open source de preguntas técnicas para entrevistas de desarrollo de softwa
 
 ## ¿Qué es esto?
 
-Una web que muestra preguntas típicas de entrevistas técnicas organizadas por tecnología, similar a [reactjs.wiki](https://www.reactjs.wiki/). Cada pregunta tiene su propia URL generada automáticamente desde archivos Markdown.
+Una web que muestra preguntas típicas de entrevistas técnicas organizadas por tecnología. Cada pregunta tiene su propia URL generada automáticamente desde archivos Markdown.
 
 ## Tecnologías cubiertas
 
