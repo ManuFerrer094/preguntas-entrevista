@@ -301,6 +301,7 @@ export class HomeComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.store.loadAllQuestionCounts();
     this.seo.setPageMeta({
       title: 'Inicio',
       description: 'Preguntas típicas de entrevistas técnicas para Angular, React, Vue, Node.js, TypeScript, JavaScript, Testing y System Design.',

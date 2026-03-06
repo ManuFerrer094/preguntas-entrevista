@@ -276,6 +276,30 @@ import { Difficulty } from '../../domain/models/question.model';
       margin-bottom: 6px;
     }
 
+    :host ::ng-deep .markdown-content table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-width: min(100%, calc(100vw - 16px));
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    :host ::ng-deep .markdown-content table th,
+    :host ::ng-deep .markdown-content table td {
+      padding: 10px 16px;
+      border: 1px solid var(--app-border);
+      text-align: left;
+    }
+    :host ::ng-deep .markdown-content table th {
+      background: var(--app-surface-variant);
+      font-weight: 700;
+    }
+    :host ::ng-deep .markdown-content table tr:nth-child(even) td {
+      background: var(--app-surface-raised);
+    }
+
     .mark-read-card {
       display: flex;
       align-items: center;
