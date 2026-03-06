@@ -1,6 +1,6 @@
-import { Component, inject, computed, effect, signal } from '@angular/core';
+import { Component, inject, computed, effect, signal, untracked } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, ViewportScroller } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,8 @@ import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { Difficulty } from '../../domain/models/question.model';
+
+const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-technology',
@@ -139,7 +141,7 @@ import { Difficulty } from '../../domain/models/question.model';
             </div>
           } @else {
             <div class="questions-list" role="list" aria-label="Lista de preguntas">
-              @for (question of filteredQuestions(); track question.id) {
+              @for (question of pagedQuestions(); track question.id) {
                 <a
                   [routerLink]="['/', technology()!.slug, question.slug]"
                   class="question-row"
@@ -180,6 +182,39 @@ import { Difficulty } from '../../domain/models/question.model';
                 </div>
               }
             </div>
+
+            <!-- Pagination -->
+            @if (totalPages() > 1) {
+              <nav class="pagination" aria-label="Paginación">
+                <button
+                  class="page-btn"
+                  [disabled]="currentPage() === 1"
+                  (click)="goToPage(currentPage() - 1)"
+                  aria-label="Página anterior"
+                >
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+
+                @for (page of pageNumbers(); track page) {
+                  <button
+                    class="page-btn"
+                    [class.active]="page === currentPage()"
+                    (click)="goToPage(page)"
+                    [attr.aria-label]="'Página ' + page"
+                    [attr.aria-current]="page === currentPage() ? 'page' : null"
+                  >{{ page }}</button>
+                }
+
+                <button
+                  class="page-btn"
+                  [disabled]="currentPage() === totalPages()"
+                  (click)="goToPage(currentPage() + 1)"
+                  aria-label="Página siguiente"
+                >
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </nav>
+            }
           }
         </main>
       </div>
@@ -297,7 +332,14 @@ import { Difficulty } from '../../domain/models/question.model';
     .diff-btn.medium.active { background: #fff3e0; color: #e65100; border-color: #e65100; }
     .diff-btn.hard.active { background: #fce4ec; color: #c62828; border-color: #c62828; }
 
-    .tag-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
     .tag-chip {
       padding: 3px 10px;
       border-radius: 20px;
@@ -432,11 +474,47 @@ import { Difficulty } from '../../domain/models/question.model';
     }
     .empty-message mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
 
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .page-btn {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--app-border);
+      border-radius: 8px;
+      background: var(--app-surface);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .page-btn:hover:not([disabled]) { background: var(--app-surface-variant); border-color: var(--app-primary); }
+    .page-btn.active {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border-color: var(--app-primary);
+      font-weight: 700;
+    }
+    .page-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+    .page-btn mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
     @media (max-width: 768px) {
       .tech-layout {
         grid-template-columns: 1fr;
       }
-      .sidebar { position: static; }
+      .sidebar { position: static; order: 2; }
+      .main-col { order: 1; }
     }
   `]
 })
@@ -445,11 +523,13 @@ export class TechnologyComponent {
   store = inject(ContentStore);
   private seo = inject(SeoService);
   progress = inject(ProgressService);
+  private viewportScroller = inject(ViewportScroller);
 
   searchQuery = signal('');
   filter = signal<'all' | 'completed' | 'pending'>('all');
   difficultyFilter = signal<Difficulty | null>(null);
   activeTag = signal<string | null>(null);
+  currentPage = signal(1);
 
   private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
 
@@ -511,12 +591,39 @@ export class TechnologyComponent {
     return questions;
   });
 
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredQuestions().length / PAGE_SIZE)));
+
+  pagedQuestions = computed(() => {
+    const page = this.currentPage();
+    const start = (page - 1) * PAGE_SIZE;
+    return this.filteredQuestions().slice(start, start + PAGE_SIZE);
+  });
+
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const delta = 2;
+    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
+      pages.push(i);
+    }
+    return pages;
+  });
+
   difficultyLabel(d: Difficulty): string {
     return d === 'easy' ? 'Fácil' : d === 'medium' ? 'Media' : 'Difícil';
   }
 
   toggleTag(tag: string): void {
     this.activeTag.update(current => (current === tag ? null : tag));
+  }
+
+  goToPage(page: number): void {
+    const total = this.totalPages();
+    if (page >= 1 && page <= total) {
+      this.currentPage.set(page);
+      this.viewportScroller.scrollToPosition([0, 0]);
+    }
   }
 
   constructor() {
@@ -530,6 +637,15 @@ export class TechnologyComponent {
           keywords: `${tech.name.toLowerCase()}, entrevistas, preguntas técnicas`
         });
       }
+    });
+
+    // Reset to page 1 whenever filters change
+    effect(() => {
+      this.searchQuery();
+      this.filter();
+      this.difficultyFilter();
+      this.activeTag();
+      untracked(() => this.currentPage.set(1));
     });
   }
 }

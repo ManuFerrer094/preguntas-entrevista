@@ -1,5 +1,7 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin, catchError, of } from 'rxjs';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 import { Question } from '../../domain/models/question.model';
 import { Technology } from '../../domain/models/technology.model';
@@ -16,6 +18,7 @@ const TECHNOLOGIES: Technology[] = [
 @Injectable({ providedIn: 'root' })
 export class ContentStore {
   private markdownParser = inject(MarkdownParserService);
+  private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
   readonly technologies = signal<Technology[]>(TECHNOLOGIES);
@@ -67,5 +70,19 @@ export class ContentStore {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('darkMode', String(this.darkMode()));
     }
+  }
+
+  loadAllQuestionCounts(): void {
+    const techs = this.technologies();
+    const requests = techs.map(t =>
+      this.http
+        .get<string[]>(`/questions/${t.slug}/index.json`)
+        .pipe(catchError(() => of([] as string[])))
+    );
+    forkJoin(requests).subscribe(results => {
+      this.technologies.update(current =>
+        current.map((t, i) => ({ ...t, questionCount: results[i].length }))
+      );
+    });
   }
 }
