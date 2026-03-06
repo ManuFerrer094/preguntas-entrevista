@@ -1,3 +1,11 @@
 {
-  "framework": "angular"
+  "functions": {
+    "api/**/*.ts": {
+      "includeFiles": "questions/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
