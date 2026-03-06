@@ -122,7 +122,7 @@ const PAGE_SIZE = 10;
               <h1>{{ technology()!.name }}</h1>
               <p class="tech-desc">{{ technology()!.description }}</p>
             </div>
-            <a
+            <!-- <a
               class="pdf-btn"
               [href]="'/api/dossier/' + technology()!.slug"
               download
@@ -131,7 +131,7 @@ const PAGE_SIZE = 10;
             >
               <mat-icon>picture_as_pdf</mat-icon>
               Descargar PDF
-            </a>
+            </a> -->
           </header>
 
           <div class="search-container">
