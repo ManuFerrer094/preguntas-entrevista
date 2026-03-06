@@ -124,7 +124,7 @@ const PAGE_SIZE = 10;
             </div>
             <a
               class="pdf-btn"
-              [href]="'/api/pdf/' + technology()!.slug"
+              [href]="'/api/dossier/' + technology()!.slug"
               download
               aria-label="Descargar dosier PDF con todas las preguntas"
               title="Descargar todas las preguntas en PDF"

@@ -5,20 +5,29 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createPdfRouter } from './api/pdf.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
-const questionsDir = join(browserDistFolder, 'questions');
+// In production the questions are copied to the browser bundle output;
+// in dev (ng serve) they live at the project root instead.
+const builtQuestionsDir = join(browserDistFolder, 'questions');
+const questionsDir = existsSync(builtQuestionsDir)
+  ? builtQuestionsDir
+  : join(process.cwd(), 'questions');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
  * PDF generation API — returns a downloadable PDF with all questions for a technology.
- * GET /api/pdf/:technology
+ * GET /api/pdf/:technology   (legacy)
+ * GET /api/dossier/:technology
  */
-app.use('/api/pdf', createPdfRouter(questionsDir));
+const pdfRouter = createPdfRouter(questionsDir);
+app.use('/api/pdf', pdfRouter);
+app.use('/api/dossier', pdfRouter);
 
 /**
  * Serve static files from /browser
