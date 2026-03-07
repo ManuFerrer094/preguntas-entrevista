@@ -1,4 +1,4 @@
-import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, effect, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ContentStore } from './core/stores/content.store';
@@ -8,6 +8,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, NavbarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-navbar />
     <main class="main-content">
@@ -33,9 +34,9 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
   `]
 })
 export class App {
-  store = inject(ContentStore);
-  private document = inject(DOCUMENT);
-  private platformId = inject(PLATFORM_ID);
+  private readonly store = inject(ContentStore);
+  private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     effect(() => {

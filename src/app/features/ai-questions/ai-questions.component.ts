@@ -1,6 +1,5 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,11 +10,13 @@ import { SeoService } from '../../core/services/seo.service';
 import { difficultyLabel } from '../../core/utils/difficulty';
 import { generateSlug } from '../../core/utils/slug-generator';
 import { Difficulty } from '../../domain/models/question.model';
+import { Technology } from '../../domain/models/technology.model';
 
 @Component({
   selector: 'app-ai-questions',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/">Inicio</a>
@@ -150,7 +151,7 @@ import { Difficulty } from '../../domain/models/question.model';
                 class="search-input"
                 placeholder="Buscar preguntas..."
                 [value]="searchQuery()"
-                (input)="searchQuery.set($any($event.target).value)"
+                (input)="onSearchInput($event)"
                 aria-label="Buscar preguntas"
               />
             </div>
@@ -610,48 +611,41 @@ import { Difficulty } from '../../domain/models/question.model';
   `]
 })
 export class AiQuestionsComponent {
-  private aiService = inject(AiQuestionsService);
-  private store = inject(ContentStore);
-  private seo = inject(SeoService);
+  private readonly aiService = inject(AiQuestionsService);
+  private readonly store = inject(ContentStore);
+  private readonly seo = inject(SeoService);
 
-  jobDescription = signal('');
-  loading = signal(false);
-  error = signal<string | null>(null);
-  questions = signal<AiQuestion[]>([]);
-  detectedTechnologies = signal<string[]>([]);
+  readonly jobDescription = signal('');
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly questions = signal<AiQuestion[]>([]);
+  readonly detectedTechnologies = signal<string[]>([]);
 
-  searchQuery = signal('');
-  technologyFilter = signal<string | null>(null);
-  difficultyFilter = signal<Difficulty | null>(null);
-  currentPage = signal(1);
+  readonly searchQuery = signal('');
+  readonly technologyFilter = signal<string | null>(null);
+  readonly difficultyFilter = signal<Difficulty | null>(null);
+  readonly currentPage = signal(1);
 
   readonly PAGE_SIZE = 10;
   readonly difficultyLabel = difficultyLabel;
   readonly slugify = generateSlug;
 
-  private readonly TECH_DISPLAY: Record<string, string> = {
-    angular: 'Angular', react: 'React', vue: 'Vue.js',
-    nodejs: 'Node.js', typescript: 'TypeScript', javascript: 'JavaScript',
-  };
+  private readonly techMap = computed(() => {
+    const map = new Map<string, Technology>();
+    for (const t of this.store.technologies()) {
+      map.set(t.slug, t);
+    }
+    return map;
+  });
 
-  private readonly TECH_DEVICON: Record<string, string> = {
-    angular: 'devicon-angular-plain', react: 'devicon-react-original', vue: 'devicon-vuejs-plain',
-    nodejs: 'devicon-nodejs-plain', typescript: 'devicon-typescript-plain', javascript: 'devicon-javascript-plain',
-  };
+  readonly hasResults = computed(() => this.questions().length > 0);
 
-  private readonly TECH_COLOR: Record<string, string> = {
-    angular: '#DD0031', react: '#61DAFB', vue: '#42B883',
-    nodejs: '#339933', typescript: '#3178C6', javascript: '#F7DF1E',
-  };
-
-  hasResults = computed(() => this.questions().length > 0);
-
-  availableTechnologies = computed(() => {
+  readonly availableTechnologies = computed(() => {
     const techs = new Set(this.questions().map(q => q.technology));
     return Array.from(techs).sort();
   });
 
-  filteredQuestions = computed(() => {
+  readonly filteredQuestions = computed(() => {
     let qs = this.questions();
     const query = this.searchQuery().toLowerCase();
     if (query) {
@@ -668,15 +662,15 @@ export class AiQuestionsComponent {
     return qs;
   });
 
-  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredQuestions().length / this.PAGE_SIZE)));
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredQuestions().length / this.PAGE_SIZE)));
 
-  pagedQuestions = computed(() => {
+  readonly pagedQuestions = computed(() => {
     const page = this.currentPage();
     const start = (page - 1) * this.PAGE_SIZE;
     return this.filteredQuestions().slice(start, start + this.PAGE_SIZE);
   });
 
-  pageNumbers = computed(() => {
+  readonly pageNumbers = computed(() => {
     const total = this.totalPages();
     const current = this.currentPage();
     const pages: number[] = [];
@@ -696,19 +690,23 @@ export class AiQuestionsComponent {
   }
 
   techDisplayName(slug: string): string {
-    return this.TECH_DISPLAY[slug] ?? slug;
+    return this.techMap().get(slug)?.name ?? slug;
   }
 
   getDevicon(slug: string): string {
-    return this.TECH_DEVICON[slug] ?? 'devicon-devicon-plain';
+    return this.techMap().get(slug)?.devicon ?? '';
   }
 
   getTechColor(slug: string): string {
-    return this.TECH_COLOR[slug] ?? '#64748b';
+    return this.techMap().get(slug)?.color ?? '#64748b';
   }
 
   techCount(slug: string): number {
     return this.questions().filter(q => q.technology === slug).length;
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
   generate(): void {

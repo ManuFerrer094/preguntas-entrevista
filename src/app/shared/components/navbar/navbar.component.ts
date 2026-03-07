@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { ContentStore } from '../../../core/stores/content.store';
   selector: 'app-navbar',
   standalone: true,
   imports: [RouterLink, MatToolbarModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="navbar" role="navigation" aria-label="Navegación principal">
       <a routerLink="/" class="brand" aria-label="Ir al inicio">
@@ -106,5 +107,5 @@ import { ContentStore } from '../../../core/stores/content.store';
   `]
 })
 export class NavbarComponent {
-  store = inject(ContentStore);
+  readonly store = inject(ContentStore);
 }

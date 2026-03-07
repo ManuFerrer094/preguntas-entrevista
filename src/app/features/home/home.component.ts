@@ -1,16 +1,15 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
-import { ProgressService } from '../../core/services/progress.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule, MatButtonModule, MatIconModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="hero" aria-labelledby="hero-title">
       <span class="hero-badge">PREPARA TU ENTREVISTA</span>
@@ -292,13 +291,12 @@ import { ProgressService } from '../../core/services/progress.service';
   `]
 })
 export class HomeComponent implements OnInit {
-  store = inject(ContentStore);
-  private seo = inject(SeoService);
-  progress = inject(ProgressService);
+  readonly store = inject(ContentStore);
+  private readonly seo = inject(SeoService);
 
-  searchQuery = signal('');
+  readonly searchQuery = signal('');
 
-  filteredTechnologies = computed(() => {
+  readonly filteredTechnologies = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const techs = this.store.technologies();
     if (!query) return techs;
