@@ -35,7 +35,7 @@ app.use('/api/dossier', pdfRouter);
  * AI-powered question generation — analyses a job description and returns relevant questions.
  * POST /api/ai-questions
  */
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
 const aiRouter = createAiQuestionsRouter(questionsDir);
 app.use('/api/ai-questions', aiRouter);
 

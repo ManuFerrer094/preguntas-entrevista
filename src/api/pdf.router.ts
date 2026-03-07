@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import PDFDocument from 'pdfkit';
 
 const VALID_TECHNOLOGIES = new Set(['angular', 'react', 'vue', 'nodejs', 'typescript', 'javascript']);
@@ -92,7 +92,7 @@ async function loadQuestions(questionsDir: string, technology: string): Promise<
   const filenames: string[] = JSON.parse(indexContent);
 
   const results = await Promise.allSettled(
-    filenames.map((filename) =>
+    filenames.filter((filename) => basename(filename) === filename).map((filename) =>
       readFile(join(questionsDir, technology, filename), 'utf-8').then((raw) => {
         const content = raw.replace(/\r/g, '');
         const { metadata, body } = parseFrontmatter(content);

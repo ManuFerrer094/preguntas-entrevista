@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, computed, effect, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed, effect, PLATFORM_ID, untracked } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -460,7 +459,6 @@ export class QuestionComponent {
   readonly store = inject(ContentStore);
   private readonly seo = inject(SeoService);
   private readonly markdownParser = inject(MarkdownParserService);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly snackBar = inject(MatSnackBar);
   private readonly platformId = inject(PLATFORM_ID);
   readonly progress = inject(ProgressService);
@@ -485,8 +483,7 @@ export class QuestionComponent {
   readonly renderedContent = computed(() => {
     const q = this.question();
     if (!q) return '';
-    const html = this.markdownParser.renderMarkdown(q.content);
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    return this.markdownParser.renderMarkdown(q.content);
   });
 
   readonly isRead = computed(() => {
@@ -547,7 +544,7 @@ export class QuestionComponent {
     effect(() => {
       const tech = this.routeParams().get('technology') ?? '';
       if (!this.store.questionsByTechnology().has(tech)) {
-        this.store.loadQuestionsForTechnology(tech);
+        untracked(() => this.store.loadQuestionsForTechnology(tech));
       }
       const q = this.question();
       if (q) {
@@ -571,9 +568,10 @@ export class QuestionComponent {
 
   copyLink(): void {
     if (isPlatformBrowser(this.platformId)) {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        this.snackBar.open('¡Enlace copiado!', 'Cerrar', { duration: 2000 });
-      });
+      navigator.clipboard.writeText(window.location.href).then(
+        () => this.snackBar.open('¡Enlace copiado!', 'Cerrar', { duration: 2000 }),
+        () => this.snackBar.open('No se pudo copiar el enlace', 'Cerrar', { duration: 2000 }),
+      );
     }
   }
 }

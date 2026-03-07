@@ -104,6 +104,6 @@ export class MarkdownParserService {
   }
 
   renderMarkdown(content: string): string {
-    return marked.parse(content) as string;
+    return marked.parse(content, { async: false }) as string;
   }
 }

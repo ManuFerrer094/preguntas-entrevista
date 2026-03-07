@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 export const VALID_TECHNOLOGIES = ['angular', 'react', 'vue', 'nodejs', 'typescript', 'javascript'];
 
@@ -61,7 +61,7 @@ export async function loadAllQuestionSummaries(questionsDir: string): Promise<Qu
     }
 
     const results = await Promise.allSettled(
-      filenames.map((filename) =>
+      filenames.filter((filename) => basename(filename) === filename).map((filename) =>
         readFile(join(questionsDir, tech, filename), 'utf-8').then((raw) => {
           const content = raw.replace(/\r/g, '');
           const { metadata } = parseFrontmatter(content);
@@ -187,11 +187,54 @@ export async function handleAiQuestionsRequest(
     throw new Error('No se recibió respuesta del servicio de IA.');
   }
 
-  // Parse the JSON response — strip code fences if the model wraps them
   const cleaned = content.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+  let parsed: unknown;
   try {
-    return JSON.parse(cleaned);
+    parsed = JSON.parse(cleaned);
   } catch {
     throw new Error('Invalid JSON response from AI service');
   }
+
+  return validateAiResponse(parsed, summaries);
+}
+
+function validateAiResponse(parsed: unknown, summaries: QuestionSummary[]): {
+  technologies_detected: string[];
+  questions: Array<{
+    technology: string;
+    title: string;
+    difficulty: string;
+    tags: string[];
+    relevance: string;
+  }>;
+} {
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('Invalid AI response format');
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  const technologies_detected = Array.isArray(obj['technologies_detected'])
+    ? (obj['technologies_detected'] as unknown[]).filter((t): t is string => typeof t === 'string')
+    : [];
+
+  if (!Array.isArray(obj['questions'])) {
+    throw new Error('AI response missing questions array');
+  }
+
+  const knownTitles = new Set(summaries.map((s) => s.title));
+
+  const questions = (obj['questions'] as unknown[])
+    .filter((q): q is Record<string, unknown> => q !== null && typeof q === 'object')
+    .filter((q) => typeof q['title'] === 'string' && knownTitles.has(q['title'] as string))
+    .filter((q) => typeof q['technology'] === 'string' && VALID_TECHNOLOGIES.includes(q['technology'] as string))
+    .map((q) => ({
+      technology: q['technology'] as string,
+      title: q['title'] as string,
+      difficulty: ['easy', 'medium', 'hard'].includes(q['difficulty'] as string) ? (q['difficulty'] as string) : 'medium',
+      tags: Array.isArray(q['tags']) ? (q['tags'] as unknown[]).filter((t): t is string => typeof t === 'string') : [],
+      relevance: typeof q['relevance'] === 'string' ? (q['relevance'] as string) : '',
+    }));
+
+  return { technologies_detected, questions };
 }
