@@ -7,6 +7,11 @@ export const routes: Routes = [
     title: 'Inicio - Preguntas de Entrevista'
   },
   {
+    path: 'ai-questions',
+    loadComponent: () => import('./features/ai-questions/ai-questions.component').then(m => m.AiQuestionsComponent),
+    title: 'Generar Preguntas IA - Preguntas de Entrevista'
+  },
+  {
     path: ':technology',
     loadComponent: () => import('./features/technology/technology.component').then(m => m.TechnologyComponent),
   },

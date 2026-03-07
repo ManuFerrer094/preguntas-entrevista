@@ -16,6 +16,15 @@ import { ContentStore } from '../../../core/stores/content.store';
         <span class="brand-name">Preguntas Entrevista</span>
       </a>
       <div class="nav-actions">
+        <a
+          routerLink="/ai-questions"
+          class="ai-link"
+          matTooltip="Generar preguntas con IA"
+          aria-label="Generar preguntas con IA"
+        >
+          <mat-icon>auto_awesome</mat-icon>
+          <span class="ai-link-text">Preguntas IA</span>
+        </a>
         <button
           mat-icon-button
           (click)="store.toggleDarkMode()"
@@ -73,9 +82,26 @@ import { ContentStore } from '../../../core/stores/content.store';
     }
     .brand-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
     .nav-actions { display: flex; align-items: center; gap: 4px; }
+    .ai-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #7c3aed;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.15s;
+      margin-right: 4px;
+    }
+    .ai-link:hover { background: #7c3aed15; }
+    .ai-link mat-icon { font-size: 18px; width: 18px; height: 18px; }
     @media (max-width: 600px) {
       .brand-name { display: none; }
       .navbar { padding: 0 12px; }
+      .ai-link-text { display: none; }
+      .ai-link { padding: 6px; margin-right: 0; }
     }
   `]
 })

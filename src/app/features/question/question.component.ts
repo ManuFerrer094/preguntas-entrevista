@@ -11,6 +11,7 @@ import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
+import { AiQuestionsService } from '../../core/services/ai-questions.service';
 import { difficultyLabel } from '../../core/utils/difficulty';
 
 @Component({
@@ -22,7 +23,11 @@ import { difficultyLabel } from '../../core/utils/difficulty';
       <nav class="breadcrumb" aria-label="Ruta de navegación">
         <a routerLink="/">Inicio</a>
         <span aria-hidden="true"> &rsaquo; </span>
-        <a [routerLink]="['/', question()!.technology]">{{ technologyName() }}</a>
+        @if (isAiMode()) {
+          <a routerLink="/ai-questions">Preguntas IA</a>
+        } @else {
+          <a [routerLink]="['/', question()!.technology]">{{ technologyName() }}</a>
+        }
         <span aria-hidden="true"> &rsaquo; </span>
         <span class="breadcrumb-current">{{ question()!.title }}</span>
       </nav>
@@ -77,7 +82,8 @@ import { difficultyLabel } from '../../core/utils/difficulty';
           <nav class="question-navigation" aria-label="Navegación entre preguntas">
             @if (previousQuestion()) {
               <a
-                [routerLink]="['/', question()!.technology, previousQuestion()!.slug]"
+                [routerLink]="['/', previousQuestion()!.technology, previousQuestion()!.slug]"
+                [queryParams]="isAiMode() ? { ai: 1 } : {}"
                 class="nav-card nav-prev"
               >
                 <span class="nav-direction">
@@ -91,7 +97,8 @@ import { difficultyLabel } from '../../core/utils/difficulty';
 
             @if (nextQuestion()) {
               <a
-                [routerLink]="['/', question()!.technology, nextQuestion()!.slug]"
+                [routerLink]="['/', nextQuestion()!.technology, nextQuestion()!.slug]"
+                [queryParams]="isAiMode() ? { ai: 1 } : {}"
                 class="nav-card nav-next"
               >
                 <span class="nav-direction">
@@ -124,17 +131,23 @@ import { difficultyLabel } from '../../core/utils/difficulty';
               <strong>Preguntas Relacionadas</strong>
             </div>
             <div class="related-list">
-              @for (rq of relatedQuestions(); track rq.id) {
-                <a [routerLink]="['/', question()!.technology, rq.slug]" class="related-item">
+              @for (rq of relatedQuestions(); track rq.slug) {
+                <a
+                  [routerLink]="['/', rq.technology, rq.slug]"
+                  [queryParams]="isAiMode() ? { ai: 1 } : {}"
+                  class="related-item"
+                >
                   <span class="related-title">{{ rq.title }}</span>
-                  <span class="difficulty-badge sm" [class]="'badge-' + rq.difficulty">
-                    {{ difficultyLabel(rq.difficulty) }}
-                  </span>
+                  @if ($any(rq).difficulty) {
+                    <span class="difficulty-badge sm" [class]="'badge-' + $any(rq).difficulty">
+                      {{ difficultyLabel($any(rq).difficulty) }}
+                    </span>
+                  }
                 </a>
               }
             </div>
-            <a [routerLink]="['/', question()!.technology]" class="view-all-link">
-              Ver todas las preguntas de {{ technologyName() }}
+            <a [routerLink]="isAiMode() ? ['/ai-questions'] : ['/', question()!.technology]" class="view-all-link">
+              {{ isAiMode() ? 'Volver a Preguntas IA' : 'Ver todas las preguntas de ' + technologyName() }}
             </a>
           </div>
 
@@ -455,8 +468,12 @@ export class QuestionComponent {
   private snackBar = inject(MatSnackBar);
   private platformId = inject(PLATFORM_ID);
   progress = inject(ProgressService);
+  private aiService = inject(AiQuestionsService);
 
   private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  private queryParams = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
+
+  isAiMode = computed(() => this.queryParams().get('ai') === '1');
 
   question = computed(() => {
     const tech = this.routeParams().get('technology') ?? '';
@@ -491,6 +508,11 @@ export class QuestionComponent {
   previousQuestion = computed(() => {
     const q = this.question();
     if (!q) return null;
+    if (this.isAiMode()) {
+      const list = this.aiService.activeList();
+      const idx = list.findIndex(x => x.slug === q.slug && x.technology === q.technology);
+      return idx > 0 ? list[idx - 1] : null;
+    }
     const questions = this.store.getQuestionsByTechnology(q.technology);
     const idx = questions.findIndex(x => x.slug === q.slug);
     return idx > 0 ? questions[idx - 1] : null;
@@ -499,6 +521,11 @@ export class QuestionComponent {
   nextQuestion = computed(() => {
     const q = this.question();
     if (!q) return null;
+    if (this.isAiMode()) {
+      const list = this.aiService.activeList();
+      const idx = list.findIndex(x => x.slug === q.slug && x.technology === q.technology);
+      return idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
+    }
     const questions = this.store.getQuestionsByTechnology(q.technology);
     const idx = questions.findIndex(x => x.slug === q.slug);
     return idx < questions.length - 1 ? questions[idx + 1] : null;
@@ -507,6 +534,11 @@ export class QuestionComponent {
   relatedQuestions = computed(() => {
     const q = this.question();
     if (!q) return [];
+    if (this.isAiMode()) {
+      return this.aiService.activeList()
+        .filter(x => !(x.slug === q.slug && x.technology === q.technology))
+        .slice(0, 3);
+    }
     const questions = this.store.getQuestionsByTechnology(q.technology);
     return questions.filter(x => x.slug !== q.slug).slice(0, 3);
   });

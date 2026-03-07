@@ -75,6 +75,10 @@ export const serverRoutes: ServerRoute[] = [
     },
   },
   {
+    path: 'ai-questions',
+    renderMode: RenderMode.Prerender,
+  },
+  {
     path: '**',
     renderMode: RenderMode.Server,
   },

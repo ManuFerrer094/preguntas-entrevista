@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -8,6 +9,7 @@ import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createPdfRouter } from './api/pdf.router';
+import { createAiQuestionsRouter } from './api/ai-questions.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 // In production the questions are copied to the browser bundle output;
@@ -28,6 +30,14 @@ const angularApp = new AngularNodeAppEngine();
 const pdfRouter = createPdfRouter(questionsDir);
 app.use('/api/pdf', pdfRouter);
 app.use('/api/dossier', pdfRouter);
+
+/**
+ * AI-powered question generation — analyses a job description and returns relevant questions.
+ * POST /api/ai-questions
+ */
+app.use(express.json());
+const aiRouter = createAiQuestionsRouter(questionsDir);
+app.use('/api/ai-questions', aiRouter);
 
 /**
  * Serve static files from /browser

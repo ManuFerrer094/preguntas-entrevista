@@ -122,16 +122,6 @@ const PAGE_SIZE = 10;
               <h1>{{ technology()!.name }}</h1>
               <p class="tech-desc">{{ technology()!.description }}</p>
             </div>
-            <!-- <a
-              class="pdf-btn"
-              [href]="'/api/dossier/' + technology()!.slug"
-              download
-              aria-label="Descargar dosier PDF con todas las preguntas"
-              title="Descargar todas las preguntas en PDF"
-            >
-              <mat-icon>picture_as_pdf</mat-icon>
-              Descargar PDF
-            </a> -->
           </header>
 
           <div class="search-container">
