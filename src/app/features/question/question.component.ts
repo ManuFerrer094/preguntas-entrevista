@@ -1,6 +1,6 @@
-import { Component, inject, computed, effect, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed, effect, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,11 +13,13 @@ import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 import { AiQuestionsService } from '../../core/services/ai-questions.service';
 import { difficultyLabel } from '../../core/utils/difficulty';
+import { Question } from '../../domain/models/question.model';
 
 @Component({
   selector: 'app-question',
   standalone: true,
-  imports: [RouterLink, CommonModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSnackBarModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, MatSnackBarModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (question()) {
       <nav class="breadcrumb" aria-label="Ruta de navegación">
@@ -138,9 +140,9 @@ import { difficultyLabel } from '../../core/utils/difficulty';
                   class="related-item"
                 >
                   <span class="related-title">{{ rq.title }}</span>
-                  @if ($any(rq).difficulty) {
-                    <span class="difficulty-badge sm" [class]="'badge-' + $any(rq).difficulty">
-                      {{ difficultyLabel($any(rq).difficulty) }}
+                  @if (rq.difficulty) {
+                    <span class="difficulty-badge sm" [class]="'badge-' + rq.difficulty">
+                      {{ difficultyLabel(rq.difficulty) }}
                     </span>
                   }
                 </a>
@@ -454,52 +456,52 @@ import { difficultyLabel } from '../../core/utils/difficulty';
   `]
 })
 export class QuestionComponent {
-  private route = inject(ActivatedRoute);
-  store = inject(ContentStore);
-  private seo = inject(SeoService);
-  private markdownParser = inject(MarkdownParserService);
-  private sanitizer = inject(DomSanitizer);
-  private snackBar = inject(MatSnackBar);
-  private platformId = inject(PLATFORM_ID);
-  progress = inject(ProgressService);
-  private aiService = inject(AiQuestionsService);
+  private readonly route = inject(ActivatedRoute);
+  readonly store = inject(ContentStore);
+  private readonly seo = inject(SeoService);
+  private readonly markdownParser = inject(MarkdownParserService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly progress = inject(ProgressService);
+  private readonly aiService = inject(AiQuestionsService);
 
-  private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
-  private queryParams = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
+  private readonly routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  private readonly queryParams = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
 
-  isAiMode = computed(() => this.queryParams().get('ai') === '1');
+  readonly isAiMode = computed(() => this.queryParams().get('ai') === '1');
 
-  question = computed(() => {
+  readonly question = computed(() => {
     const tech = this.routeParams().get('technology') ?? '';
     const slug = this.routeParams().get('slug') ?? '';
     return this.store.getQuestion(tech, slug);
   });
 
-  technologyName = computed(() => {
+  readonly technologyName = computed(() => {
     const tech = this.question()?.technology ?? '';
     return this.store.technologies().find(t => t.slug === tech)?.name ?? tech;
   });
 
-  renderedContent = computed(() => {
+  readonly renderedContent = computed(() => {
     const q = this.question();
     if (!q) return '';
     const html = this.markdownParser.renderMarkdown(q.content);
     return this.sanitizer.bypassSecurityTrustHtml(html);
   });
 
-  isRead = computed(() => {
+  readonly isRead = computed(() => {
     const q = this.question();
     return q ? this.progress.isRead(q.id) : false;
   });
 
-  progressPct = computed(() => {
+  readonly progressPct = computed(() => {
     const q = this.question();
     if (!q) return 0;
     const allQ = this.store.getQuestionsByTechnology(q.technology);
     return this.progress.getProgressPercentage(allQ.map(x => x.id));
   });
 
-  previousQuestion = computed(() => {
+  readonly previousQuestion = computed(() => {
     const q = this.question();
     if (!q) return null;
     if (this.isAiMode()) {
@@ -512,7 +514,7 @@ export class QuestionComponent {
     return idx > 0 ? questions[idx - 1] : null;
   });
 
-  nextQuestion = computed(() => {
+  readonly nextQuestion = computed(() => {
     const q = this.question();
     if (!q) return null;
     if (this.isAiMode()) {
@@ -525,13 +527,15 @@ export class QuestionComponent {
     return idx < questions.length - 1 ? questions[idx + 1] : null;
   });
 
-  relatedQuestions = computed(() => {
+  readonly relatedQuestions = computed(() => {
     const q = this.question();
     if (!q) return [];
     if (this.isAiMode()) {
       return this.aiService.activeList()
         .filter(x => !(x.slug === q.slug && x.technology === q.technology))
-        .slice(0, 3);
+        .slice(0, 3)
+        .map(ref => this.store.getQuestion(ref.technology, ref.slug))
+        .filter((x): x is Question => x !== undefined);
     }
     const questions = this.store.getQuestionsByTechnology(q.technology);
     return questions.filter(x => x.slug !== q.slug).slice(0, 3);

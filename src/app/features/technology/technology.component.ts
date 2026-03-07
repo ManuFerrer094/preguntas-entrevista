@@ -1,6 +1,6 @@
-import { Component, inject, computed, effect, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed, effect, signal, untracked } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule, ViewportScroller } from '@angular/common';
+import { ViewportScroller } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +16,8 @@ const PAGE_SIZE = 10;
 @Component({
   selector: 'app-technology',
   standalone: true,
-  imports: [RouterLink, CommonModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (technology()) {
       <nav class="breadcrumb" aria-label="Ruta de navegación">
@@ -131,7 +132,7 @@ const PAGE_SIZE = 10;
               class="search-input"
               placeholder="Buscar por palabra clave, tema o etiqueta..."
               [value]="searchQuery()"
-              (input)="searchQuery.set($any($event.target).value)"
+              (input)="onSearchInput($event)"
               aria-label="Buscar preguntas"
             />
           </div>
@@ -548,32 +549,32 @@ const PAGE_SIZE = 10;
   `]
 })
 export class TechnologyComponent {
-  private route = inject(ActivatedRoute);
-  store = inject(ContentStore);
-  private seo = inject(SeoService);
-  progress = inject(ProgressService);
-  private viewportScroller = inject(ViewportScroller);
+  private readonly route = inject(ActivatedRoute);
+  readonly store = inject(ContentStore);
+  private readonly seo = inject(SeoService);
+  readonly progress = inject(ProgressService);
+  private readonly viewportScroller = inject(ViewportScroller);
 
-  searchQuery = signal('');
-  filter = signal<'all' | 'completed' | 'pending'>('all');
-  difficultyFilter = signal<Difficulty | null>(null);
-  activeTag = signal<string | null>(null);
-  currentPage = signal(1);
+  readonly searchQuery = signal('');
+  readonly filter = signal<'all' | 'completed' | 'pending'>('all');
+  readonly difficultyFilter = signal<Difficulty | null>(null);
+  readonly activeTag = signal<string | null>(null);
+  readonly currentPage = signal(1);
 
-  private routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  private readonly routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
 
-  technology = computed(() => {
+  readonly technology = computed(() => {
     const slug = this.routeParams().get('technology') ?? '';
     return this.store.technologies().find(t => t.slug === slug) ?? null;
   });
 
-  allQuestions = computed(() => {
+  readonly allQuestions = computed(() => {
     const tech = this.technology();
     if (!tech) return [];
     return this.store.getQuestionsByTechnology(tech.slug);
   });
 
-  availableTags = computed(() => {
+  readonly availableTags = computed(() => {
     const tagSet = new Set<string>();
     for (const q of this.allQuestions()) {
       for (const t of q.tags) {
@@ -583,17 +584,17 @@ export class TechnologyComponent {
     return Array.from(tagSet).sort();
   });
 
-  readCount = computed(() => {
+  readonly readCount = computed(() => {
     const ids = this.allQuestions().map(q => q.id);
     return this.progress.getReadCountForTechnology(ids);
   });
 
-  progressPct = computed(() => {
+  readonly progressPct = computed(() => {
     const ids = this.allQuestions().map(q => q.id);
     return this.progress.getProgressPercentage(ids);
   });
 
-  filteredQuestions = computed(() => {
+  readonly filteredQuestions = computed(() => {
     let questions = this.allQuestions();
     const query = this.searchQuery().toLowerCase();
     if (query) {
@@ -620,15 +621,15 @@ export class TechnologyComponent {
     return questions;
   });
 
-  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredQuestions().length / PAGE_SIZE)));
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredQuestions().length / PAGE_SIZE)));
 
-  pagedQuestions = computed(() => {
+  readonly pagedQuestions = computed(() => {
     const page = this.currentPage();
     const start = (page - 1) * PAGE_SIZE;
     return this.filteredQuestions().slice(start, start + PAGE_SIZE);
   });
 
-  pageNumbers = computed(() => {
+  readonly pageNumbers = computed(() => {
     const total = this.totalPages();
     const current = this.currentPage();
     const pages: number[] = [];
@@ -643,6 +644,10 @@ export class TechnologyComponent {
 
   toggleTag(tag: string): void {
     this.activeTag.update(current => (current === tag ? null : tag));
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
   goToPage(page: number): void {
