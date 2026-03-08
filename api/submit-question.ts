@@ -17,11 +17,11 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     return;
   }
 
-  const forwarded = req.headers?.['x-forwarded-for'];
-  const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded) ?? 'unknown';
+  const auth = req.headers?.['authorization'];
+  const contributorToken = typeof auth === 'string' ? auth.replace(/^Bearer\s+/i, '') : '';
 
   try {
-    const result = await handleSubmitQuestion(req.body as any, ip);
+    const result = await handleSubmitQuestion(req.body as any, contributorToken);
     res.status(201).json(result);
   } catch (err) {
     if (err instanceof SubmitQuestionError) {

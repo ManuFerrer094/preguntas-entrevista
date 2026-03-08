@@ -5,10 +5,11 @@ export function createSubmitQuestionRouter(): Router {
   const router = Router();
 
   router.post('/', async (req: Request, res: Response): Promise<void> => {
-    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ?? req.ip ?? 'unknown';
+    const auth = req.headers['authorization'] || '';
+    const contributorToken = auth.replace(/^Bearer\s+/i, '');
 
     try {
-      const result = await handleSubmitQuestion(req.body, ip);
+      const result = await handleSubmitQuestion(req.body, contributorToken);
       res.status(201).json(result);
     } catch (err) {
       if (err instanceof SubmitQuestionError) {

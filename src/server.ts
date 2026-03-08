@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { createPdfRouter } from './api/pdf.router';
 import { createAiQuestionsRouter } from './api/ai-questions.router';
 import { createSubmitQuestionRouter } from './api/submit-question.router';
+import { createAuthGitHubRouter } from './api/auth-github.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 // In production the questions are copied to the browser bundle output;
@@ -46,6 +47,14 @@ app.use('/api/ai-questions', aiRouter);
  */
 const submitRouter = createSubmitQuestionRouter();
 app.use('/api/submit-question', submitRouter);
+
+/**
+ * GitHub OAuth — client ID retrieval and code exchange.
+ * GET  /api/auth/github
+ * POST /api/auth/github
+ */
+const authRouter = createAuthGitHubRouter();
+app.use('/api/auth/github', authRouter);
 
 /**
  * Serve static files from /browser

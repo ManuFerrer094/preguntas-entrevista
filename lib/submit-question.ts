@@ -1,12 +1,9 @@
 export interface SubmitQuestionInput {
-  authorName?: string;
-  authorUrl?: string;
   technology?: string;
   title?: string;
   difficulty?: string;
   tags?: string;
   content?: string;
-  honeypot?: string;
 }
 
 export interface SubmitQuestionResult {
@@ -21,22 +18,20 @@ const VALID_TECHNOLOGIES = [
 ];
 
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
-const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/in\/[\w-]+\/?$/;
 const MAX_TITLE_LENGTH = 200;
 const MAX_CONTENT_LENGTH = 15000;
 const MAX_TAGS_LENGTH = 300;
-const MAX_AUTHOR_NAME_LENGTH = 100;
 
-// Simple in-memory rate limiter (per process)
+// Simple in-memory rate limiter (per process, per GitHub user)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
-function isRateLimited(ip: string): boolean {
+function isRateLimited(key: string): boolean {
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const entry = rateLimitMap.get(key);
   if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return false;
   }
   entry.count++;
@@ -86,18 +81,22 @@ export class SubmitQuestionError extends Error {
   }
 }
 
-export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp: string): Promise<SubmitQuestionResult> {
-  // Rate limiting
-  if (isRateLimited(clientIp)) {
+export async function handleSubmitQuestion(input: SubmitQuestionInput, contributorToken: string): Promise<SubmitQuestionResult> {
+  if (!contributorToken) {
+    throw new SubmitQuestionError(401, 'Se requiere autenticación con GitHub.');
+  }
+
+  // Get contributor's GitHub identity
+  const contributor = await githubApi('/user', contributorToken);
+  const contributorLogin: string = contributor.login;
+  const contributorName: string = contributor.name || contributor.login;
+
+  // Rate limiting by GitHub username
+  if (isRateLimited(contributorLogin)) {
     throw new SubmitQuestionError(429, 'Demasiadas solicitudes. Inténtalo de nuevo en una hora.');
   }
 
-  const { authorName, authorUrl, technology, title, difficulty, tags, content, honeypot } = input;
-
-  // Honeypot
-  if (honeypot) {
-    return { prUrl: '#' };
-  }
+  const { technology, title, difficulty, tags, content } = input;
 
   // Validation
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
@@ -126,21 +125,6 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp:
     throw new SubmitQuestionError(400, `Los tags no pueden superar los ${MAX_TAGS_LENGTH} caracteres.`);
   }
 
-  if (authorName && typeof authorName === 'string' && authorName.length > MAX_AUTHOR_NAME_LENGTH) {
-    throw new SubmitQuestionError(400, `El nombre no puede superar los ${MAX_AUTHOR_NAME_LENGTH} caracteres.`);
-  }
-
-  if (authorUrl && typeof authorUrl === 'string' && authorUrl.trim().length > 0) {
-    if (!LINKEDIN_REGEX.test(authorUrl.trim())) {
-      throw new SubmitQuestionError(400, 'La URL debe ser un perfil de LinkedIn válido (https://linkedin.com/in/...).');
-    }
-  }
-
-  const githubToken = process.env['GITHUB_TOKEN'] || '';
-  if (!githubToken) {
-    throw new SubmitQuestionError(503, 'El servicio de contribuciones no está configurado.');
-  }
-
   const REPO_OWNER = process.env['REPO_OWNER'] || 'manuelfcreis';
   const REPO_NAME = process.env['REPO_NAME'] || 'preguntas-entrevista';
   const BASE_BRANCH = process.env['BASE_BRANCH'] || 'main';
@@ -151,44 +135,69 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp:
     ? tags.split(',').map((t: string) => sanitizeFrontmatter(t.trim())).filter(Boolean)
     : [technology];
   const safeContent = sanitizeContent(content.trim());
-  const safeAuthorName = authorName ? sanitizeFrontmatter(authorName.trim()) : '';
-  const safeAuthorUrl = authorUrl?.trim() ?? '';
 
-  // Build frontmatter
-  let frontmatter = `---\ntitle: "${safeTitle}"\ndifficulty: ${safeDifficulty}\ntags: [${safeTags.join(', ')}]`;
-  if (safeAuthorName) {
-    frontmatter += `\nauthor: "${safeAuthorName}"`;
-  }
-  if (safeAuthorUrl && LINKEDIN_REGEX.test(safeAuthorUrl)) {
-    frontmatter += `\nauthorUrl: "${safeAuthorUrl}"`;
-  }
-  frontmatter += '\n---\n\n';
+  // Build frontmatter with GitHub contributor info
+  const frontmatter =
+    `---\ntitle: "${safeTitle}"\ndifficulty: ${safeDifficulty}\ntags: [${safeTags.join(', ')}]` +
+    `\nauthor: "${sanitizeFrontmatter(contributorName)}"` +
+    `\nauthorUrl: "https://github.com/${contributorLogin}"` +
+    `\n---\n\n`;
 
   const fileContent = frontmatter + safeContent + '\n';
   const slug = slugify(safeTitle);
   const timestamp = Date.now();
   const branchName = `community/question-${slug}-${timestamp}`;
 
-  // 1. Get main branch SHA
-  const mainRef = await githubApi(
-    `/repos/${REPO_OWNER}/${REPO_NAME}/git/ref/heads/${BASE_BRANCH}`,
-    githubToken,
+  // 1. Fork the repo (idempotent — returns existing fork if present)
+  const fork = await githubApi(
+    `/repos/${REPO_OWNER}/${REPO_NAME}/forks`,
+    contributorToken,
+    { method: 'POST', body: { default_branch_only: true } },
   );
-  const baseSha = mainRef.object.sha;
+  const forkOwner: string = fork.owner.login;
+  const forkName: string = fork.name;
 
-  // 2. Get the current tree of the base commit
+  // 2. Sync fork with upstream (best effort)
+  try {
+    await githubApi(
+      `/repos/${forkOwner}/${forkName}/merge-upstream`,
+      contributorToken,
+      { method: 'POST', body: { branch: BASE_BRANCH } },
+    );
+  } catch {
+    // May fail for brand-new forks, safe to ignore
+  }
+
+  // 3. Get base branch SHA from the fork (retry once for new forks)
+  let baseSha: string;
+  try {
+    const ref = await githubApi(
+      `/repos/${forkOwner}/${forkName}/git/ref/heads/${BASE_BRANCH}`,
+      contributorToken,
+    );
+    baseSha = ref.object.sha;
+  } catch {
+    await new Promise((r) => setTimeout(r, 3000));
+    const ref = await githubApi(
+      `/repos/${forkOwner}/${forkName}/git/ref/heads/${BASE_BRANCH}`,
+      contributorToken,
+    );
+    baseSha = ref.object.sha;
+  }
+
+  // 4. Get the base tree
   const baseCommit = await githubApi(
-    `/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${baseSha}`,
-    githubToken,
+    `/repos/${forkOwner}/${forkName}/git/commits/${baseSha}`,
+    contributorToken,
   );
   const baseTreeSha = baseCommit.tree.sha;
 
-  // 3. Get current index.json to determine next question number
+  // 5. Get current index.json from ORIGINAL repo to determine next question number
   let currentIndex: string[] = [];
   try {
     const indexFile = await githubApi(
       `/repos/${REPO_OWNER}/${REPO_NAME}/contents/questions/${technology}/index.json?ref=${BASE_BRANCH}`,
-      githubToken,
+      contributorToken,
     );
     const decoded = Buffer.from(indexFile.content, 'base64').toString('utf-8');
     currentIndex = JSON.parse(decoded);
@@ -200,10 +209,10 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp:
   const newFileName = `q${nextNum}.md`;
   const newIndex = [...currentIndex, newFileName];
 
-  // 4. Create a new tree with both files
+  // 6. Create new tree in the fork
   const newTree = await githubApi(
-    `/repos/${REPO_OWNER}/${REPO_NAME}/git/trees`,
-    githubToken,
+    `/repos/${forkOwner}/${forkName}/git/trees`,
+    contributorToken,
     {
       method: 'POST',
       body: {
@@ -226,10 +235,10 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp:
     },
   );
 
-  // 5. Create commit
+  // 7. Create commit in the fork
   const newCommit = await githubApi(
-    `/repos/${REPO_OWNER}/${REPO_NAME}/git/commits`,
-    githubToken,
+    `/repos/${forkOwner}/${forkName}/git/commits`,
+    contributorToken,
     {
       method: 'POST',
       body: {
@@ -240,10 +249,10 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp:
     },
   );
 
-  // 6. Create branch
+  // 8. Create branch in the fork
   await githubApi(
-    `/repos/${REPO_OWNER}/${REPO_NAME}/git/refs`,
-    githubToken,
+    `/repos/${forkOwner}/${forkName}/git/refs`,
+    contributorToken,
     {
       method: 'POST',
       body: {
@@ -253,27 +262,23 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, clientIp:
     },
   );
 
-  // 7. Create PR
-  const authorInfo = safeAuthorName
-    ? `\n\n**Autor:** ${safeAuthorUrl ? `[${safeAuthorName}](${safeAuthorUrl})` : safeAuthorName}`
-    : '';
-
+  // 9. Create PR from fork to original repo
   const pr = await githubApi(
     `/repos/${REPO_OWNER}/${REPO_NAME}/pulls`,
-    githubToken,
+    contributorToken,
     {
       method: 'POST',
       body: {
         title: `[Community] ${safeTitle} (${technology})`,
         body:
           `## Nueva pregunta de la comunidad\n\n` +
+          `- **Contribuidor:** [@${contributorLogin}](https://github.com/${contributorLogin})\n` +
           `- **Tecnología:** ${technology}\n` +
           `- **Dificultad:** ${safeDifficulty}\n` +
           `- **Tags:** ${safeTags.join(', ')}\n` +
           `- **Archivo:** \`questions/${technology}/${newFileName}\`` +
-          authorInfo +
           `\n\n---\n\n### Preview del contenido\n\n${safeContent}`,
-        head: branchName,
+        head: `${forkOwner}:${branchName}`,
         base: BASE_BRANCH,
       },
     },

@@ -4,14 +4,17 @@ import {
   inject,
   signal,
   computed,
+  PLATFORM_ID,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ContentStore } from '../../core/stores/content.store';
+import { GitHubAuthService } from '../../core/services/github-auth.service';
 
 @Component({
   selector: 'app-contribute',
@@ -59,36 +62,51 @@ import { ContentStore } from '../../core/stores/content.store';
           Enviar otra pregunta
         </button>
       </div>
+    } @else if (authService.loading()) {
+      <div class="login-card">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="margin-top: 16px; opacity: 0.7">Autenticando con GitHub...</p>
+      </div>
+    } @else if (!authService.isAuthenticated()) {
+      <div class="login-card">
+        <svg class="github-logo" viewBox="0 0 16 16" fill="currentColor" width="56" height="56">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        <h2>Inicia sesión con GitHub</h2>
+        <p>Para contribuir una pregunta necesitas autenticarte con tu cuenta de GitHub.<br/>
+           La Pull Request se creará bajo tu nombre de usuario.</p>
+        @if (authService.error()) {
+          <div class="error-message" style="margin: 16px 0 0; justify-content: center">
+            <mat-icon>error_outline</mat-icon>
+            <p>{{ authService.error() }}</p>
+          </div>
+        }
+        <button class="github-login-btn" (click)="authService.login()">
+          <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          Iniciar sesión con GitHub
+        </button>
+      </div>
     } @else {
+      <!-- Authenticated user bar -->
+      <div class="user-bar">
+        <img [src]="authService.user()!.avatarUrl" [alt]="authService.user()!.username" class="user-avatar" />
+        <div class="user-info">
+          <span class="user-name">{{ authService.user()!.name }}</span>
+          <span class="user-handle">&#64;{{ authService.user()!.username }}</span>
+        </div>
+        <button class="logout-btn" (click)="authService.logout()" type="button">
+          <mat-icon>logout</mat-icon>
+          Cerrar sesión
+        </button>
+      </div>
+
       <!-- Form -->
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="contribute-form" autocomplete="off">
-
-        <!-- Honeypot (hidden from users, visible to bots) -->
-        <div class="hp-field" aria-hidden="true" tabindex="-1">
-          <input type="text" formControlName="honeypot" tabindex="-1" autocomplete="off" />
-        </div>
-
         <div class="form-grid">
-          <!-- Author section -->
-          <fieldset class="form-section">
-            <legend>Sobre ti <span class="legend-hint">(opcional)</span></legend>
-            <div class="field">
-              <label for="authorName">Tu nombre</label>
-              <input id="authorName" type="text" formControlName="authorName"
-                     placeholder="Ej: María García" maxlength="100" />
-            </div>
-            <div class="field">
-              <label for="authorUrl">URL de LinkedIn</label>
-              <input id="authorUrl" type="url" formControlName="authorUrl"
-                     placeholder="https://linkedin.com/in/tu-perfil" />
-              @if (form.controls.authorUrl.touched && form.controls.authorUrl.errors?.['pattern']) {
-                <span class="field-error">Debe ser una URL de LinkedIn válida (https://linkedin.com/in/...)</span>
-              }
-            </div>
-          </fieldset>
-
           <!-- Question section -->
-          <fieldset class="form-section">
+          <fieldset class="form-section form-section-full">
             <legend>La pregunta</legend>
 
             <div class="field">
@@ -164,12 +182,8 @@ import { ContentStore } from '../../core/stores/content.store';
                     title: "{{ form.controls.title.value }}"<br/>
                     difficulty: {{ form.controls.difficulty.value }}<br/>
                     tags: [{{ form.controls.tags.value || form.controls.technology.value }}]<br/>
-                    @if (form.controls.authorName.value) {
-                      author: "{{ form.controls.authorName.value }}"<br/>
-                    }
-                    @if (form.controls.authorUrl.value) {
-                      authorUrl: "{{ form.controls.authorUrl.value }}"<br/>
-                    }
+                    author: "{{ authService.user()!.name }}"<br/>
+                    authorUrl: "https://github.com/{{ authService.user()!.username }}"<br/>
                     ---
                   </code>
                 </div>
@@ -251,16 +265,69 @@ import { ContentStore } from '../../core/stores/content.store';
       max-width: 600px;
     }
 
-    /* Honeypot — invisible to humans */
-    .hp-field {
-      position: absolute;
-      left: -9999px;
-      opacity: 0;
-      height: 0;
-      width: 0;
-      overflow: hidden;
-      pointer-events: none;
+    /* Login card */
+    .login-card {
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px solid var(--app-border, #e0e0e0);
+      border-radius: 18px;
+      background: var(--app-surface, #fff);
     }
+    .login-card h2 { margin: 16px 0 8px; }
+    .login-card p { opacity: 0.7; margin: 0 0 24px; line-height: 1.6; }
+    .github-logo { opacity: 0.8; }
+    .github-login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      background: #24292e;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .github-login-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* User bar */
+    .user-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border: 1px solid var(--app-border, #e0e0e0);
+      border-radius: 14px;
+      margin-bottom: 24px;
+      background: var(--app-surface, #fff);
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-info { display: flex; flex-direction: column; flex: 1; }
+    .user-name { font-weight: 600; font-size: 0.95rem; }
+    .user-handle { font-size: 0.82rem; opacity: 0.6; }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--app-border, #ddd);
+      border-radius: 8px;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      color: var(--app-text, #333);
+      transition: background 0.15s;
+    }
+    .logout-btn:hover { background: rgba(0,0,0,0.04); }
 
     .contribute-form { display: flex; flex-direction: column; gap: 24px; }
 
@@ -480,7 +547,10 @@ export class ContributeComponent {
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
   private readonly store = inject(ContentStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly platformId = inject(PLATFORM_ID);
 
+  readonly authService = inject(GitHubAuthService);
   readonly technologies = this.store.technologies;
   readonly submitting = signal(false);
   readonly error = signal('');
@@ -488,9 +558,6 @@ export class ContributeComponent {
   readonly activeTab = signal<'write' | 'preview'>('write');
 
   readonly form = this.fb.nonNullable.group({
-    honeypot: [''],
-    authorName: [''],
-    authorUrl: ['', [Validators.pattern(/^https:\/\/(www\.)?linkedin\.com\/in\/[\w-]+\/?$/)]],
     technology: ['', [Validators.required]],
     title: ['', [Validators.required, Validators.maxLength(200)]],
     difficulty: ['', [Validators.required]],
@@ -498,16 +565,27 @@ export class ContributeComponent {
     content: ['', [Validators.required, Validators.maxLength(15000)]],
   });
 
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      const code = this.route.snapshot.queryParams['code'];
+      if (code) {
+        this.authService.exchangeCode(code);
+      }
+    }
+  }
+
   onSubmit(): void {
-    if (this.form.invalid || this.submitting()) return;
+    if (this.form.invalid || this.submitting() || !this.authService.isAuthenticated()) return;
 
     this.submitting.set(true);
     this.error.set('');
 
     const value = this.form.getRawValue();
+    const token = this.authService.user()!.token;
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.http
-      .post<{ prUrl: string }>('/api/submit-question', value)
+      .post<{ prUrl: string }>('/api/submit-question', value, { headers })
       .subscribe({
         next: (res) => {
           this.prUrl.set(res.prUrl);
@@ -523,7 +601,7 @@ export class ContributeComponent {
   }
 
   resetForm(): void {
-    this.form.reset({ honeypot: '', authorName: '', authorUrl: '', technology: '', title: '', difficulty: '', tags: '', content: '' });
+    this.form.reset({ technology: '', title: '', difficulty: '', tags: '', content: '' });
     this.prUrl.set('');
     this.error.set('');
     this.activeTab.set('write');
