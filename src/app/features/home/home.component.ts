@@ -64,6 +64,19 @@ import { SeoService } from '../../core/services/seo.service';
       </div>
     </section>
 
+    <section class="contribute-section" aria-label="Contribuir">
+      <div class="contribute-content">
+        <div class="contribute-text">
+          <h2>¿Tienes preguntas de entrevista?</h2>
+          <p>Comparte tu conocimiento con la comunidad. Envía tus preguntas y ayuda a otros desarrolladores a prepararse.</p>
+        </div>
+        <a routerLink="/contribuir" class="contribute-btn">
+          <mat-icon>edit_note</mat-icon>
+          Contribuir una Pregunta
+        </a>
+      </div>
+    </section>
+
     <section class="why-section" aria-label="Por qué usar esta herramienta">
       <div class="why-content">
         <h2>¿Por qué prepararte aquí?</h2>
@@ -265,6 +278,37 @@ import { SeoService } from '../../core/services/seo.service';
     .why-item strong { display: block; margin-bottom: 4px; }
     .why-item p { margin: 0; opacity: 0.88; font-size: 0.9rem; line-height: 1.5; }
 
+    .contribute-section {
+      margin-top: 40px;
+      padding: 32px;
+      border: 2px dashed var(--app-primary, #1976d2);
+      border-radius: 18px;
+      background: var(--app-surface, #fff);
+    }
+    .contribute-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .contribute-text h2 { margin: 0 0 8px; font-size: 1.25rem; font-weight: 700; }
+    .contribute-text p { margin: 0; opacity: 0.7; font-size: 0.92rem; line-height: 1.5; }
+    .contribute-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #1565c0, #1976d2);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .contribute-btn:hover { opacity: 0.88; transform: translateY(-2px); }
+
     .footer {
       text-align: center;
       padding: 32px 0 16px;
@@ -287,6 +331,8 @@ import { SeoService } from '../../core/services/seo.service';
       .hero-explore { margin-top: 32px; padding-top: 24px; }
       .technologies-grid { grid-template-columns: 1fr; margin-top: 24px; }
       .why-section { padding: 32px 20px; }
+      .contribute-content { flex-direction: column; text-align: center; }
+      .contribute-section { padding: 24px 20px; }
     }
   `]
 })

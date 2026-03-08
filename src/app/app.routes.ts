@@ -12,6 +12,11 @@ export const routes: Routes = [
     title: 'Generar Preguntas IA - Preguntas de Entrevista'
   },
   {
+    path: 'contribuir',
+    loadComponent: () => import('./features/contribute/contribute.component').then(m => m.ContributeComponent),
+    title: 'Contribuir - Preguntas de Entrevista'
+  },
+  {
     path: ':technology',
     loadComponent: () => import('./features/technology/technology.component').then(m => m.TechnologyComponent),
   },
