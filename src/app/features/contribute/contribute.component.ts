@@ -5,6 +5,8 @@ import {
   inject,
   signal,
   computed,
+  effect,
+  untracked,
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
@@ -19,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
+import { TECHNOLOGY_TAGS } from './technology-tags';
 
 @Component({
   selector: 'app-contribute',
@@ -143,9 +146,22 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
           </div>
 
           <div class="field">
-            <label for="tags">Tags <span class="label-hint">(separados por coma)</span></label>
-            <input id="tags" type="text" formControlName="tags"
-                   placeholder="Ej: react, hooks, performance" maxlength="300" />
+            <label>Tags</label>
+            @if (availableTags().length > 0) {
+              <div class="tags-selector" role="group" aria-label="Selecciona los tags de la pregunta">
+                @for (tag of availableTags(); track tag) {
+                  <button type="button"
+                          class="tag-chip"
+                          [class.tag-chip--selected]="isTagSelected(tag)"
+                          [attr.aria-pressed]="isTagSelected(tag)"
+                          (click)="toggleTag(tag)">
+                    {{ tag }}
+                  </button>
+                }
+              </div>
+            } @else {
+              <p class="tags-placeholder">Selecciona una tecnología para ver los tags disponibles</p>
+            }
           </div>
         </fieldset>
 
@@ -632,6 +648,47 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
       color: var(--app-text);
     }
 
+    .tags-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .tag-chip {
+      padding: 5px 12px;
+      border: 1px solid var(--app-border);
+      border-radius: 20px;
+      background: var(--app-surface);
+      color: var(--app-text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .tag-chip:hover {
+      border-color: var(--app-primary);
+      color: var(--app-primary);
+      background: var(--app-surface-raised);
+    }
+    .tag-chip--selected {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border-color: var(--app-primary);
+    }
+    .tag-chip--selected:hover {
+      opacity: 0.85;
+      color: var(--app-on-primary);
+    }
+
+    .tags-placeholder {
+      font-size: 0.85rem;
+      color: var(--app-text-muted);
+      margin: 4px 0 0;
+      font-style: italic;
+    }
+
     @media (max-width: 980px) {
       .editor-shell { grid-template-columns: 1fr; }
       .preview-box { max-height: unset; }
@@ -665,6 +722,8 @@ export class ContributeComponent {
   readonly error = signal('');
   readonly prUrl = signal('');
 
+  readonly selectedTags = signal<string[]>([]);
+
   @ViewChild('editorTextarea')
   private editorTextarea?: ElementRef<HTMLTextAreaElement>;
 
@@ -675,6 +734,12 @@ export class ContributeComponent {
     tags: [''],
     content: ['', [Validators.required, Validators.maxLength(15000)]],
   });
+
+  readonly technologyValue = toSignal(this.form.controls.technology.valueChanges, {
+    initialValue: this.form.controls.technology.value,
+  });
+
+  readonly availableTags = computed(() => TECHNOLOGY_TAGS[this.technologyValue()] ?? []);
 
   readonly contentValue = toSignal(this.form.controls.content.valueChanges, {
     initialValue: this.form.controls.content.value,
@@ -692,6 +757,14 @@ export class ContributeComponent {
         this.authService.exchangeCode(code);
       }
     }
+
+    effect(() => {
+      this.technologyValue(); // track technology changes
+      untracked(() => {
+        this.selectedTags.set([]);
+        this.form.controls.tags.setValue('');
+      });
+    });
   }
 
   onSubmit(): void {
@@ -798,9 +871,24 @@ export class ContributeComponent {
     });
   }
 
+  toggleTag(tag: string): void {
+    this.selectedTags.update(current => {
+      const next = current.includes(tag)
+        ? current.filter(t => t !== tag)
+        : [...current, tag];
+      this.form.controls.tags.setValue(next.join(', '));
+      return next;
+    });
+  }
+
+  isTagSelected(tag: string): boolean {
+    return this.selectedTags().includes(tag);
+  }
+
   resetForm(): void {
     this.form.reset({ technology: '', title: '', difficulty: '', tags: '', content: '' });
     this.prUrl.set('');
     this.error.set('');
+    this.selectedTags.set([]);
   }
 }
