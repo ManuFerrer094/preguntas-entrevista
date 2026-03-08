@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   inject,
   signal,
   computed,
   PLATFORM_ID,
+  ViewChild,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -15,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
+import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 
 @Component({
   selector: 'app-contribute',
@@ -89,7 +92,6 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
         </button>
       </div>
     } @else {
-      <!-- Authenticated user bar -->
       <div class="user-bar">
         <img [src]="authService.user()!.avatarUrl" [alt]="authService.user()!.username" class="user-avatar" />
         <div class="user-info">
@@ -102,104 +104,128 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
         </button>
       </div>
 
-      <!-- Form -->
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="contribute-form" autocomplete="off">
-        <div class="form-grid">
-          <!-- Question section -->
-          <fieldset class="form-section form-section-full">
-            <legend>La pregunta</legend>
+        <fieldset class="form-section">
+          <legend>Datos de la pregunta</legend>
 
-            <div class="field">
-              <label for="technology">Tecnología *</label>
-              <select id="technology" formControlName="technology">
-                <option value="" disabled>Selecciona una tecnología</option>
-                @for (tech of technologies(); track tech.id) {
-                  <option [value]="tech.slug">{{ tech.name }}</option>
-                }
-              </select>
-              @if (form.controls.technology.touched && form.controls.technology.errors?.['required']) {
-                <span class="field-error">Selecciona una tecnología</span>
+          <div class="field">
+            <label for="technology">Tecnología *</label>
+            <select id="technology" formControlName="technology">
+              <option value="" disabled>Selecciona una tecnología</option>
+              @for (tech of technologies(); track tech.id) {
+                <option [value]="tech.slug">{{ tech.name }}</option>
               }
-            </div>
-
-            <div class="field-row">
-              <div class="field field-grow">
-                <label for="title">Título de la pregunta *</label>
-                <input id="title" type="text" formControlName="title"
-                       placeholder="Ej: ¿Qué es el Virtual DOM en React?" maxlength="200" />
-                @if (form.controls.title.touched && form.controls.title.errors?.['required']) {
-                  <span class="field-error">El título es obligatorio</span>
-                }
-              </div>
-              <div class="field">
-                <label for="difficulty">Dificultad *</label>
-                <select id="difficulty" formControlName="difficulty">
-                  <option value="" disabled>Nivel</option>
-                  <option value="easy">Fácil</option>
-                  <option value="medium">Media</option>
-                  <option value="hard">Difícil</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="tags">Tags <span class="label-hint">(separados por coma)</span></label>
-              <input id="tags" type="text" formControlName="tags"
-                     placeholder="Ej: react, hooks, performance" maxlength="300" />
-            </div>
-          </fieldset>
-        </div>
-
-        <!-- Content -->
-        <fieldset class="form-section form-section-full">
-          <legend>Contenido de la respuesta *</legend>
-
-          <div class="content-tabs">
-            <button type="button" class="tab-btn" [class.active]="activeTab() === 'write'"
-                    (click)="activeTab.set('write')">
-              <mat-icon>edit</mat-icon> Escribir
-            </button>
-            <button type="button" class="tab-btn" [class.active]="activeTab() === 'preview'"
-                    (click)="activeTab.set('preview')">
-              <mat-icon>visibility</mat-icon> Preview
-            </button>
+            </select>
+            @if (form.controls.technology.touched && form.controls.technology.errors?.['required']) {
+              <span class="field-error">Selecciona una tecnología</span>
+            }
           </div>
 
-          @if (activeTab() === 'write') {
-            <textarea id="content" formControlName="content" class="content-textarea"
-                      placeholder="Escribe tu respuesta en Markdown...&#10;&#10;Puedes usar:&#10;- **Negritas** y *cursivas*&#10;- Bloques de código con \`\`\`&#10;- Listas con - o 1.&#10;- Enlaces [texto](url)"
-                      rows="14"></textarea>
-            <div class="content-footer">
-              <span class="char-count">{{ form.controls.content.value.length }} / 15.000</span>
-              <span class="md-hint">Markdown soportado</span>
-            </div>
-          } @else {
-            <div class="preview-box">
-              @if (form.controls.content.value.trim()) {
-                <div class="preview-frontmatter">
-                  <code>
-                    ---<br/>
-                    title: "{{ form.controls.title.value }}"<br/>
-                    difficulty: {{ form.controls.difficulty.value }}<br/>
-                    tags: [{{ form.controls.tags.value || form.controls.technology.value }}]<br/>
-                    author: "{{ authService.user()!.name }}"<br/>
-                    authorUrl: "https://github.com/{{ authService.user()!.username }}"<br/>
-                    ---
-                  </code>
-                </div>
-                <div class="preview-content">{{ form.controls.content.value }}</div>
-              } @else {
-                <p class="preview-empty">Escribe contenido para ver la preview</p>
+          <div class="field-row">
+            <div class="field field-grow">
+              <label for="title">Título de la pregunta *</label>
+              <input id="title" type="text" formControlName="title"
+                     placeholder="Ej: ¿Qué es el Virtual DOM en React?" maxlength="200" />
+              @if (form.controls.title.touched && form.controls.title.errors?.['required']) {
+                <span class="field-error">El título es obligatorio</span>
               }
             </div>
-          }
+            <div class="field field-sm">
+              <label for="difficulty">Dificultad *</label>
+              <select id="difficulty" formControlName="difficulty">
+                <option value="" disabled>Nivel</option>
+                <option value="easy">Fácil</option>
+                <option value="medium">Media</option>
+                <option value="hard">Difícil</option>
+              </select>
+            </div>
+          </div>
 
-          @if (form.controls.content.touched && form.controls.content.errors?.['required']) {
-            <span class="field-error">El contenido es obligatorio</span>
-          }
+          <div class="field">
+            <label for="tags">Tags <span class="label-hint">(separados por coma)</span></label>
+            <input id="tags" type="text" formControlName="tags"
+                   placeholder="Ej: react, hooks, performance" maxlength="300" />
+          </div>
         </fieldset>
 
-        <!-- Error -->
+        <section class="editor-shell">
+          <div class="editor-panel">
+            <div class="panel-head">
+              <h2>Escribir</h2>
+              <span class="char-count">{{ form.controls.content.value.length }} / 15.000</span>
+            </div>
+
+            <div class="editor-toolbar" role="toolbar" aria-label="Controles de formato markdown">
+              <button type="button" class="tool-btn" (click)="applyInlineWrap('**', '**')" title="Negrita">
+                <mat-icon>format_bold</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="applyInlineWrap('*', '*')" title="Cursiva">
+                <mat-icon>format_italic</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="applyInlineCode()" title="Código inline">
+                <mat-icon>code</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="applyBlockPrefix('## ')" title="Título H2">
+                <mat-icon>title</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="applyBlockPrefix('- ')" title="Lista">
+                <mat-icon>format_list_bulleted</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="applyBlockPrefix('1. ')" title="Lista numerada">
+                <mat-icon>format_list_numbered</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="applyBlockPrefix('> ')" title="Cita">
+                <mat-icon>format_quote</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="insertLink()" title="Enlace">
+                <mat-icon>link</mat-icon>
+              </button>
+              <button type="button" class="tool-btn" (click)="insertCodeBlock()" title="Bloque de código">
+                <mat-icon>data_object</mat-icon>
+              </button>
+            </div>
+
+            <textarea
+              #editorTextarea
+              id="content"
+              formControlName="content"
+              class="content-textarea"
+              placeholder="Escribe tu respuesta en Markdown..."
+              rows="16"
+            ></textarea>
+
+            @if (form.controls.content.touched && form.controls.content.errors?.['required']) {
+              <span class="field-error">El contenido es obligatorio</span>
+            }
+          </div>
+          <div class="preview-panel">
+            <div class="panel-head">
+              <h2>Preview</h2>
+              <span class="md-hint">Render en tiempo real</span>
+            </div>
+
+            <div class="preview-frontmatter">
+              <code>
+                ---<br/>
+                title: "{{ form.controls.title.value || 'Tu titulo aqui' }}"<br/>
+                difficulty: {{ form.controls.difficulty.value || 'medium' }}<br/>
+                tags: [{{ form.controls.tags.value || form.controls.technology.value || 'tag1, tag2' }}]<br/>
+                author: "{{ authService.user()!.name }}"<br/>
+                authorUrl: "https://github.com/{{ authService.user()!.username }}"<br/>
+                ---
+              </code>
+            </div>
+
+            <div class="preview-box">
+              @if (form.controls.content.value.trim()) {
+                <div class="markdown-content" [innerHTML]="renderedContent()"></div>
+              } @else {
+                <p class="preview-empty">Empieza a escribir para ver la vista previa</p>
+              }
+            </div>
+          </div>
+        </section>
+
         @if (error()) {
           <div class="error-message">
             <mat-icon>error_outline</mat-icon>
@@ -207,7 +233,6 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
           </div>
         }
 
-        <!-- Submit -->
         <div class="form-actions">
           <button type="submit" class="submit-btn"
                   [disabled]="submitting() || form.invalid">
@@ -224,10 +249,16 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
     }
   `,
   styles: [`
+    :host {
+      display: block;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
     .breadcrumb {
       font-size: 0.85rem;
       margin-bottom: 24px;
-      color: var(--app-text-secondary, #666);
+      color: var(--app-text-muted);
     }
     .breadcrumb a {
       color: var(--app-primary);
@@ -260,7 +291,7 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
     .page-desc {
       margin: 0;
       font-size: 0.95rem;
-      opacity: 0.7;
+      color: var(--app-text-muted);
       line-height: 1.6;
       max-width: 600px;
     }
@@ -269,12 +300,13 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
     .login-card {
       text-align: center;
       padding: 48px 24px;
-      border: 1px solid var(--app-border, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 18px;
-      background: var(--app-surface, #fff);
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow-sm);
     }
     .login-card h2 { margin: 16px 0 8px; }
-    .login-card p { opacity: 0.7; margin: 0 0 24px; line-height: 1.6; }
+    .login-card p { color: var(--app-text-muted); margin: 0 0 24px; line-height: 1.6; }
     .github-logo { opacity: 0.8; }
     .github-login-btn {
       display: inline-flex;
@@ -299,10 +331,11 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
       align-items: center;
       gap: 12px;
       padding: 14px 20px;
-      border: 1px solid var(--app-border, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 14px;
       margin-bottom: 24px;
-      background: var(--app-surface, #fff);
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow-sm);
     }
     .user-avatar {
       width: 40px;
@@ -312,38 +345,33 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
     }
     .user-info { display: flex; flex-direction: column; flex: 1; }
     .user-name { font-weight: 600; font-size: 0.95rem; }
-    .user-handle { font-size: 0.82rem; opacity: 0.6; }
+    .user-handle { font-size: 0.82rem; color: var(--app-text-muted); }
     .logout-btn {
       display: flex;
       align-items: center;
       gap: 6px;
       padding: 8px 14px;
-      border: 1px solid var(--app-border, #ddd);
+      border: 1px solid var(--app-border);
       border-radius: 8px;
       background: transparent;
       font-family: inherit;
       font-size: 0.82rem;
       cursor: pointer;
-      color: var(--app-text, #333);
+      color: var(--app-text);
       transition: background 0.15s;
     }
-    .logout-btn:hover { background: rgba(0,0,0,0.04); }
+    .logout-btn:hover { background: var(--app-surface-raised); }
 
     .contribute-form { display: flex; flex-direction: column; gap: 24px; }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
     .form-section {
-      border: 1px solid var(--app-border, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 14px;
       padding: 20px;
       margin: 0;
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow-sm);
     }
-    .form-section-full { grid-column: 1 / -1; }
 
     legend {
       font-weight: 700;
@@ -360,26 +388,27 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
     .field:first-of-type { margin-top: 8px; }
     .field-row { display: flex; gap: 16px; }
     .field-grow { flex: 1; }
+    .field-sm { min-width: 140px; }
 
     label {
       font-size: 0.85rem;
       font-weight: 600;
-      color: var(--app-text, #333);
+      color: var(--app-text);
     }
 
     input, select, textarea {
       font-family: inherit;
       font-size: 0.9rem;
       padding: 10px 14px;
-      border: 1px solid var(--app-border, #ddd);
+      border: 1px solid var(--app-border);
       border-radius: 10px;
-      background: var(--app-surface, #fff);
-      color: var(--app-text, #333);
+      background: var(--app-surface);
+      color: var(--app-text);
       transition: border-color 0.2s;
       outline: none;
     }
     input:focus, select:focus, textarea:focus {
-      border-color: var(--app-primary, #1976d2);
+      border-color: var(--app-border-focus);
     }
 
     .field-error {
@@ -387,92 +416,158 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
       color: #d32f2f;
     }
 
-    /* Content area */
-    .content-tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-      margin-top: 8px;
+    .editor-shell {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
     }
-    .tab-btn {
+
+    .editor-panel,
+    .preview-panel {
+      border: 1px solid var(--app-border);
+      border-radius: 14px;
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow-sm);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-head {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border: 1px solid var(--app-border, #ddd);
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--app-border);
+      background: var(--app-surface-raised);
+    }
+    .panel-head h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--app-border);
+      background: var(--app-surface);
+    }
+
+    .tool-btn {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--app-border);
       border-radius: 8px;
-      background: transparent;
-      font-family: inherit;
-      font-size: 0.85rem;
+      background: var(--app-surface);
+      color: var(--app-text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      color: var(--app-text, #333);
-      transition: all 0.15s;
+      transition: all 0.15s ease;
     }
-    .tab-btn.active {
-      background: var(--app-primary, #1976d2);
-      color: white;
-      border-color: var(--app-primary, #1976d2);
+    .tool-btn:hover {
+      border-color: var(--app-primary);
+      color: var(--app-primary);
+      background: var(--app-surface-raised);
     }
-    .tab-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .tool-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
 
     .content-textarea {
       width: 100%;
-      min-height: 280px;
+      min-height: 440px;
+      border: none;
+      border-radius: 0;
       resize: vertical;
       font-family: 'Consolas', 'Monaco', monospace;
       font-size: 0.88rem;
       line-height: 1.7;
-      box-sizing: border-box;
+      padding: 16px;
     }
-    .content-footer {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 6px;
+
+    .char-count,
+    .md-hint {
       font-size: 0.78rem;
-      opacity: 0.55;
+      color: var(--app-text-muted);
     }
 
     .preview-box {
-      border: 1px solid var(--app-border, #ddd);
-      border-radius: 10px;
-      padding: 20px;
-      min-height: 280px;
-      background: var(--app-surface, #fafafa);
+      min-height: 440px;
+      max-height: 640px;
+      overflow: auto;
+      padding: 16px;
+      background: var(--app-surface);
     }
     .preview-frontmatter {
       background: #263238;
       color: #b0bec5;
-      padding: 14px 18px;
-      border-radius: 8px;
-      margin-bottom: 16px;
+      padding: 12px 14px;
+      margin: 12px;
+      border-radius: 10px;
       font-size: 0.82rem;
       line-height: 1.8;
     }
-    .preview-content {
-      white-space: pre-wrap;
-      line-height: 1.7;
-      font-size: 0.92rem;
-    }
+
     .preview-empty {
       text-align: center;
-      opacity: 0.45;
-      padding: 60px 0;
+      color: var(--app-text-muted);
+      padding: 120px 0;
     }
 
-    /* Error */
+    .markdown-content {
+      line-height: 1.75;
+      font-size: 0.96rem;
+    }
+    :host ::ng-deep .markdown-content pre {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 14px 0;
+      color-scheme: normal;
+    }
+    :host ::ng-deep .markdown-content pre code.hljs {
+      background: transparent;
+      padding: 0;
+      color-scheme: normal;
+    }
+    :host ::ng-deep .markdown-content p code {
+      background: var(--app-surface-variant);
+      color: var(--app-text);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.88em;
+    }
+    :host ::ng-deep .markdown-content ul,
+    :host ::ng-deep .markdown-content ol {
+      padding-left: 20px;
+    }
+    :host ::ng-deep .markdown-content blockquote {
+      border-left: 4px solid var(--app-primary);
+      margin: 10px 0;
+      padding: 6px 12px;
+      background: var(--app-surface-raised);
+      color: var(--app-text-muted);
+    }
+
     .error-message {
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 12px 18px;
-      background: #ffebee;
+      background: color-mix(in srgb, #ffebee 70%, var(--app-surface));
       border: 1px solid #ef9a9a;
       border-radius: 10px;
       color: #c62828;
       font-size: 0.9rem;
     }
 
-    /* Actions */
     .form-actions {
       display: flex;
       justify-content: flex-end;
@@ -483,8 +578,8 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
       align-items: center;
       gap: 10px;
       padding: 14px 32px;
-      background: linear-gradient(135deg, #1565c0, #1976d2);
-      color: white;
+      background: linear-gradient(135deg, var(--app-primary), var(--app-primary-hover));
+      color: var(--app-on-primary);
       border: none;
       border-radius: 12px;
       font-family: inherit;
@@ -496,13 +591,13 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
     .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Success */
     .success-card {
       text-align: center;
       padding: 48px 24px;
-      border: 1px solid var(--app-border, #e0e0e0);
+      border: 1px solid var(--app-border);
       border-radius: 18px;
-      background: var(--app-surface, #fff);
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow-sm);
     }
     .success-icon { font-size: 56px; width: 56px; height: 56px; color: #43a047; }
     .success-card h2 { margin: 12px 0 8px; }
@@ -512,8 +607,8 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
       align-items: center;
       gap: 8px;
       padding: 12px 24px;
-      background: #1565c0;
-      color: white;
+      background: var(--app-primary);
+      color: var(--app-on-primary);
       text-decoration: none;
       border-radius: 10px;
       font-weight: 600;
@@ -527,19 +622,31 @@ import { GitHubAuthService } from '../../core/services/github-auth.service';
       gap: 6px;
       margin: 16px auto 0;
       padding: 10px 20px;
-      border: 1px solid var(--app-border, #ddd);
+      border: 1px solid var(--app-border);
       border-radius: 10px;
       background: transparent;
       font-family: inherit;
       font-size: 0.9rem;
       cursor: pointer;
-      color: var(--app-text, #333);
+      color: var(--app-text);
+    }
+
+    @media (max-width: 980px) {
+      .editor-shell { grid-template-columns: 1fr; }
+      .preview-box { max-height: unset; }
     }
 
     @media (max-width: 700px) {
-      .form-grid { grid-template-columns: 1fr; }
       .field-row { flex-direction: column; gap: 0; }
       .page-header { flex-direction: column; }
+      .form-actions { justify-content: stretch; }
+      .submit-btn { width: 100%; justify-content: center; }
+      .user-bar {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+      }
+      .user-info { flex: 0 0 100%; }
     }
   `],
 })
@@ -549,13 +656,20 @@ export class ContributeComponent {
   private readonly store = inject(ContentStore);
   private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly markdownParser = inject(MarkdownParserService);
 
   readonly authService = inject(GitHubAuthService);
   readonly technologies = this.store.technologies;
   readonly submitting = signal(false);
   readonly error = signal('');
   readonly prUrl = signal('');
-  readonly activeTab = signal<'write' | 'preview'>('write');
+  readonly renderedContent = computed(() => {
+    const content = this.form.controls.content.value.trim();
+    return content ? this.markdownParser.renderMarkdown(content) : '';
+  });
+
+  @ViewChild('editorTextarea')
+  private editorTextarea?: ElementRef<HTMLTextAreaElement>;
 
   readonly form = this.fb.nonNullable.group({
     technology: ['', [Validators.required]],
@@ -600,10 +714,87 @@ export class ContributeComponent {
       });
   }
 
+  applyInlineWrap(prefix: string, suffix: string): void {
+    const textarea = this.editorTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = this.form.controls.content.value;
+    const selected = value.slice(start, end) || 'texto';
+    const replacement = `${prefix}${selected}${suffix}`;
+
+    this.replaceSelection(value, start, end, replacement, start + prefix.length, start + prefix.length + selected.length);
+  }
+
+  applyInlineCode(): void {
+    this.applyInlineWrap('`', '`');
+  }
+
+  applyBlockPrefix(prefix: string): void {
+    const textarea = this.editorTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const value = this.form.controls.content.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const block = value.slice(start, end) || 'texto';
+    const withPrefix = block
+      .split('\n')
+      .map((line) => `${prefix}${line}`)
+      .join('\n');
+
+    this.replaceSelection(value, start, end, withPrefix, start, start + withPrefix.length);
+  }
+
+  insertCodeBlock(): void {
+    const textarea = this.editorTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const value = this.form.controls.content.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = value.slice(start, end) || 'const ejemplo = true;';
+    const replacement = `\n\`\`\`ts\n${selected}\n\`\`\`\n`;
+
+    this.replaceSelection(value, start, end, replacement, start + 6, start + 6 + selected.length);
+  }
+
+  insertLink(): void {
+    const textarea = this.editorTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const value = this.form.controls.content.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = value.slice(start, end) || 'enlace';
+    const replacement = `[${selected}](https://)`;
+
+    this.replaceSelection(value, start, end, replacement, start + selected.length + 3, start + selected.length + 11);
+  }
+
+  private replaceSelection(
+    value: string,
+    start: number,
+    end: number,
+    replacement: string,
+    nextStart: number,
+    nextEnd: number,
+  ): void {
+    const nextValue = value.slice(0, start) + replacement + value.slice(end);
+    this.form.controls.content.setValue(nextValue);
+
+    queueMicrotask(() => {
+      const textarea = this.editorTextarea?.nativeElement;
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(nextStart, nextEnd);
+    });
+  }
+
   resetForm(): void {
     this.form.reset({ technology: '', title: '', difficulty: '', tags: '', content: '' });
     this.prUrl.set('');
     this.error.set('');
-    this.activeTab.set('write');
   }
 }
