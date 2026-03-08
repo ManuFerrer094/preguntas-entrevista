@@ -8,6 +8,7 @@ import {
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -152,7 +153,7 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
           <div class="editor-panel">
             <div class="panel-head">
               <h2>Escribir</h2>
-              <span class="char-count">{{ form.controls.content.value.length }} / 15.000</span>
+              <span class="char-count">{{ contentValue().length }} / 15.000</span>
             </div>
 
             <div class="editor-toolbar" role="toolbar" aria-label="Controles de formato markdown">
@@ -217,7 +218,7 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
             </div>
 
             <div class="preview-box">
-              @if (form.controls.content.value.trim()) {
+              @if (contentValue().trim()) {
                 <div class="markdown-content" [innerHTML]="renderedContent()"></div>
               } @else {
                 <p class="preview-empty">Empieza a escribir para ver la vista previa</p>
@@ -663,10 +664,6 @@ export class ContributeComponent {
   readonly submitting = signal(false);
   readonly error = signal('');
   readonly prUrl = signal('');
-  readonly renderedContent = computed(() => {
-    const content = this.form.controls.content.value.trim();
-    return content ? this.markdownParser.renderMarkdown(content) : '';
-  });
 
   @ViewChild('editorTextarea')
   private editorTextarea?: ElementRef<HTMLTextAreaElement>;
@@ -677,6 +674,15 @@ export class ContributeComponent {
     difficulty: ['', [Validators.required]],
     tags: [''],
     content: ['', [Validators.required, Validators.maxLength(15000)]],
+  });
+
+  readonly contentValue = toSignal(this.form.controls.content.valueChanges, {
+    initialValue: this.form.controls.content.value,
+  });
+
+  readonly renderedContent = computed(() => {
+    const content = this.contentValue().trim();
+    return content ? this.markdownParser.renderMarkdown(content) : '';
   });
 
   constructor() {
