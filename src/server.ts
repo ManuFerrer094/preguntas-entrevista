@@ -10,6 +10,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createPdfRouter } from './api/pdf.router';
 import { createAiQuestionsRouter } from './api/ai-questions.router';
+import { createSubmitQuestionRouter } from './api/submit-question.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 // In production the questions are copied to the browser bundle output;
@@ -38,6 +39,13 @@ app.use('/api/dossier', pdfRouter);
 app.use(express.json({ limit: '100kb' }));
 const aiRouter = createAiQuestionsRouter(questionsDir);
 app.use('/api/ai-questions', aiRouter);
+
+/**
+ * Community question submissions — creates a PR on GitHub.
+ * POST /api/submit-question
+ */
+const submitRouter = createSubmitQuestionRouter();
+app.use('/api/submit-question', submitRouter);
 
 /**
  * Serve static files from /browser
