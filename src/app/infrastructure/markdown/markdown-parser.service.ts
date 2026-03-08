@@ -19,6 +19,8 @@ interface Frontmatter {
   title?: string;
   difficulty?: Difficulty;
   tags?: string[];
+  author?: string;
+  authorUrl?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -62,7 +64,15 @@ export class MarkdownParserService {
       : 'medium';
     const tags: string[] = Array.isArray(metadata.tags) ? metadata.tags : [];
 
-    return { id, title, slug, content: body, technology, index, difficulty, tags };
+    const unquote = (v?: unknown) => {
+      if (!v || typeof v !== 'string') return undefined;
+      return v.replace(/^"|"$/g, '').trim();
+    };
+
+    const author = unquote(metadata.author);
+    const authorUrl = unquote(metadata.authorUrl);
+
+    return { id, title, slug, content: body, technology, index, difficulty, tags, author, authorUrl };
   }
 
   parseFrontmatter(content: string): { metadata: Frontmatter; body: string } {

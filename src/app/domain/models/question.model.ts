@@ -9,4 +9,6 @@ export interface Question {
   index: number;
   difficulty: Difficulty;
   tags: string[];
+  author?: string;
+  authorUrl?: string;
 }

@@ -45,6 +45,9 @@ import { Question } from '../../domain/models/question.model';
               @for (tag of question()!.tags; track tag) {
                 <span class="tag-badge">{{ tag }}</span>
               }
+              <div class="question-meta">
+                <a [href]="question()!.authorUrl || 'https://github.com/ManuFerrer094'" target="_blank" rel="noopener noreferrer">{{ question()!.author || 'Manu Ferrer' }}</a>
+              </div>
             </div>
           </header>
 
@@ -212,6 +215,17 @@ import { Question } from '../../domain/models/question.model';
       gap: 8px;
       align-items: center;
     }
+
+    .question-meta {
+      margin-left: 12px;
+      font-size: 0.9rem;
+    }
+    .question-meta a {
+      color: var(--app-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .question-meta a:hover { text-decoration: underline; }
 
     .difficulty-badge {
       display: inline-block;
