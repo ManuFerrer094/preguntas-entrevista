@@ -142,13 +142,64 @@ Los slugs se generan automáticamente desde el título:
 
 ## Contribuir
 
-Las contribuciones son bienvenidas. Por favor sigue estos pasos:
+Las contribuciones son bienvenidas y ahora puedes enviarlas directamente desde la web:
 
-1. Haz fork del repositorio
-2. Crea una rama: `git checkout -b feature/nueva-pregunta`
-3. Haz tus cambios
-4. Asegúrate de que el linter pasa: `npm run lint`
-5. Envía un Pull Request con descripción clara de los cambios
+- URL pública para contribuciones:  http://preguntas-entrevista.vercel.app/contribuir
+
+Flujos disponibles:
+
+- Enviar por la web (recomendado para la mayoría): rellena el formulario en la URL anterior; el sistema creará automáticamente una Pull Request en este repositorio con el nuevo fichero `.md` y la actualización de `index.json`. Tú revisarás y aprobarás o rechazarás la PR manualmente.
+- Contribuir por Git (manual): fork → rama → commit → PR (método clásico)
+
+Pasos tras usar la interfaz web
+
+1. Rellena el formulario en `/contribuir` con la pregunta en Markdown y, opcionalmente, tu nombre y URL de LinkedIn.
+2. Si la validación es correcta, el sistema creará una rama y una PR en el repo con el archivo `questions/<tecnología>/q<N>.md` y actualizará `questions/<tecnología>/index.json`.
+3. Revisa la PR y haz merge si todo está correcto.
+
+Seguridad y moderación
+
+- No se publica nada automáticamente: todo pasa por una PR que tú debes aprobar.
+- Se aplican limitaciones anti-spam (honeypot + rate limiting por IP).
+- El token de GitHub necesario está almacenado como variable de entorno en Vercel (nunca en el código).
+
+Variables de entorno (Vercel)
+
+Agrega estas variables en Vercel → Project → Settings → Environment Variables:
+
+- `GITHUB_TOKEN` (required)
+    - Valor: tu Personal Access Token (fine‑grained preferido) con permisos mínimos.
+    - Permisos recomendados: Contents Read & Write, Pull requests Read & Write, Metadata Read.
+
+- `REPO_OWNER` (required)
+    - Valor: tu usuario u organización en GitHub (ej. `mi-usuario`).
+
+- `REPO_NAME` (required)
+    - Valor: `preguntas-entrevista` (o el nombre del repo si difiere).
+
+- `BASE_BRANCH` (optional, default `main`)
+    - Valor: la rama base donde crear PRs (ej. `main`).
+
+- `RATE_LIMIT_MAX` (optional)
+    - Valor: máximo de envíos por IP por ventana (ej. `3`).
+
+- `RATE_LIMIT_WINDOW_MS` (optional)
+    - Valor: ventana de rate limit en milisegundos (ej. `3600000` para 1 hora).
+
+Nota: revoca inmediatamente cualquier token que hayas expuesto accidentalmente y crea uno nuevo con permisos mínimos.
+
+Variables de entorno para desarrollo local
+
+Puedes crear un fichero `.env` en la raíz del proyecto con estas variables para desarrollo local (no incluir este fichero en commits):
+
+```env
+GITHUB_TOKEN=ghp_tu_token_aqui
+REPO_OWNER=tu-usuario-github
+REPO_NAME=preguntas-entrevista
+BASE_BRANCH=main
+```
+
+Después de añadir las variables locales, reinicia el servidor de desarrollo.
 
 ## Licencia
 
