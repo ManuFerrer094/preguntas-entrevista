@@ -298,7 +298,7 @@ export class HomeComponent implements OnInit {
 
   readonly filteredTechnologies = computed(() => {
     const query = this.searchQuery().toLowerCase();
-    const techs = this.store.technologies();
+    const techs = this.store.technologies().filter(t => t.questionCount > 0);
     if (!query) return techs;
     return techs.filter(t =>
       t.name.toLowerCase().includes(query) ||
