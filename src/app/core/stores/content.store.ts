@@ -83,6 +83,7 @@ export class ContentStore {
   }
 
   loadQuestionsForTechnology(technology: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.questionsByTechnology().has(technology) || this.loadingTechs.has(technology)) return;
     this.loadingTechs.add(technology);
     this.loading.set(true);
@@ -118,6 +119,7 @@ export class ContentStore {
   }
 
   loadAllQuestionCounts(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     const techs = this.technologies();
     const requests = techs.map(t =>
       this.http

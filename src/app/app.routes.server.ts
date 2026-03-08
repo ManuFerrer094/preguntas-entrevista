@@ -5,10 +5,20 @@ import { generateSlug } from './core/utils/slug-generator';
 
 const QUESTIONS_DIR = join(process.cwd(), 'questions');
 
-function getTechnologies(): string[] {
+function getTechnologiesWithQuestions(): string[] {
   try {
     return readdirSync(QUESTIONS_DIR, { withFileTypes: true })
-      .filter(d => d.isDirectory())
+      .filter(d => {
+        if (!d.isDirectory()) return false;
+        try {
+          const index = JSON.parse(
+            readFileSync(join(QUESTIONS_DIR, d.name, 'index.json'), 'utf-8'),
+          ) as string[];
+          return index.length > 0;
+        } catch {
+          return false;
+        }
+      })
       .map(d => d.name);
   } catch {
     return [];
@@ -38,10 +48,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender,
   },
   {
+    path: 'contribuir',
+    renderMode: RenderMode.Prerender,
+  },
+  {
     path: ':technology',
     renderMode: RenderMode.Prerender,
     async getPrerenderParams() {
-      return getTechnologies().map(technology => ({ technology }));
+      return getTechnologiesWithQuestions().map(technology => ({ technology }));
     },
   },
   {
@@ -49,7 +63,7 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender,
     async getPrerenderParams() {
       const params: { technology: string; slug: string }[] = [];
-      for (const technology of getTechnologies()) {
+      for (const technology of getTechnologiesWithQuestions()) {
         try {
           const files = JSON.parse(
             readFileSync(join(QUESTIONS_DIR, technology, 'index.json'), 'utf-8'),
