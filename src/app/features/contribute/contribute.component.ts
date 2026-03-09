@@ -16,6 +16,8 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ContentStore } from '../../core/stores/content.store';
@@ -30,6 +32,8 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     RouterLink,
     ReactiveFormsModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
   ],
@@ -111,12 +115,14 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
 
           <div class="field">
             <label for="technology">Tecnología *</label>
-            <select id="technology" formControlName="technology">
-              <option value="" disabled>Selecciona una tecnología</option>
-              @for (tech of technologies(); track tech.id) {
-                <option [value]="tech.slug">{{ tech.name }}</option>
-              }
-            </select>
+            <mat-form-field appearance="outline" class="mat-fullwidth">
+              <mat-select id="technology" formControlName="technology" placeholder="Selecciona una tecnología">
+                <mat-option value="" disabled>Selecciona una tecnología</mat-option>
+                @for (tech of technologies(); track tech.id) {
+                  <mat-option [value]="tech.slug">{{ tech.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
             @if (form.controls.technology.touched && form.controls.technology.errors?.['required']) {
               <span class="field-error">Selecciona una tecnología</span>
             }
@@ -133,12 +139,14 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
             </div>
             <div class="field field-sm">
               <label for="difficulty">Dificultad *</label>
-              <select id="difficulty" formControlName="difficulty">
-                <option value="" disabled>Nivel</option>
-                <option value="easy">Fácil</option>
-                <option value="medium">Media</option>
-                <option value="hard">Difícil</option>
-              </select>
+              <mat-form-field appearance="outline">
+                <mat-select id="difficulty" formControlName="difficulty" placeholder="Nivel">
+                  <mat-option value="" disabled>Nivel</mat-option>
+                  <mat-option value="easy">Fácil</mat-option>
+                  <mat-option value="medium">Media</mat-option>
+                  <mat-option value="hard">Difícil</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
           </div>
 
