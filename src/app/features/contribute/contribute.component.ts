@@ -559,12 +559,6 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       padding: 4px 16px 8px;
     }
 
-    /* Override mat-form-field fill backgrounds */
-    :host ::ng-deep .mat-mdc-form-field-focus-overlay,
-    :host ::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input {
-      background: transparent;
-    }
-
     /* ── Tags ─────────────────────────────────────────────────────────── */
     .tags-selector {
       display: flex;
@@ -604,13 +598,6 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       font-size: 0.78rem;
       cursor: default;
     }
-    .tag-chip--sm:hover {
-      opacity: 1;
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      border-color: var(--app-primary);
-    }
-
     .tags-placeholder {
       font-size: 0.85rem;
       color: var(--app-text-muted);
