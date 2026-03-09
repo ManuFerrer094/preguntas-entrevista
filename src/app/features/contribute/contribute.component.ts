@@ -240,7 +240,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
                 ></textarea>
 
                 @if (step2.controls.content.touched && step2.controls.content.errors?.['required']) {
-                  <span class="field-error" style="padding: 4px 16px 8px">El contenido es obligatorio</span>
+                  <span class="field-error field-error--padded">El contenido es obligatorio</span>
                 }
               </div>
 
@@ -253,7 +253,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
                 <div class="preview-frontmatter">
                   <code>
                     ---<br/>
-                    title: {{ step1.controls.title.value || 'Tu titulo aqui' }}<br/>
+                    title: {{ step1.controls.title.value || 'Tu título aqui' }}<br/>
                     difficulty: {{ step1.controls.difficulty.value || 'medium' }}<br/>
                     tags: [{{ step1.controls.tags.value || step1.controls.technology.value || 'tag1, tag2' }}]<br/>
                     author: {{ authService.user()!.name }}<br/>
@@ -339,7 +339,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
               <mat-icon>arrow_back</mat-icon>
               Atrás
             </button>
-            <button class="submit-btn" (click)="onSubmit()"
+            <button type="button" class="submit-btn" (click)="onSubmit()"
                     [disabled]="submitting()">
               @if (submitting()) {
                 <mat-spinner diameter="20"></mat-spinner>
@@ -554,6 +554,9 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       font-size: 0.78rem;
       color: #d32f2f;
       display: block;
+    }
+    .field-error--padded {
+      padding: 4px 16px 8px;
     }
 
     /* Override mat-form-field fill backgrounds */
