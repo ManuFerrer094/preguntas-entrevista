@@ -17,9 +17,11 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatStepperModule } from '@angular/material/stepper';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
@@ -33,9 +35,11 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     ReactiveFormsModule,
     MatIconModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatStepperModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -109,165 +113,246 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
         </button>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="contribute-form" autocomplete="off">
-        <fieldset class="form-section">
-          <legend>Datos de la pregunta</legend>
+      <mat-stepper [linear]="true" #stepper class="contribute-stepper">
 
-          <div class="field">
-            <label for="technology">Tecnología *</label>
-            <mat-form-field appearance="outline" class="mat-fullwidth">
-              <mat-select id="technology" formControlName="technology" placeholder="Selecciona una tecnología">
-                <mat-option value="" disabled>Selecciona una tecnología</mat-option>
-                @for (tech of technologies(); track tech.id) {
-                  <mat-option [value]="tech.slug">{{ tech.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            @if (form.controls.technology.touched && form.controls.technology.errors?.['required']) {
-              <span class="field-error">Selecciona una tecnología</span>
-            }
-          </div>
+        <!-- ── Step 1: Tecnología, título, dificultad y tags ────────────── -->
+        <mat-step [stepControl]="step1">
+          <ng-template matStepLabel>Tecnología y detalles</ng-template>
 
-          <div class="field-row">
-            <div class="field field-grow">
-              <label for="title">Título de la pregunta *</label>
-              <input id="title" type="text" formControlName="title"
-                     placeholder="Ej: ¿Qué es el Virtual DOM en React?" maxlength="200" />
-              @if (form.controls.title.touched && form.controls.title.errors?.['required']) {
-                <span class="field-error">El título es obligatorio</span>
-              }
-            </div>
-            <div class="field field-sm">
-              <label for="difficulty">Dificultad *</label>
-              <mat-form-field appearance="outline">
-                <mat-select id="difficulty" formControlName="difficulty" placeholder="Nivel">
-                  <mat-option value="" disabled>Nivel</mat-option>
-                  <mat-option value="easy">Fácil</mat-option>
-                  <mat-option value="medium">Media</mat-option>
-                  <mat-option value="hard">Difícil</mat-option>
+          <div class="step-content">
+            <div class="field">
+              <mat-form-field appearance="outline" class="mat-fullwidth">
+                <mat-label>Tecnología</mat-label>
+                <mat-select [formControl]="step1.controls.technology" placeholder="Selecciona una tecnología">
+                  @for (tech of technologies(); track tech.id) {
+                    <mat-option [value]="tech.slug">{{ tech.name }}</mat-option>
+                  }
                 </mat-select>
+                @if (step1.controls.technology.touched && step1.controls.technology.errors?.['required']) {
+                  <mat-error>Selecciona una tecnología</mat-error>
+                }
               </mat-form-field>
             </div>
-          </div>
 
-          <div class="field">
-            <label>Tags</label>
-            @if (availableTags().length > 0) {
-              <div class="tags-selector" role="group" aria-label="Selecciona los tags de la pregunta">
-                @for (tag of availableTags(); track tag) {
-                  <button type="button"
-                          class="tag-chip"
-                          [class.tag-chip--selected]="isTagSelected(tag)"
-                          [attr.aria-pressed]="isTagSelected(tag)"
-                          (click)="toggleTag(tag)">
-                    {{ tag }}
-                  </button>
-                }
+            <div class="field-row">
+              <div class="field field-grow">
+                <mat-form-field appearance="outline" class="mat-fullwidth">
+                  <mat-label>Título de la pregunta</mat-label>
+                  <input matInput [formControl]="step1.controls.title"
+                         placeholder="Ej: ¿Qué es el Virtual DOM en React?" maxlength="200" />
+                  @if (step1.controls.title.touched && step1.controls.title.errors?.['required']) {
+                    <mat-error>El título es obligatorio</mat-error>
+                  }
+                </mat-form-field>
               </div>
-            } @else {
-              <p class="tags-placeholder">Selecciona una tecnología para ver los tags disponibles</p>
-            }
-          </div>
-        </fieldset>
-
-        <section class="editor-shell">
-          <div class="editor-panel">
-            <div class="panel-head">
-              <h2>Escribir</h2>
-              <span class="char-count">{{ contentValue().length }} / 15.000</span>
+              <div class="field field-sm">
+                <mat-form-field appearance="outline">
+                  <mat-label>Dificultad</mat-label>
+                  <mat-select [formControl]="step1.controls.difficulty" placeholder="Nivel">
+                    <mat-option value="easy">Fácil</mat-option>
+                    <mat-option value="medium">Media</mat-option>
+                    <mat-option value="hard">Difícil</mat-option>
+                  </mat-select>
+                  @if (step1.controls.difficulty.touched && step1.controls.difficulty.errors?.['required']) {
+                    <mat-error>Selecciona una dificultad</mat-error>
+                  }
+                </mat-form-field>
+              </div>
             </div>
 
-            <div class="editor-toolbar" role="toolbar" aria-label="Controles de formato markdown">
-              <button type="button" class="tool-btn" (click)="applyInlineWrap('**', '**')" title="Negrita">
-                <mat-icon>format_bold</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="applyInlineWrap('*', '*')" title="Cursiva">
-                <mat-icon>format_italic</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="applyInlineCode()" title="Código inline">
-                <mat-icon>code</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="applyBlockPrefix('## ')" title="Título H2">
-                <mat-icon>title</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="applyBlockPrefix('- ')" title="Lista">
-                <mat-icon>format_list_bulleted</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="applyBlockPrefix('1. ')" title="Lista numerada">
-                <mat-icon>format_list_numbered</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="applyBlockPrefix('> ')" title="Cita">
-                <mat-icon>format_quote</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="insertLink()" title="Enlace">
-                <mat-icon>link</mat-icon>
-              </button>
-              <button type="button" class="tool-btn" (click)="insertCodeBlock()" title="Bloque de código">
-                <mat-icon>data_object</mat-icon>
-              </button>
-            </div>
-
-            <textarea
-              #editorTextarea
-              id="content"
-              formControlName="content"
-              class="content-textarea"
-              placeholder="Escribe tu respuesta en Markdown..."
-              rows="16"
-            ></textarea>
-
-            @if (form.controls.content.touched && form.controls.content.errors?.['required']) {
-              <span class="field-error">El contenido es obligatorio</span>
-            }
-          </div>
-          <div class="preview-panel">
-            <div class="panel-head">
-              <h2>Preview</h2>
-              <span class="md-hint">Render en tiempo real</span>
-            </div>
-
-            <div class="preview-frontmatter">
-              <code>
-                ---<br/>
-                title: {{ form.controls.title.value || 'Tu titulo aqui' }}<br/>
-                difficulty: {{ form.controls.difficulty.value || 'medium' }}<br/>
-                tags: [{{ form.controls.tags.value || form.controls.technology.value || 'tag1, tag2' }}]<br/>
-                author: {{ authService.user()!.name }}<br/>
-                authorUrl: "https://github.com/{{ authService.user()!.username }}"<br/>
-                ---
-              </code>
-            </div>
-
-            <div class="preview-box">
-              @if (contentValue().trim()) {
-                <div class="markdown-content" [innerHTML]="renderedContent()"></div>
+            <div class="field">
+              <label class="field-label">Tags <span class="label-hint">(opcional)</span></label>
+              @if (availableTags().length > 0) {
+                <div class="tags-selector" role="group" aria-label="Selecciona los tags de la pregunta">
+                  @for (tag of availableTags(); track tag) {
+                    <button type="button"
+                            class="tag-chip"
+                            [class.tag-chip--selected]="isTagSelected(tag)"
+                            [attr.aria-pressed]="isTagSelected(tag)"
+                            (click)="toggleTag(tag)">
+                      {{ tag }}
+                    </button>
+                  }
+                </div>
               } @else {
-                <p class="preview-empty">Empieza a escribir para ver la vista previa</p>
+                <p class="tags-placeholder">Selecciona una tecnología para ver los tags disponibles</p>
               }
             </div>
           </div>
-        </section>
 
-        @if (error()) {
-          <div class="error-message">
-            <mat-icon>error_outline</mat-icon>
-            <p>{{ error() }}</p>
+          <div class="step-actions">
+            <button mat-flat-button color="primary" matStepperNext
+                    [disabled]="step1.invalid">
+              Siguiente
+              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
           </div>
-        }
+        </mat-step>
 
-        <div class="form-actions">
-          <button type="submit" class="submit-btn"
-                  [disabled]="submitting() || form.invalid">
-            @if (submitting()) {
-              <mat-spinner diameter="20"></mat-spinner>
-              Enviando...
-            } @else {
-              <mat-icon>send</mat-icon>
-              Enviar para revisión
+        <!-- ── Step 2: Escribir y previsualizar ─────────────────────────── -->
+        <mat-step [stepControl]="step2">
+          <ng-template matStepLabel>Escribir y previsualizar</ng-template>
+
+          <div class="step-content">
+            <section class="editor-shell">
+              <div class="editor-panel">
+                <div class="panel-head">
+                  <span class="panel-title">Escribir</span>
+                  <span class="char-count">{{ contentValue().length }} / 15.000</span>
+                </div>
+
+                <div class="editor-toolbar" role="toolbar" aria-label="Controles de formato markdown">
+                  <button type="button" class="tool-btn" (click)="applyInlineWrap('**', '**')" title="Negrita">
+                    <mat-icon>format_bold</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="applyInlineWrap('*', '*')" title="Cursiva">
+                    <mat-icon>format_italic</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="applyInlineCode()" title="Código inline">
+                    <mat-icon>code</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="applyBlockPrefix('## ')" title="Título H2">
+                    <mat-icon>title</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="applyBlockPrefix('- ')" title="Lista">
+                    <mat-icon>format_list_bulleted</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="applyBlockPrefix('1. ')" title="Lista numerada">
+                    <mat-icon>format_list_numbered</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="applyBlockPrefix('> ')" title="Cita">
+                    <mat-icon>format_quote</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="insertLink()" title="Enlace">
+                    <mat-icon>link</mat-icon>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="insertCodeBlock()" title="Bloque de código">
+                    <mat-icon>data_object</mat-icon>
+                  </button>
+                </div>
+
+                <textarea
+                  #editorTextarea
+                  [formControl]="step2.controls.content"
+                  class="content-textarea"
+                  placeholder="Escribe tu respuesta en Markdown..."
+                  rows="16"
+                ></textarea>
+
+                @if (step2.controls.content.touched && step2.controls.content.errors?.['required']) {
+                  <span class="field-error" style="padding: 4px 16px 8px">El contenido es obligatorio</span>
+                }
+              </div>
+
+              <div class="preview-panel">
+                <div class="panel-head">
+                  <span class="panel-title">Preview</span>
+                  <span class="md-hint">Render en tiempo real</span>
+                </div>
+
+                <div class="preview-frontmatter">
+                  <code>
+                    ---<br/>
+                    title: {{ step1.controls.title.value || 'Tu titulo aqui' }}<br/>
+                    difficulty: {{ step1.controls.difficulty.value || 'medium' }}<br/>
+                    tags: [{{ step1.controls.tags.value || step1.controls.technology.value || 'tag1, tag2' }}]<br/>
+                    author: {{ authService.user()!.name }}<br/>
+                    authorUrl: "https://github.com/{{ authService.user()!.username }}"<br/>
+                    ---
+                  </code>
+                </div>
+
+                <div class="preview-box">
+                  @if (contentValue().trim()) {
+                    <div class="markdown-content" [innerHTML]="renderedContent()"></div>
+                  } @else {
+                    <p class="preview-empty">Empieza a escribir para ver la vista previa</p>
+                  }
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="step-actions">
+            <button mat-stroked-button matStepperPrev>
+              <mat-icon>arrow_back</mat-icon>
+              Atrás
+            </button>
+            <button mat-flat-button color="primary" matStepperNext
+                    [disabled]="step2.invalid">
+              Siguiente
+              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </mat-step>
+
+        <!-- ── Step 3: Enviar a revisión ─────────────────────────────────── -->
+        <mat-step>
+          <ng-template matStepLabel>Enviar a revisión</ng-template>
+
+          <div class="step-content">
+            <div class="review-card">
+              <h3 class="review-title">Resumen de tu contribución</h3>
+
+              <div class="review-grid">
+                <div class="review-item">
+                  <span class="review-label">Tecnología</span>
+                  <span class="review-value">{{ step1.controls.technology.value }}</span>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">Dificultad</span>
+                  <span class="review-value review-badge" [class]="'badge-' + step1.controls.difficulty.value">
+                    {{ difficultyLabel(step1.controls.difficulty.value) }}
+                  </span>
+                </div>
+                <div class="review-item review-item--full">
+                  <span class="review-label">Título</span>
+                  <span class="review-value">{{ step1.controls.title.value }}</span>
+                </div>
+                @if (step1.controls.tags.value) {
+                  <div class="review-item review-item--full">
+                    <span class="review-label">Tags</span>
+                    <div class="review-tags">
+                      @for (tag of selectedTags(); track tag) {
+                        <span class="tag-chip tag-chip--selected tag-chip--sm">{{ tag }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+                <div class="review-item review-item--full">
+                  <span class="review-label">Contenido</span>
+                  <span class="review-value review-value--muted">{{ contentValue().length }} caracteres escritos</span>
+                </div>
+              </div>
+            </div>
+
+            @if (error()) {
+              <div class="error-message">
+                <mat-icon>error_outline</mat-icon>
+                <p>{{ error() }}</p>
+              </div>
             }
-          </button>
-        </div>
-      </form>
+          </div>
+
+          <div class="step-actions step-actions--submit">
+            <button mat-stroked-button matStepperPrev [disabled]="submitting()">
+              <mat-icon>arrow_back</mat-icon>
+              Atrás
+            </button>
+            <button class="submit-btn" (click)="onSubmit()"
+                    [disabled]="submitting()">
+              @if (submitting()) {
+                <mat-spinner diameter="20"></mat-spinner>
+                Enviando...
+              } @else {
+                <mat-icon>send</mat-icon>
+                Enviar para revisión
+              }
+            </button>
+          </div>
+        </mat-step>
+
+      </mat-stepper>
     }
   `,
   styles: [`
@@ -275,6 +360,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       display: block;
       max-width: 1100px;
       margin: 0 auto;
+      padding-bottom: 48px;
     }
 
     .breadcrumb {
@@ -374,60 +460,162 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     }
     .logout-btn:hover { background: var(--app-surface-raised); }
 
-    .contribute-form { display: flex; flex-direction: column; gap: 24px; }
+    /* ── Stepper theming ─────────────────────────────────────────────── */
+    .contribute-stepper {
+      --mat-stepper-container-color: transparent;
+      --mat-stepper-header-hover-state-layer-color: transparent;
+      --mat-stepper-header-focus-state-layer-color: color-mix(in srgb, var(--app-primary) 10%, transparent);
+      --mat-stepper-line-color: var(--app-border);
+      background: transparent;
+    }
 
-    .form-section {
+    :host ::ng-deep .contribute-stepper .mat-stepper-horizontal-line {
+      border-top-color: var(--app-border);
+    }
+
+    :host ::ng-deep .contribute-stepper .mat-step-header {
+      border-radius: 12px;
+    }
+
+    :host ::ng-deep .contribute-stepper .mat-step-header .mat-step-icon {
+      background-color: var(--app-border);
+      color: var(--app-text-muted);
+    }
+
+    :host ::ng-deep .contribute-stepper .mat-step-header .mat-step-icon-selected,
+    :host ::ng-deep .contribute-stepper .mat-step-header .mat-step-icon-state-edit,
+    :host ::ng-deep .contribute-stepper .mat-step-header .mat-step-icon-state-done {
+      background-color: var(--app-primary);
+      color: var(--app-on-primary);
+    }
+
+    :host ::ng-deep .contribute-stepper .mat-step-header .mat-step-label {
+      color: var(--app-text-muted);
+      font-family: inherit;
+    }
+
+    :host ::ng-deep .contribute-stepper .mat-step-header .mat-step-label.mat-step-label-active {
+      color: var(--app-text);
+      font-weight: 600;
+    }
+
+    :host ::ng-deep .contribute-stepper .mat-horizontal-stepper-header-container {
+      background: var(--app-surface);
       border: 1px solid var(--app-border);
       border-radius: 14px;
-      padding: 20px;
-      margin: 0;
-      background: var(--app-surface);
+      padding: 8px 16px;
+      margin-bottom: 20px;
       box-shadow: var(--app-shadow-sm);
     }
 
-    legend {
-      font-weight: 700;
-      font-size: 1rem;
-      padding: 0 8px;
+    :host ::ng-deep .contribute-stepper .mat-horizontal-content-container {
+      padding: 0;
+      overflow: visible;
     }
-    .legend-hint, .label-hint {
+
+    /* ── Step content ─────────────────────────────────────────────────── */
+    .step-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 4px 0 20px;
+    }
+
+    .step-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 8px;
+    }
+    .step-actions--submit {
+      justify-content: space-between;
+    }
+
+    /* ── Form fields ──────────────────────────────────────────────────── */
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field-row { display: flex; gap: 16px; align-items: flex-start; }
+    .field-grow { flex: 1; }
+    .field-sm { min-width: 160px; }
+    .mat-fullwidth { width: 100%; }
+
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--app-text);
+      margin-bottom: 4px;
+    }
+    .label-hint {
       font-weight: 400;
       font-size: 0.8rem;
       opacity: 0.55;
     }
 
-    .field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
-    .field:first-of-type { margin-top: 8px; }
-    .field-row { display: flex; gap: 16px; }
-    .field-grow { flex: 1; }
-    .field-sm { min-width: 140px; }
-
-    label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--app-text);
-    }
-
-    input, select, textarea {
-      font-family: inherit;
-      font-size: 0.9rem;
-      padding: 10px 14px;
-      border: 1px solid var(--app-border);
-      border-radius: 10px;
-      background: var(--app-surface);
-      color: var(--app-text);
-      transition: border-color 0.2s;
-      outline: none;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--app-border-focus);
-    }
-
     .field-error {
       font-size: 0.78rem;
       color: #d32f2f;
+      display: block;
     }
 
+    /* Override mat-form-field fill backgrounds */
+    :host ::ng-deep .mat-mdc-form-field-focus-overlay,
+    :host ::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input {
+      background: transparent;
+    }
+
+    /* ── Tags ─────────────────────────────────────────────────────────── */
+    .tags-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .tag-chip {
+      padding: 5px 12px;
+      border: 1px solid var(--app-border);
+      border-radius: 20px;
+      background: var(--app-surface);
+      color: var(--app-text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .tag-chip:hover {
+      border-color: var(--app-primary);
+      color: var(--app-primary);
+      background: var(--app-surface-raised);
+    }
+    .tag-chip--selected {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border-color: var(--app-primary);
+    }
+    .tag-chip--selected:hover {
+      opacity: 0.85;
+      color: var(--app-on-primary);
+    }
+    .tag-chip--sm {
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      cursor: default;
+    }
+    .tag-chip--sm:hover {
+      opacity: 1;
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border-color: var(--app-primary);
+    }
+
+    .tags-placeholder {
+      font-size: 0.85rem;
+      color: var(--app-text-muted);
+      margin: 4px 0 0;
+      font-style: italic;
+    }
+
+    /* ── Editor shell ─────────────────────────────────────────────────── */
     .editor-shell {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -448,12 +636,11 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--app-border);
       background: var(--app-surface-raised);
     }
-    .panel-head h2 {
-      margin: 0;
+    .panel-title {
       font-size: 0.95rem;
       font-weight: 700;
     }
@@ -501,6 +688,9 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       font-size: 0.88rem;
       line-height: 1.7;
       padding: 16px;
+      background: var(--app-surface);
+      color: var(--app-text);
+      outline: none;
     }
 
     .char-count,
@@ -568,6 +758,67 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       color: var(--app-text-muted);
     }
 
+    /* ── Review card (step 3) ─────────────────────────────────────────── */
+    .review-card {
+      border: 1px solid var(--app-border);
+      border-radius: 14px;
+      padding: 24px;
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow-sm);
+    }
+    .review-title {
+      margin: 0 0 20px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .review-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .review-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .review-item--full {
+      grid-column: 1 / -1;
+    }
+    .review-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--app-text-muted);
+    }
+    .review-value {
+      font-size: 0.95rem;
+      color: var(--app-text);
+    }
+    .review-value--muted {
+      color: var(--app-text-muted);
+      font-style: italic;
+    }
+    .review-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      width: fit-content;
+    }
+    .badge-easy   { background: color-mix(in srgb, #4caf50 15%, transparent); color: #2e7d32; }
+    .badge-medium { background: color-mix(in srgb, #ff9800 15%, transparent); color: #e65100; }
+    .badge-hard   { background: color-mix(in srgb, #f44336 15%, transparent); color: #b71c1c; }
+
+    .review-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    /* ── Error ────────────────────────────────────────────────────────── */
     .error-message {
       display: flex;
       align-items: center;
@@ -580,16 +831,12 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       font-size: 0.9rem;
     }
 
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      padding-bottom: 40px;
-    }
+    /* ── Submit button ────────────────────────────────────────────────── */
     .submit-btn {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 32px;
+      padding: 12px 28px;
       background: linear-gradient(135deg, var(--app-primary), var(--app-primary-hover));
       color: var(--app-on-primary);
       border: none;
@@ -603,6 +850,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ── Success card ─────────────────────────────────────────────────── */
     .success-card {
       text-align: center;
       padding: 48px 24px;
@@ -643,57 +891,19 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       color: var(--app-text);
     }
 
-    .tags-selector {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .tag-chip {
-      padding: 5px 12px;
-      border: 1px solid var(--app-border);
-      border-radius: 20px;
-      background: var(--app-surface);
-      color: var(--app-text);
-      font-family: inherit;
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      user-select: none;
-    }
-    .tag-chip:hover {
-      border-color: var(--app-primary);
-      color: var(--app-primary);
-      background: var(--app-surface-raised);
-    }
-    .tag-chip--selected {
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      border-color: var(--app-primary);
-    }
-    .tag-chip--selected:hover {
-      opacity: 0.85;
-      color: var(--app-on-primary);
-    }
-
-    .tags-placeholder {
-      font-size: 0.85rem;
-      color: var(--app-text-muted);
-      margin: 4px 0 0;
-      font-style: italic;
-    }
-
+    /* ── Responsive ───────────────────────────────────────────────────── */
     @media (max-width: 980px) {
       .editor-shell { grid-template-columns: 1fr; }
       .preview-box { max-height: unset; }
+      .review-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 700px) {
       .field-row { flex-direction: column; gap: 0; }
+      .field-sm { min-width: unset; width: 100%; }
       .page-header { flex-direction: column; }
-      .form-actions { justify-content: stretch; }
-      .submit-btn { width: 100%; justify-content: center; }
+      .step-actions { flex-wrap: wrap; }
+      .submit-btn { flex: 1; justify-content: center; }
       .user-bar {
         flex-wrap: wrap;
         justify-content: center;
@@ -722,22 +932,25 @@ export class ContributeComponent {
   @ViewChild('editorTextarea')
   private editorTextarea?: ElementRef<HTMLTextAreaElement>;
 
-  readonly form = this.fb.nonNullable.group({
+  readonly step1 = this.fb.nonNullable.group({
     technology: ['', [Validators.required]],
     title: ['', [Validators.required, Validators.maxLength(200)]],
     difficulty: ['', [Validators.required]],
     tags: [''],
+  });
+
+  readonly step2 = this.fb.nonNullable.group({
     content: ['', [Validators.required, Validators.maxLength(15000)]],
   });
 
-  readonly technologyValue = toSignal(this.form.controls.technology.valueChanges, {
-    initialValue: this.form.controls.technology.value,
+  readonly technologyValue = toSignal(this.step1.controls.technology.valueChanges, {
+    initialValue: this.step1.controls.technology.value,
   });
 
   readonly availableTags = computed(() => TECHNOLOGY_TAGS[this.technologyValue()] ?? []);
 
-  readonly contentValue = toSignal(this.form.controls.content.valueChanges, {
-    initialValue: this.form.controls.content.value,
+  readonly contentValue = toSignal(this.step2.controls.content.valueChanges, {
+    initialValue: this.step2.controls.content.value,
   });
 
   readonly renderedContent = computed(() => {
@@ -754,21 +967,26 @@ export class ContributeComponent {
     }
 
     effect(() => {
-      this.technologyValue(); // track technology changes
+      this.technologyValue();
       untracked(() => {
         this.selectedTags.set([]);
-        this.form.controls.tags.setValue('');
+        this.step1.controls.tags.setValue('');
       });
     });
   }
 
+  difficultyLabel(value: string): string {
+    const map: Record<string, string> = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
+    return map[value] ?? value;
+  }
+
   onSubmit(): void {
-    if (this.form.invalid || this.submitting() || !this.authService.isAuthenticated()) return;
+    if (this.step1.invalid || this.step2.invalid || this.submitting() || !this.authService.isAuthenticated()) return;
 
     this.submitting.set(true);
     this.error.set('');
 
-    const value = this.form.getRawValue();
+    const value = { ...this.step1.getRawValue(), ...this.step2.getRawValue() };
     const token = this.authService.user()!.token;
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
@@ -794,7 +1012,7 @@ export class ContributeComponent {
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const value = this.form.controls.content.value;
+    const value = this.step2.controls.content.value;
     const selected = value.slice(start, end) || 'texto';
     const replacement = `${prefix}${selected}${suffix}`;
 
@@ -809,7 +1027,7 @@ export class ContributeComponent {
     const textarea = this.editorTextarea?.nativeElement;
     if (!textarea) return;
 
-    const value = this.form.controls.content.value;
+    const value = this.step2.controls.content.value;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const block = value.slice(start, end) || 'texto';
@@ -825,7 +1043,7 @@ export class ContributeComponent {
     const textarea = this.editorTextarea?.nativeElement;
     if (!textarea) return;
 
-    const value = this.form.controls.content.value;
+    const value = this.step2.controls.content.value;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selected = value.slice(start, end) || 'const ejemplo = true;';
@@ -838,7 +1056,7 @@ export class ContributeComponent {
     const textarea = this.editorTextarea?.nativeElement;
     if (!textarea) return;
 
-    const value = this.form.controls.content.value;
+    const value = this.step2.controls.content.value;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selected = value.slice(start, end) || 'enlace';
@@ -856,7 +1074,7 @@ export class ContributeComponent {
     nextEnd: number,
   ): void {
     const nextValue = value.slice(0, start) + replacement + value.slice(end);
-    this.form.controls.content.setValue(nextValue);
+    this.step2.controls.content.setValue(nextValue);
 
     queueMicrotask(() => {
       const textarea = this.editorTextarea?.nativeElement;
@@ -871,7 +1089,7 @@ export class ContributeComponent {
       const next = current.includes(tag)
         ? current.filter(t => t !== tag)
         : [...current, tag];
-      this.form.controls.tags.setValue(next.join(', '));
+      this.step1.controls.tags.setValue(next.join(', '));
       return next;
     });
   }
@@ -881,7 +1099,8 @@ export class ContributeComponent {
   }
 
   resetForm(): void {
-    this.form.reset({ technology: '', title: '', difficulty: '', tags: '', content: '' });
+    this.step1.reset({ technology: '', title: '', difficulty: '', tags: '' });
+    this.step2.reset({ content: '' });
     this.prUrl.set('');
     this.error.set('');
     this.selectedTags.set([]);
