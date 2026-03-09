@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, computed, effect, PLATFORM_ID, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed, effect, untracked } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,13 +11,18 @@ import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 import { AiQuestionsService } from '../../core/services/ai-questions.service';
+
 import { difficultyLabel } from '../../core/utils/difficulty';
-import { Question } from '../../domain/models/question.model';
+
+import { AuthorCardComponent } from './sidebar/author-card.component';
+import { ProgressCardComponent } from './sidebar/progress-card.component';
+import { RelatedQuestionsComponent } from './sidebar/related-questions.component';
+import { ActionsCardComponent } from './sidebar/actions-card.component';
 
 @Component({
   selector: 'app-question',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, MatSnackBarModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, MatSnackBarModule, AuthorCardComponent, ProgressCardComponent, RelatedQuestionsComponent, ActionsCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (question()) {
@@ -38,6 +43,9 @@ import { Question } from '../../domain/models/question.model';
         <article class="main-col" aria-labelledby="question-title">
           <header class="question-header">
             <h1 id="question-title">{{ question()!.title }}</h1>
+            @if (question()) {
+
+            }
             <div class="question-badges">
               <span class="difficulty-badge" [class]="'badge-' + question()!.difficulty">
                 {{ difficultyLabel(question()!.difficulty) }}
@@ -45,9 +53,6 @@ import { Question } from '../../domain/models/question.model';
               @for (tag of question()!.tags; track tag) {
                 <span class="tag-badge">{{ tag }}</span>
               }
-              <div class="question-meta">
-                <a [href]="question()!.authorUrl || 'https://github.com/ManuFerrer094'" target="_blank" rel="noopener noreferrer">{{ question()!.author || 'Manu Ferrer' }}</a>
-              </div>
             </div>
           </header>
 
@@ -116,56 +121,12 @@ import { Question } from '../../domain/models/question.model';
 
         <!-- Sidebar -->
         <aside class="sidebar">
-          <!-- Progress -->
-          <div class="sidebar-card">
-            <div class="sidebar-card-header">
-              <mat-icon class="sidebar-icon">trending_up</mat-icon>
-              <strong>Tu Progreso</strong>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" [style.width.%]="progressPct()"></div>
-            </div>
-            <span class="progress-detail">{{ progressPct() }}% de "{{ technologyName() }}" completado</span>
-          </div>
-
-          <!-- Related Questions -->
-          <div class="sidebar-card">
-            <div class="sidebar-card-header">
-              <mat-icon class="sidebar-icon">quiz</mat-icon>
-              <strong>Preguntas Relacionadas</strong>
-            </div>
-            <div class="related-list">
-              @for (rq of relatedQuestions(); track rq.slug) {
-                <a
-                  [routerLink]="['/', rq.technology, rq.slug]"
-                  [queryParams]="isAiMode() ? { ai: 1 } : {}"
-                  class="related-item"
-                >
-                  <span class="related-title">{{ rq.title }}</span>
-                  @if (rq.difficulty) {
-                    <span class="difficulty-badge sm" [class]="'badge-' + rq.difficulty">
-                      {{ difficultyLabel(rq.difficulty) }}
-                    </span>
-                  }
-                </a>
-              }
-            </div>
-            <a [routerLink]="isAiMode() ? ['/ai-questions'] : ['/', question()!.technology]" class="view-all-link">
-              {{ isAiMode() ? 'Volver a Preguntas IA' : 'Ver todas las preguntas de ' + technologyName() }}
-            </a>
-          </div>
-
-          <!-- Actions -->
-          <div class="sidebar-card actions-card">
-            <button
-              mat-button
-              (click)="copyLink()"
-              class="action-btn"
-            >
-              <mat-icon>link</mat-icon>
-              Copiar enlace
-            </button>
-          </div>
+          @if (question()) {
+            <app-author-card [question]="question()!"></app-author-card>
+          }
+          <app-progress-card [question]="question()!"></app-progress-card>
+          <app-related-questions [question]="question()!" [isAiMode]="isAiMode()"></app-related-questions>
+          <app-actions-card></app-actions-card>
         </aside>
       </div>
     } @else {
@@ -216,16 +177,7 @@ import { Question } from '../../domain/models/question.model';
       align-items: center;
     }
 
-    .question-meta {
-      margin-left: 12px;
-      font-size: 0.9rem;
-    }
-    .question-meta a {
-      color: var(--app-primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .question-meta a:hover { text-decoration: underline; }
+
 
     .difficulty-badge {
       display: inline-block;
@@ -397,66 +349,7 @@ import { Question } from '../../domain/models/question.model';
       flex-direction: column;
       gap: 16px;
     }
-    .sidebar-card {
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 20px;
-      background: var(--app-surface);
-      color: var(--app-text);
-    }
-    .sidebar-card-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      margin-bottom: 14px;
-    }
-    .sidebar-icon { font-size: 20px; width: 20px; height: 20px; color: var(--app-primary); }
 
-    .progress-bar-track {
-      height: 8px;
-      border-radius: 4px;
-      background: var(--app-surface-variant);
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      background: var(--app-primary);
-      transition: width 0.4s ease;
-    }
-    .progress-detail { font-size: 0.78rem; opacity: 0.6; }
-
-    .related-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .related-item {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-      text-decoration: none;
-    }
-    .related-title {
-      font-size: 0.85rem;
-      color: var(--app-text-muted);
-      line-height: 1.4;
-    }
-    .related-item:hover .related-title { color: var(--app-primary); }
-    .view-all-link {
-      font-size: 0.82rem;
-      color: var(--app-primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .view-all-link:hover { text-decoration: underline; }
-
-    .actions-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; }
-    .action-btn { justify-content: flex-start; }
 
     @media (max-width: 900px) {
       .question-layout {
@@ -474,7 +367,6 @@ export class QuestionComponent {
   private readonly seo = inject(SeoService);
   private readonly markdownParser = inject(MarkdownParserService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly platformId = inject(PLATFORM_ID);
   readonly progress = inject(ProgressService);
   private readonly aiService = inject(AiQuestionsService);
 
@@ -500,17 +392,14 @@ export class QuestionComponent {
     return this.markdownParser.renderMarkdown(q.content);
   });
 
+
+
   readonly isRead = computed(() => {
     const q = this.question();
     return q ? this.progress.isRead(q.id) : false;
   });
 
-  readonly progressPct = computed(() => {
-    const q = this.question();
-    if (!q) return 0;
-    const allQ = this.store.getQuestionsByTechnology(q.technology);
-    return this.progress.getProgressPercentage(allQ.map(x => x.id));
-  });
+
 
   readonly previousQuestion = computed(() => {
     const q = this.question();
@@ -538,19 +427,7 @@ export class QuestionComponent {
     return idx < questions.length - 1 ? questions[idx + 1] : null;
   });
 
-  readonly relatedQuestions = computed(() => {
-    const q = this.question();
-    if (!q) return [];
-    if (this.isAiMode()) {
-      return this.aiService.activeList()
-        .filter(x => !(x.slug === q.slug && x.technology === q.technology))
-        .slice(0, 3)
-        .map(ref => this.store.getQuestion(ref.technology, ref.slug))
-        .filter((x): x is Question => x !== undefined);
-    }
-    const questions = this.store.getQuestionsByTechnology(q.technology);
-    return questions.filter(x => x.slug !== q.slug).slice(0, 3);
-  });
+
 
   readonly difficultyLabel = difficultyLabel;
 
@@ -580,12 +457,5 @@ export class QuestionComponent {
     }
   }
 
-  copyLink(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      navigator.clipboard.writeText(window.location.href).then(
-        () => this.snackBar.open('¡Enlace copiado!', 'Cerrar', { duration: 2000 }),
-        () => this.snackBar.open('No se pudo copiar el enlace', 'Cerrar', { duration: 2000 }),
-      );
-    }
-  }
+
 }
