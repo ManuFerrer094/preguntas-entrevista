@@ -42,9 +42,6 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     </nav>
 
     <header class="page-header">
-      <div class="page-header-icon">
-        <mat-icon>edit_note</mat-icon>
-      </div>
       <div class="page-header-info">
         <h1>Contribuir una Pregunta</h1>
         <p class="page-desc">
@@ -224,10 +221,10 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
             <div class="preview-frontmatter">
               <code>
                 ---<br/>
-                title: "{{ form.controls.title.value || 'Tu titulo aqui' }}"<br/>
+                title: {{ form.controls.title.value || 'Tu titulo aqui' }}<br/>
                 difficulty: {{ form.controls.difficulty.value || 'medium' }}<br/>
                 tags: [{{ form.controls.tags.value || form.controls.technology.value || 'tag1, tag2' }}]<br/>
-                author: "{{ authService.user()!.name }}"<br/>
+                author: {{ authService.user()!.name }}<br/>
                 authorUrl: "https://github.com/{{ authService.user()!.username }}"<br/>
                 ---
               </code>
@@ -289,17 +286,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       gap: 16px;
       margin-bottom: 32px;
     }
-    .page-header-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #1565c0, #1976d2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      flex-shrink: 0;
-    }
+
     .page-header-info h1 {
       margin: 0 0 6px;
       font-size: 1.5rem;

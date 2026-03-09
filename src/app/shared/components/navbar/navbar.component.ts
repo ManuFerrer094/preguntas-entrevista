@@ -90,13 +90,15 @@ import { ContentStore } from '../../../core/stores/content.store';
       padding: 6px 14px;
       border-radius: 8px;
       text-decoration: none;
-      color: #7c3aed;
+      color: var(--app-primary);
       font-size: 0.85rem;
       font-weight: 600;
       transition: background 0.15s;
       margin-right: 4px;
     }
-    .ai-link:hover { background: #7c3aed15; }
+    .ai-link:hover {
+      background: color-mix(in srgb, var(--app-primary) 8%, transparent);
+    }
     .ai-link mat-icon { font-size: 18px; width: 18px; height: 18px; }
     @media (max-width: 600px) {
       .brand-name { display: none; }

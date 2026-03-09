@@ -138,10 +138,13 @@ export async function handleSubmitQuestion(input: SubmitQuestionInput, contribut
 
   // Build frontmatter with GitHub contributor info
   const frontmatter =
-    `---\ntitle: "${safeTitle}"\ndifficulty: ${safeDifficulty}\ntags: [${safeTags.join(', ')}]` +
-    `\nauthor: "${sanitizeFrontmatter(contributorName)}"` +
-    `\nauthorUrl: "https://github.com/${contributorLogin}"` +
-    `\n---\n\n`;
+    `---\n` +
+    `title: ${safeTitle}\n` +
+    `difficulty: ${safeDifficulty}\n` +
+    `tags: [${safeTags.join(', ')}]\n` +
+    `author: ${sanitizeFrontmatter(contributorName)}\n` +
+    `authorUrl: "https://github.com/${contributorLogin}"\n` +
+    `---\n\n`;
 
   const fileContent = frontmatter + safeContent + '\n';
   const slug = slugify(safeTitle);

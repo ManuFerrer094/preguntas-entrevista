@@ -25,9 +25,6 @@ import { Technology } from '../../domain/models/technology.model';
     </nav>
 
     <header class="page-header">
-      <div class="page-header-icon">
-        <mat-icon>auto_awesome</mat-icon>
-      </div>
       <div class="page-header-info">
         <h1>Generar Preguntas con IA</h1>
         <p class="page-desc">Pega la descripción de una oferta de empleo y la IA seleccionará las preguntas de entrevista más relevantes de nuestro catálogo.</p>
@@ -243,22 +240,6 @@ import { Technology } from '../../domain/models/technology.model';
       gap: 16px;
       margin-bottom: 32px;
     }
-    .page-header-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: linear-gradient(135deg, #7c3aed20, #a855f720);
-    }
-    .page-header-icon mat-icon {
-      font-size: 30px;
-      width: 30px;
-      height: 30px;
-      color: #7c3aed;
-    }
     .page-header-info { flex: 1; }
     .page-header-info h1 { margin: 0 0 4px; font-size: 1.5rem; }
     .page-desc { margin: 0; opacity: 0.7; font-size: 0.9rem; }
@@ -315,8 +296,8 @@ import { Technology } from '../../domain/models/technology.model';
       padding: 12px 24px;
       border-radius: 10px;
       border: none;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      color: white;
+      background: linear-gradient(135deg, var(--app-primary), var(--app-primary-hover));
+      color: var(--app-on-primary);
       font-size: 0.9rem;
       font-weight: 600;
       font-family: inherit;
