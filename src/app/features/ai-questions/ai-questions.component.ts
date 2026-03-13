@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { SlicePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AiQuestionsService, AiQuestion } from '../../core/services/ai-questions.service';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
+import { SavedSessionsService, SavedAiSession } from '../../core/services/saved-sessions.service';
 import { difficultyLabel } from '../../core/utils/difficulty';
 import { generateSlug } from '../../core/utils/slug-generator';
 import { Difficulty } from '../../domain/models/question.model';
@@ -15,7 +17,7 @@ import { Technology } from '../../domain/models/technology.model';
 @Component({
   selector: 'app-ai-questions',
   standalone: true,
-  imports: [RouterLink, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, FormsModule, SlicePipe, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- ==================== LOADING OVERLAY ==================== -->
@@ -72,6 +74,44 @@ import { Technology } from '../../domain/models/technology.model';
           </button>
         </div>
       </div>
+
+      <!-- ===================== SAVED AI SESSIONS ===================== -->
+      @if (savedSessions.savedAiSessions().length > 0) {
+        <div class="saved-section">
+          <h2 class="saved-title">
+            <mat-icon>bookmark</mat-icon>
+            Preguntas IA guardadas
+          </h2>
+          <div class="saved-list">
+            @for (session of savedSessions.savedAiSessions(); track session.id) {
+              <div class="saved-card">
+                <div class="saved-card-info">
+                  <p class="saved-card-date">{{ formatDate(session.savedAt) }}</p>
+                  <p class="saved-card-desc">{{ session.jobDescription | slice:0:120 }}{{ session.jobDescription.length > 120 ? '…' : '' }}</p>
+                  <div class="saved-card-meta">
+                    <span class="saved-meta-chip">{{ session.questions.length }} preguntas</span>
+                    @for (tech of session.technologiesDetected.slice(0, 3); track tech) {
+                      <span class="saved-meta-chip">{{ tech }}</span>
+                    }
+                    @if (session.technologiesDetected.length > 3) {
+                      <span class="saved-meta-chip">+{{ session.technologiesDetected.length - 3 }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="saved-card-actions">
+                  <button class="saved-action-btn saved-action-btn--load" (click)="loadSavedSession(session)" title="Cargar sesión">
+                    <mat-icon>open_in_new</mat-icon>
+                    Cargar
+                  </button>
+                  <button class="saved-action-btn saved-action-btn--delete" (click)="savedSessions.deleteAiSession(session.id)" title="Eliminar">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
     }
 
     @if (error()) {
@@ -94,10 +134,16 @@ import { Technology } from '../../domain/models/technology.model';
               }
             </p>
           </div>
-          <button class="reset-btn" (click)="reset()">
-            <mat-icon>refresh</mat-icon>
-            Nueva consulta
-          </button>
+          <div class="results-header-actions">
+            <button class="save-btn" (click)="saveCurrentSession()" [disabled]="sessionAlreadySaved()">
+              <mat-icon>{{ sessionAlreadySaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+              {{ sessionAlreadySaved() ? 'Guardado' : 'Guardar' }}
+            </button>
+            <button class="reset-btn" (click)="reset()">
+              <mat-icon>refresh</mat-icon>
+              Nueva consulta
+            </button>
+          </div>
         </div>
 
         <div class="results-layout">
@@ -632,14 +678,45 @@ import { Technology } from '../../domain/models/technology.model';
       .sidebar { position: static; order: 2; }
       .main-col { order: 1; }
       .page-header { flex-wrap: wrap; }
-      .results-header { flex-direction: column; }
+      .results-header { flex-direction: column; align-items: flex-start; }
+      .results-header-actions { flex-direction: row; width: 100%; justify-content: flex-end; }
     }
+
+    /* Save button */
+    .results-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .save-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #16a34a;
+      background: transparent;
+      color: #16a34a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .save-btn:hover:not([disabled]) {
+      background: color-mix(in srgb, #16a34a 8%, transparent);
+    }
+    .save-btn[disabled] {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .save-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
   `]
 })
 export class AiQuestionsComponent {
   private readonly aiService = inject(AiQuestionsService);
   private readonly store = inject(ContentStore);
   private readonly seo = inject(SeoService);
+  readonly savedSessions = inject(SavedSessionsService);
 
   readonly jobDescription = signal('');
   readonly loading = signal(false);
@@ -651,6 +728,9 @@ export class AiQuestionsComponent {
   readonly technologyFilter = signal<string | null>(null);
   readonly difficultyFilter = signal<Difficulty | null>(null);
   readonly currentPage = signal(1);
+
+  // Save state
+  readonly sessionAlreadySaved = signal(false);
 
   readonly PAGE_SIZE = 10;
   readonly difficultyLabel = difficultyLabel;
@@ -752,6 +832,7 @@ export class AiQuestionsComponent {
         this.questions.set(res.questions);
         this.detectedTechnologies.set(res.technologies_detected);
         this.aiService.setActiveList(res.questions);
+        this.sessionAlreadySaved.set(false);
         this.loading.set(false);
 
         // Pre-load question data for all detected technologies
@@ -776,6 +857,7 @@ export class AiQuestionsComponent {
     this.technologyFilter.set(null);
     this.difficultyFilter.set(null);
     this.currentPage.set(1);
+    this.sessionAlreadySaved.set(false);
   }
 
   goToPage(page: number): void {
@@ -783,5 +865,42 @@ export class AiQuestionsComponent {
     if (page >= 1 && page <= total) {
       this.currentPage.set(page);
     }
+  }
+
+  saveCurrentSession(): void {
+    if (this.sessionAlreadySaved()) return;
+    this.savedSessions.saveAiSession(
+      this.jobDescription(),
+      this.detectedTechnologies(),
+      this.questions(),
+    );
+    this.sessionAlreadySaved.set(true);
+  }
+
+  loadSavedSession(session: SavedAiSession): void {
+    this.jobDescription.set(session.jobDescription);
+    this.questions.set(session.questions);
+    this.detectedTechnologies.set(session.technologiesDetected);
+    this.aiService.setActiveList(session.questions);
+    this.sessionAlreadySaved.set(true);
+    this.searchQuery.set('');
+    this.technologyFilter.set(null);
+    this.difficultyFilter.set(null);
+    this.currentPage.set(1);
+
+    // Pre-load question data for all detected technologies
+    for (const q of session.questions) {
+      this.store.loadQuestionsForTechnology(q.technology);
+    }
+  }
+
+  formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 }
