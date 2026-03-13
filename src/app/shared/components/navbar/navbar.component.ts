@@ -26,6 +26,15 @@ import { ContentStore } from '../../../core/stores/content.store';
           <mat-icon>auto_awesome</mat-icon>
           <span class="ai-link-text">Preguntas IA</span>
         </a>
+        <a
+          routerLink="/cuestionarios"
+          class="ai-link"
+          matTooltip="Cuestionarios tipo test"
+          aria-label="Cuestionarios tipo test"
+        >
+          <mat-icon>quiz</mat-icon>
+          <span class="ai-link-text">Cuestionarios</span>
+        </a>
         <button
           mat-icon-button
           (click)="store.toggleDarkMode()"

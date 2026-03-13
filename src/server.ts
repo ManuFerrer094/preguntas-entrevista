@@ -12,6 +12,7 @@ import { createPdfRouter } from './api/pdf.router';
 import { createAiQuestionsRouter } from './api/ai-questions.router';
 import { createSubmitQuestionRouter } from './api/submit-question.router';
 import { createAuthGitHubRouter } from './api/auth-github.router';
+import { createQuizRouter } from './api/quiz.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 // In production the questions are copied to the browser bundle output;
@@ -55,6 +56,13 @@ app.use('/api/submit-question', submitRouter);
  */
 const authRouter = createAuthGitHubRouter();
 app.use('/api/auth/github', authRouter);
+
+/**
+ * AI-powered quiz — generates a multiple-choice exam from a job description.
+ * POST /api/quiz
+ */
+const quizRouter = createQuizRouter();
+app.use('/api/quiz', quizRouter);
 
 /**
  * Serve static files from /browser
