@@ -11,7 +11,16 @@ export interface QuizResponse {
   questions: QuizQuestion[];
 }
 
-function buildQuizSystemPrompt(questionCount: number): string {
+export type QuizDifficulty = 'mixed' | 'easy' | 'medium' | 'hard';
+
+const DIFFICULTY_INSTRUCTIONS: Record<QuizDifficulty, string> = {
+  mixed: 'Mezcla preguntas de distintos niveles de dificultad (fácil, media y difícil).',
+  easy: 'Todas las preguntas deben ser de nivel fácil: conceptos básicos, definiciones y uso fundamental de las tecnologías.',
+  medium: 'Todas las preguntas deben ser de nivel medio: aplicación práctica, patrones comunes y casos de uso reales.',
+  hard: 'Todas las preguntas deben ser de nivel difícil: casos avanzados, optimización, edge cases y conocimiento profundo.',
+};
+
+function buildQuizSystemPrompt(questionCount: number, difficulty: QuizDifficulty): string {
   return `Eres un asistente experto en entrevistas técnicas de desarrollo de software.
 Tu tarea es crear un cuestionario tipo test a partir de una descripción de oferta de empleo.
 
@@ -39,15 +48,17 @@ REGLAS:
 - Las preguntas deben cubrir distintos aspectos de las tecnologías de la oferta.
 - Varía la posición de la respuesta correcta (no siempre la misma posición).
 - Las preguntas deben ser técnicas y relevantes para una entrevista real.
-- Escribe las preguntas y opciones en español.`;
+- Escribe las preguntas y opciones en español.
+- DIFICULTAD: ${DIFFICULTY_INSTRUCTIONS[difficulty]}`;
 }
 
 export async function handleQuizRequest(
   jobDescription: string,
   questionCount: number,
   config: AiQuestionsConfig,
+  difficulty: QuizDifficulty = 'mixed',
 ): Promise<QuizResponse> {
-  const systemPrompt = buildQuizSystemPrompt(questionCount);
+  const systemPrompt = buildQuizSystemPrompt(questionCount, difficulty);
 
   const apiUrl = `${config.azureOpenAiEndpoint.replace(/\/+$/, '')}/openai/deployments/${encodeURIComponent(config.azureOpenAiDeployment)}/chat/completions?api-version=2024-08-01-preview`;
 

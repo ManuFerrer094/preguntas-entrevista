@@ -18,6 +18,17 @@ import { Technology } from '../../domain/models/technology.model';
   imports: [RouterLink, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <!-- ==================== LOADING OVERLAY ==================== -->
+    @if (loading()) {
+      <div class="loading-overlay" role="status" aria-live="polite" aria-label="Analizando oferta">
+        <div class="loading-overlay-card">
+          <mat-spinner diameter="52"></mat-spinner>
+          <p class="loading-overlay-title">Analizando oferta con IA...</p>
+          <p class="loading-overlay-desc">Esto puede tardar unos segundos</p>
+        </div>
+      </div>
+    }
+
     <nav class="breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/">Inicio</a>
       <span aria-hidden="true"> &rsaquo; </span>
@@ -579,6 +590,40 @@ import { Technology } from '../../domain/models/technology.model';
     }
     .page-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
     .page-btn mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loading-overlay-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      background: var(--app-surface);
+      border-radius: 20px;
+      padding: 40px 52px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+      text-align: center;
+    }
+    .loading-overlay-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--app-text);
+      margin: 0;
+    }
+    .loading-overlay-desc {
+      font-size: 0.85rem;
+      color: var(--app-text-muted);
+      margin: 0;
+    }
 
     @media (max-width: 768px) {
       .results-layout {

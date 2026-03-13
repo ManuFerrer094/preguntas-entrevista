@@ -25,6 +25,7 @@ interface QuizResponse {
 }
 
 type QuizScreen = 'setup' | 'quiz' | 'results';
+type QuizDifficulty = 'mixed' | 'easy' | 'medium' | 'hard';
 
 const PASS_THRESHOLD = 0.6;
 
@@ -34,6 +35,17 @@ const PASS_THRESHOLD = 0.6;
   imports: [RouterLink, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <!-- ==================== LOADING OVERLAY ==================== -->
+    @if (loading()) {
+      <div class="loading-overlay" role="status" aria-live="polite" aria-label="Generando examen">
+        <div class="loading-overlay-card">
+          <mat-spinner diameter="52"></mat-spinner>
+          <p class="loading-overlay-title">Generando examen con IA...</p>
+          <p class="loading-overlay-desc">Esto puede tardar unos segundos</p>
+        </div>
+      </div>
+    }
+
     <nav class="breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/">Inicio</a>
       <span aria-hidden="true"> &rsaquo; </span>
@@ -90,6 +102,30 @@ const PASS_THRESHOLD = 0.6;
                   [disabled]="loading()"
                 >
                   {{ count }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="setup-field">
+            <p class="input-label">
+              <mat-icon>signal_cellular_alt</mat-icon>
+              Dificultad
+            </p>
+            <div class="difficulty-options">
+              @for (opt of difficultyOptions; track opt.value) {
+                <button
+                  class="diff-option-btn"
+                  [class.diff-option-btn--active]="difficulty() === opt.value"
+                  [class.diff-option-btn--mixed]="opt.value === 'mixed'"
+                  [class.diff-option-btn--easy]="opt.value === 'easy'"
+                  [class.diff-option-btn--medium]="opt.value === 'medium'"
+                  [class.diff-option-btn--hard]="opt.value === 'hard'"
+                  (click)="difficulty.set(opt.value)"
+                  [disabled]="loading()"
+                >
+                  <mat-icon>{{ opt.icon }}</mat-icon>
+                  {{ opt.label }}
                 </button>
               }
             </div>
@@ -401,6 +437,64 @@ const PASS_THRESHOLD = 0.6;
     }
     .count-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* Difficulty selector */
+    .difficulty-options { display: flex; gap: 10px; flex-wrap: wrap; }
+    .diff-option-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 2px solid var(--app-border);
+      background: var(--app-surface-raised);
+      color: var(--app-text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .diff-option-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .diff-option-btn:hover:not(:disabled) { border-color: var(--app-primary); color: var(--app-primary); }
+    .diff-option-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .diff-option-btn--active.diff-option-btn--mixed  { border-color: var(--app-primary); background: color-mix(in srgb, var(--app-primary) 12%, transparent); color: var(--app-primary); }
+    .diff-option-btn--active.diff-option-btn--easy   { border-color: #22c55e; background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; }
+    .diff-option-btn--active.diff-option-btn--medium { border-color: #f59e0b; background: color-mix(in srgb, #f59e0b 12%, transparent); color: #b45309; }
+    .diff-option-btn--active.diff-option-btn--hard   { border-color: #ef4444; background: color-mix(in srgb, #ef4444 12%, transparent); color: #dc2626; }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loading-overlay-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      background: var(--app-surface);
+      border-radius: 20px;
+      padding: 40px 52px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+      text-align: center;
+    }
+    .loading-overlay-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--app-text);
+      margin: 0;
+    }
+    .loading-overlay-desc {
+      font-size: 0.85rem;
+      color: var(--app-text-muted);
+      margin: 0;
+    }
+
     /* Error */
     .error-message {
       display: flex;
@@ -709,6 +803,14 @@ export class CuestionariosComponent {
   // Form state
   readonly jobDescription = signal('');
   readonly questionCount = signal<10 | 15 | 20>(10);
+  readonly difficulty = signal<QuizDifficulty>('mixed');
+
+  readonly difficultyOptions: { value: QuizDifficulty; label: string; icon: string }[] = [
+    { value: 'mixed',  label: 'Mixta',   icon: 'shuffle' },
+    { value: 'easy',   label: 'Fácil',   icon: 'sentiment_satisfied' },
+    { value: 'medium', label: 'Media',   icon: 'sentiment_neutral' },
+    { value: 'hard',   label: 'Difícil', icon: 'sentiment_dissatisfied' },
+  ];
 
   // App state
   readonly screen = signal<QuizScreen>('setup');
@@ -764,6 +866,7 @@ export class CuestionariosComponent {
     this.http.post<QuizResponse>('/api/quiz', {
       jobDescription: this.jobDescription(),
       questionCount: this.questionCount(),
+      difficulty: this.difficulty(),
     }).subscribe({
       next: (response) => {
         this.questions.set(response.questions);

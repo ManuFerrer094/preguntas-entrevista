@@ -1,10 +1,11 @@
-import { handleQuizRequest } from '../lib/quiz.js';
+import { handleQuizRequest, QuizDifficulty } from '../lib/quiz.js';
 
 const VALID_QUESTION_COUNTS = [10, 15, 20];
+const VALID_DIFFICULTIES: QuizDifficulty[] = ['mixed', 'easy', 'medium', 'hard'];
 
 interface HandlerRequest {
   method?: string;
-  body?: { jobDescription?: string; questionCount?: number };
+  body?: { jobDescription?: string; questionCount?: number; difficulty?: string };
 }
 
 interface HandlerResponse {
@@ -18,7 +19,7 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     return;
   }
 
-  const { jobDescription, questionCount } = req.body ?? {};
+  const { jobDescription, questionCount, difficulty } = req.body ?? {};
 
   if (!jobDescription || typeof jobDescription !== 'string' || jobDescription.trim().length === 0) {
     res.status(400).json({ error: 'Se requiere una descripción de la oferta de empleo.' });
@@ -36,6 +37,10 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     return;
   }
 
+  const diff: QuizDifficulty = VALID_DIFFICULTIES.includes(difficulty as QuizDifficulty)
+    ? (difficulty as QuizDifficulty)
+    : 'mixed';
+
   const azureOpenAiEndpoint = process.env['AZURE_OPENAI_ENDPOINT'] || '';
   const azureOpenAiKey = process.env['AZURE_OPENAI_KEY'] || '';
   const azureOpenAiDeployment = process.env['AZURE_OPENAI_DEPLOYMENT'] || 'gpt-4o-mini';
@@ -52,7 +57,7 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
       azureOpenAiEndpoint,
       azureOpenAiKey,
       azureOpenAiDeployment,
-    });
+    }, diff);
     res.json(result);
   } catch (err) {
     console.error('Quiz error:', err);
