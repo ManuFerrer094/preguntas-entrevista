@@ -7,32 +7,27 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SeoService } from '../../core/services/seo.service';
-
-interface QuizQuestion {
-  question: string;
-  options: [string, string, string, string];
-  correctIndex: 0 | 1 | 2 | 3;
-  explanation: string;
-}
+import { SavedSessionsService, SavedQuizSession } from '../../core/services/saved-sessions.service';
+import { QuizQuestion, QuizDifficulty } from '../../domain/models/quiz.model';
 
 interface QuizResponse {
   questions: QuizQuestion[];
 }
 
 type QuizScreen = 'setup' | 'quiz' | 'results';
-type QuizDifficulty = 'mixed' | 'easy' | 'medium' | 'hard';
 
 const PASS_THRESHOLD = 0.6;
 
 @Component({
   selector: 'app-cuestionarios',
   standalone: true,
-  imports: [RouterLink, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, FormsModule, SlicePipe, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- ==================== LOADING OVERLAY ==================== -->
@@ -153,6 +148,39 @@ const PASS_THRESHOLD = 0.6;
           </button>
         </div>
       </div>
+
+      <!-- ===================== SAVED QUIZZES ===================== -->
+      @if (savedSessions.savedQuizSessions().length > 0) {
+        <div class="saved-section">
+          <h2 class="saved-title">
+            <mat-icon>bookmark</mat-icon>
+            Cuestionarios guardados
+          </h2>
+          <div class="saved-list">
+            @for (session of savedSessions.savedQuizSessions(); track session.id) {
+              <div class="saved-card">
+                <div class="saved-card-info">
+                  <p class="saved-card-date">{{ formatDate(session.savedAt) }}</p>
+                  <p class="saved-card-desc">{{ session.jobDescription | slice:0:120 }}{{ session.jobDescription.length > 120 ? '…' : '' }}</p>
+                  <div class="saved-card-meta">
+                    <span class="saved-meta-chip">{{ session.questionCount }} preguntas</span>
+                    <span class="saved-meta-chip">{{ difficultyLabel(session.difficulty) }}</span>
+                  </div>
+                </div>
+                <div class="saved-card-actions">
+                  <button class="saved-action-btn saved-action-btn--load" (click)="loadSavedQuiz(session)" title="Repetir este cuestionario">
+                    <mat-icon>replay</mat-icon>
+                    Repetir
+                  </button>
+                  <button class="saved-action-btn saved-action-btn--delete" (click)="savedSessions.deleteQuizSession(session.id)" title="Eliminar">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
     }
 
     <!-- ======================== QUIZ SCREEN ======================== -->
@@ -308,6 +336,10 @@ const PASS_THRESHOLD = 0.6;
           <button class="action-btn action-btn--repeat" (click)="repeatQuiz()">
             <mat-icon>replay</mat-icon>
             Repetir examen
+          </button>
+          <button class="action-btn action-btn--save" (click)="saveCurrentQuiz()" [disabled]="quizAlreadySaved()">
+            <mat-icon>{{ quizAlreadySaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+            {{ quizAlreadySaved() ? 'Guardado' : 'Guardar' }}
           </button>
           <button class="action-btn action-btn--new" (click)="newQuiz()">
             <mat-icon>add_circle_outline</mat-icon>
@@ -713,6 +745,18 @@ const PASS_THRESHOLD = 0.6;
     .action-btn--repeat:hover {
       background: color-mix(in srgb, var(--app-primary) 8%, transparent);
     }
+    .action-btn--save {
+      border-color: #16a34a;
+      background: transparent;
+      color: #16a34a;
+    }
+    .action-btn--save:hover:not([disabled]) {
+      background: color-mix(in srgb, #16a34a 8%, transparent);
+    }
+    .action-btn--save[disabled] {
+      opacity: 0.6;
+      cursor: default;
+    }
     .action-btn--new {
       border-color: transparent;
       background: var(--app-primary);
@@ -739,6 +783,7 @@ const PASS_THRESHOLD = 0.6;
 export class CuestionariosComponent {
   private http = inject(HttpClient);
   private seo = inject(SeoService);
+  readonly savedSessions = inject(SavedSessionsService);
 
   readonly optionLetters = ['A', 'B', 'C', 'D'];
   readonly questionCounts: (10 | 15 | 20)[] = [10, 15, 20];
@@ -766,6 +811,9 @@ export class CuestionariosComponent {
   readonly userAnswers = signal<(number | null)[]>([]);
   readonly selectedIndex = signal<number | null>(null);
   readonly answered = signal(false);
+
+  // Save state
+  readonly quizAlreadySaved = signal(false);
 
   // Computed
   readonly currentQuestion = computed(() => this.questions()[this.currentIndex()]);
@@ -817,6 +865,7 @@ export class CuestionariosComponent {
         this.currentIndex.set(0);
         this.selectedIndex.set(null);
         this.answered.set(false);
+        this.quizAlreadySaved.set(false);
         this.loading.set(false);
         this.screen.set('quiz');
       },
@@ -864,7 +913,47 @@ export class CuestionariosComponent {
     this.currentIndex.set(0);
     this.selectedIndex.set(null);
     this.answered.set(false);
+    this.quizAlreadySaved.set(false);
     this.error.set('');
     this.screen.set('setup');
+  }
+
+  saveCurrentQuiz(): void {
+    if (this.quizAlreadySaved()) return;
+    this.savedSessions.saveQuizSession(
+      this.jobDescription(),
+      this.questionCount(),
+      this.difficulty(),
+      this.questions(),
+    );
+    this.quizAlreadySaved.set(true);
+  }
+
+  loadSavedQuiz(session: SavedQuizSession): void {
+    this.jobDescription.set(session.jobDescription);
+    this.questionCount.set(session.questionCount as 10 | 15 | 20);
+    this.difficulty.set(session.difficulty);
+    this.questions.set(session.questions);
+    this.userAnswers.set(new Array(session.questions.length).fill(null));
+    this.currentIndex.set(0);
+    this.selectedIndex.set(null);
+    this.answered.set(false);
+    this.quizAlreadySaved.set(true);
+    this.screen.set('quiz');
+  }
+
+  difficultyLabel(d: QuizDifficulty): string {
+    const opt = this.difficultyOptions.find(o => o.value === d);
+    return opt?.label ?? d;
+  }
+
+  formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 }
