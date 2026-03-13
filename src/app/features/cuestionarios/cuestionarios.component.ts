@@ -437,63 +437,6 @@ const PASS_THRESHOLD = 0.6;
     }
     .count-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Difficulty selector */
-    .difficulty-options { display: flex; gap: 10px; flex-wrap: wrap; }
-    .diff-option-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 18px;
-      border-radius: 10px;
-      border: 2px solid var(--app-border);
-      background: var(--app-surface-raised);
-      color: var(--app-text);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .diff-option-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    .diff-option-btn:hover:not(:disabled) { border-color: var(--app-primary); color: var(--app-primary); }
-    .diff-option-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .diff-option-btn--active.diff-option-btn--mixed  { border-color: var(--app-primary); background: color-mix(in srgb, var(--app-primary) 12%, transparent); color: var(--app-primary); }
-    .diff-option-btn--active.diff-option-btn--easy   { border-color: #22c55e; background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; }
-    .diff-option-btn--active.diff-option-btn--medium { border-color: #f59e0b; background: color-mix(in srgb, #f59e0b 12%, transparent); color: #b45309; }
-    .diff-option-btn--active.diff-option-btn--hard   { border-color: #ef4444; background: color-mix(in srgb, #ef4444 12%, transparent); color: #dc2626; }
-
-    /* Loading overlay */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .loading-overlay-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      background: var(--app-surface);
-      border-radius: 20px;
-      padding: 40px 52px;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-      text-align: center;
-    }
-    .loading-overlay-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--app-text);
-      margin: 0;
-    }
-    .loading-overlay-desc {
-      font-size: 0.85rem;
-      color: var(--app-text-muted);
-      margin: 0;
-    }
 
     /* Error */
     .error-message {
