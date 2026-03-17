@@ -532,3 +532,25 @@ mf-input .mat-mdc-form-field {
   }
   .mark-read-card mf-button { margin-top: 12px; }
 }
+
+@media (max-width: 600px) {
+  .pagination {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    padding: 8px 6px;
+  }
+
+  .pagination mf-button {
+    display: inline-flex !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+  }
+
+  .pagination mf-button button.mdc-button {
+    min-width: 36px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
