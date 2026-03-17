@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed, effect } 
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
-import { MfIconComponent, MfProgressSpinnerComponent } from 'ng-comps';
+import { MfIconComponent, MfProgressSpinnerComponent, MfCardComponent, MfInputComponent, MfButtonComponent } from 'ng-comps';
 import { AiQuestionsService, AiQuestion } from '../../core/services/ai-questions.service';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
@@ -15,7 +15,7 @@ import { Technology } from '../../domain/models/technology.model';
 @Component({
   selector: 'app-ai-questions',
   standalone: true,
-  imports: [RouterLink, FormsModule, SlicePipe, MfIconComponent, MfProgressSpinnerComponent],
+  imports: [RouterLink, FormsModule, SlicePipe, MfIconComponent, MfProgressSpinnerComponent, MfCardComponent, MfInputComponent, MfButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- ==================== LOADING OVERLAY ==================== -->
@@ -44,7 +44,7 @@ import { Technology } from '../../domain/models/technology.model';
 
     <!-- Input section -->
     @if (!hasResults()) {
-      <div class="input-section">
+      <mf-card variant="outlined" padding="lg" class="input-section">
         <label for="job-desc" class="input-label">Descripción de la oferta de empleo</label>
         <textarea
           id="job-desc"
@@ -57,21 +57,15 @@ import { Technology } from '../../domain/models/technology.model';
         ></textarea>
         <div class="input-footer">
           <span class="char-count">{{ jobDescription().length }} / 10.000 caracteres</span>
-          <button
-            class="generate-btn"
-            (click)="generate()"
+          <mf-button
+            [label]="loading() ? 'Analizando oferta...' : 'Generar Preguntas'"
+            variant="filled"
+            [leadingIcon]="loading() ? '' : 'auto_awesome'"
             [disabled]="loading() || jobDescription().trim().length === 0"
-          >
-            @if (loading()) {
-              <mf-progress-spinner mode="indeterminate" [diameter]="20" />
-              Analizando oferta...
-            } @else {
-              <mf-icon name="auto_awesome" color="inherit" />
-              Generar Preguntas
-            }
-          </button>
+            (mfClick)="generate()"
+          />
         </div>
-      </div>
+      </mf-card>
 
       <!-- ===================== SAVED AI SESSIONS ===================== -->
       @if (savedSessions.savedAiSessions().length > 0) {
@@ -82,7 +76,7 @@ import { Technology } from '../../domain/models/technology.model';
           </h2>
           <div class="saved-list">
             @for (session of savedSessions.savedAiSessions(); track session.id) {
-              <div class="saved-card">
+              <mf-card variant="outlined" padding="md" class="saved-card">
                 <div class="saved-card-info">
                   <p class="saved-card-date">{{ formatDate(session.savedAt) }}</p>
                   <p class="saved-card-desc">{{ session.jobDescription | slice:0:120 }}{{ session.jobDescription.length > 120 ? '…' : '' }}</p>
@@ -97,15 +91,10 @@ import { Technology } from '../../domain/models/technology.model';
                   </div>
                 </div>
                 <div class="saved-card-actions">
-                  <button class="saved-action-btn saved-action-btn--load" (click)="loadSavedSession(session)" title="Cargar sesión">
-                    <mf-icon name="open_in_new" color="inherit" />
-                    Cargar
-                  </button>
-                  <button class="saved-action-btn saved-action-btn--delete" (click)="savedSessions.deleteAiSession(session.id)" title="Eliminar">
-                    <mf-icon name="delete_outline" color="inherit" />
-                  </button>
+                  <mf-button label="Cargar" variant="outlined" size="sm" leadingIcon="open_in_new" (mfClick)="loadSavedSession(session)" />
+                  <mf-button label="" variant="text" size="sm" leadingIcon="delete_outline" (mfClick)="savedSessions.deleteAiSession(session.id)" />
                 </div>
-              </div>
+              </mf-card>
             }
           </div>
         </div>
@@ -133,14 +122,19 @@ import { Technology } from '../../domain/models/technology.model';
             </p>
           </div>
           <div class="results-header-actions">
-            <button class="save-btn" (click)="saveCurrentSession()" [disabled]="sessionAlreadySaved()">
-              <mf-icon [name]="sessionAlreadySaved() ? 'bookmark' : 'bookmark_border'" color="inherit" />
-              {{ sessionAlreadySaved() ? 'Guardado' : 'Guardar' }}
-            </button>
-            <button class="reset-btn" (click)="reset()">
-              <mf-icon name="refresh" color="inherit" />
-              Nueva consulta
-            </button>
+            <mf-button
+              [label]="sessionAlreadySaved() ? 'Guardado' : 'Guardar'"
+              variant="outlined"
+              [leadingIcon]="sessionAlreadySaved() ? 'bookmark' : 'bookmark_border'"
+              [disabled]="sessionAlreadySaved()"
+              (mfClick)="saveCurrentSession()"
+            />
+            <mf-button
+              label="Nueva consulta"
+              variant="outlined"
+              leadingIcon="refresh"
+              (mfClick)="reset()"
+            />
           </div>
         </div>
 
@@ -148,65 +142,38 @@ import { Technology } from '../../domain/models/technology.model';
           <!-- Sidebar -->
           <aside class="sidebar">
             <!-- Filter by technology -->
-            <div class="filter-section">
+            <mf-card variant="outlined" padding="md" class="filter-section">
               <p class="filter-label">Tecnología</p>
               <div class="tech-filters">
-                <button
-                  class="tech-filter-btn"
-                  [class.active]="technologyFilter() === null"
-                  (click)="technologyFilter.set(null)"
-                >Todas</button>
+                <mf-button label="Todas" [variant]="technologyFilter() === null ? 'filled' : 'text'" size="sm" [fullWidth]="true" (mfClick)="technologyFilter.set(null)" />
                 @for (tech of availableTechnologies(); track tech) {
-                  <button
-                    class="tech-filter-btn"
-                    [class.active]="technologyFilter() === tech"
-                    (click)="technologyFilter.set(tech)"
-                  >{{ techDisplayName(tech) }} ({{ techCount(tech) }})</button>
+                  <mf-button [label]="techDisplayName(tech) + ' (' + techCount(tech) + ')'" [variant]="technologyFilter() === tech ? 'filled' : 'text'" size="sm" [fullWidth]="true" (mfClick)="technologyFilter.set(tech)" />
                 }
               </div>
-            </div>
+            </mf-card>
 
             <!-- Difficulty filter -->
-            <div class="filter-section">
+            <mf-card variant="outlined" padding="md" class="filter-section">
               <p class="filter-label">Dificultad</p>
               <div class="difficulty-filters">
-                <button
-                  class="diff-btn"
-                  [class.active]="difficultyFilter() === null"
-                  (click)="difficultyFilter.set(null)"
-                >Todas</button>
-                <button
-                  class="diff-btn easy"
-                  [class.active]="difficultyFilter() === 'easy'"
-                  (click)="difficultyFilter.set('easy')"
-                >Fácil</button>
-                <button
-                  class="diff-btn medium"
-                  [class.active]="difficultyFilter() === 'medium'"
-                  (click)="difficultyFilter.set('medium')"
-                >Media</button>
-                <button
-                  class="diff-btn hard"
-                  [class.active]="difficultyFilter() === 'hard'"
-                  (click)="difficultyFilter.set('hard')"
-                >Difícil</button>
+                <mf-button label="Todas" [variant]="difficultyFilter() === null ? 'filled' : 'text'" size="sm" (mfClick)="difficultyFilter.set(null)" />
+                <mf-button label="Fácil" [variant]="difficultyFilter() === 'easy' ? 'filled' : 'text'" size="sm" (mfClick)="difficultyFilter.set('easy')" />
+                <mf-button label="Media" [variant]="difficultyFilter() === 'medium' ? 'filled' : 'text'" size="sm" (mfClick)="difficultyFilter.set('medium')" />
+                <mf-button label="Difícil" [variant]="difficultyFilter() === 'hard' ? 'filled' : 'text'" size="sm" (mfClick)="difficultyFilter.set('hard')" />
               </div>
-            </div>
+            </mf-card>
           </aside>
 
           <!-- Question list -->
           <main class="main-col">
-            <div class="search-container">
-              <mf-icon name="search" color="inherit" class="search-icon" />
-              <input
-                type="text"
-                class="search-input"
-                placeholder="Buscar preguntas..."
-                [value]="searchQuery()"
-                (input)="onSearchInput($event)"
-                aria-label="Buscar preguntas"
-              />
-            </div>
+            <mf-input
+              type="search"
+              placeholder="Buscar preguntas..."
+              leadingIcon="search"
+              [value]="searchQuery()"
+              [fullWidth]="true"
+              (mfInput)="searchQuery.set($event)"
+            />
 
             <div class="questions-list" role="list" aria-label="Preguntas generadas por IA">
               @for (question of pagedQuestions(); track question.title) {
@@ -247,30 +214,11 @@ import { Technology } from '../../domain/models/technology.model';
             <!-- Pagination -->
             @if (totalPages() > 1) {
               <nav class="pagination" aria-label="Paginación">
-                <button
-                  class="page-btn"
-                  [disabled]="currentPage() === 1"
-                  (click)="goToPage(currentPage() - 1)"
-                  aria-label="Página anterior"
-                >
-                  <mf-icon name="chevron_left" color="inherit" />
-                </button>
+                <mf-button label="" variant="outlined" leadingIcon="chevron_left" [disabled]="currentPage() === 1" (mfClick)="goToPage(currentPage() - 1)" />
                 @for (page of pageNumbers(); track page) {
-                  <button
-                    class="page-btn"
-                    [class.active]="page === currentPage()"
-                    (click)="goToPage(page)"
-                    [attr.aria-label]="'Página ' + page"
-                  >{{ page }}</button>
+                  <mf-button [label]="'' + page" [variant]="page === currentPage() ? 'filled' : 'outlined'" size="sm" (mfClick)="goToPage(page)" />
                 }
-                <button
-                  class="page-btn"
-                  [disabled]="currentPage() === totalPages()"
-                  (click)="goToPage(currentPage() + 1)"
-                  aria-label="Página siguiente"
-                >
-                  <mf-icon name="chevron_right" color="inherit" />
-                </button>
+                <mf-button label="" variant="outlined" leadingIcon="chevron_right" [disabled]="currentPage() === totalPages()" (mfClick)="goToPage(currentPage() + 1)" />
               </nav>
             }
           </main>
@@ -300,12 +248,8 @@ import { Technology } from '../../domain/models/technology.model';
     .page-desc { margin: 0; opacity: 0.7; font-size: 0.9rem; }
 
     /* Input section */
-    .input-section {
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 24px;
-    }
+    .input-section { }
+    mf-card { display: block; }
     .input-label {
       display: block;
       font-weight: 600;
@@ -344,30 +288,6 @@ import { Technology } from '../../domain/models/technology.model';
       font-size: 0.78rem;
       opacity: 0.5;
     }
-    .generate-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border-radius: 10px;
-      border: none;
-      background: linear-gradient(135deg, var(--app-primary), var(--app-primary-hover));
-      color: var(--app-on-primary);
-      font-size: 0.9rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .generate-btn:hover:not([disabled]) {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-    .generate-btn[disabled] {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .generate-btn mf-icon { font-size: 20px; width: 20px; height: 20px; }
 
     /* Error */
     .error-message {
@@ -411,25 +331,6 @@ import { Technology } from '../../domain/models/technology.model';
       font-size: 0.75rem;
       font-weight: 600;
     }
-    .reset-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--app-border);
-      background: var(--app-surface);
-      color: var(--app-text);
-      font-size: 0.85rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .reset-btn:hover {
-      background: var(--app-surface-variant);
-    }
-    .reset-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
 
     .results-layout {
       display: grid;
@@ -444,10 +345,6 @@ import { Technology } from '../../domain/models/technology.model';
       top: 80px;
     }
     .filter-section {
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 16px;
       margin-bottom: 12px;
     }
     .filter-label {
@@ -459,66 +356,11 @@ import { Technology } from '../../domain/models/technology.model';
       margin: 0 0 10px;
     }
     .tech-filters { display: flex; flex-direction: column; gap: 4px; }
-    .tech-filter-btn {
-      text-align: left;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      font-size: 0.85rem;
-      font-family: inherit;
-      cursor: pointer;
-      color: inherit;
-      transition: background 0.15s;
-    }
-    .tech-filter-btn:hover { background: var(--app-surface-variant); }
-    .tech-filter-btn.active {
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      font-weight: 600;
-    }
 
     .difficulty-filters { display: flex; flex-wrap: wrap; gap: 6px; }
-    .diff-btn {
-      padding: 4px 12px;
-      border-radius: 20px;
-      border: 1px solid var(--app-border);
-      background: transparent;
-      font-size: 0.8rem;
-      font-family: inherit;
-      cursor: pointer;
-      color: inherit;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .diff-btn:hover { background: var(--app-surface-variant); }
-    .diff-btn.active { border-color: currentColor; font-weight: 600; }
-    .diff-btn.easy.active { background: #e8f5e9; color: #2e7d32; border-color: #2e7d32; }
-    .diff-btn.medium.active { background: #fff3e0; color: #e65100; border-color: #e65100; }
-    .diff-btn.hard.active { background: #fce4ec; color: #c62828; border-color: #c62828; }
 
     /* Main content */
-    .search-container {
-      display: flex;
-      align-items: center;
-      background: var(--app-surface-variant);
-      border-radius: 12px;
-      padding: 0 16px;
-      border: 1px solid var(--app-border);
-      margin-bottom: 20px;
-      transition: border-color 0.2s;
-    }
-    .search-container:focus-within { border-color: var(--app-primary); }
-    .search-icon { color: var(--app-text-muted); margin-right: 12px; }
-    .search-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 14px 0;
-      font-size: 0.9rem;
-      outline: none;
-      font-family: inherit;
-      color: inherit;
-    }
+    mf-input { margin-bottom: 20px; }
 
     .questions-list { display: flex; flex-direction: column; gap: 8px; }
     .question-row {
@@ -609,31 +451,6 @@ import { Technology } from '../../domain/models/technology.model';
       margin-top: 24px;
       flex-wrap: wrap;
     }
-    .page-btn {
-      min-width: 36px;
-      height: 36px;
-      padding: 0 10px;
-      border: 1px solid var(--app-border);
-      border-radius: 8px;
-      background: var(--app-surface);
-      cursor: pointer;
-      font-size: 0.88rem;
-      font-family: inherit;
-      color: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .page-btn:hover:not([disabled]) { background: var(--app-surface-variant); border-color: var(--app-primary); }
-    .page-btn.active {
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      border-color: var(--app-primary);
-      font-weight: 700;
-    }
-    .page-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
-    .page-btn mf-icon { font-size: 20px; width: 20px; height: 20px; }
 
     /* Loading overlay */
     .loading-overlay {
@@ -680,34 +497,12 @@ import { Technology } from '../../domain/models/technology.model';
       .results-header-actions { flex-direction: row; width: 100%; justify-content: flex-end; }
     }
 
-    /* Save button */
+    /* Results header actions */
     .results-header-actions {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .save-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid #16a34a;
-      background: transparent;
-      color: #16a34a;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .save-btn:hover:not([disabled]) {
-      background: color-mix(in srgb, #16a34a 8%, transparent);
-    }
-    .save-btn[disabled] {
-      opacity: 0.6;
-      cursor: default;
-    }
-    .save-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
   `]
 })
 export class AiQuestionsComponent {
@@ -812,10 +607,6 @@ export class AiQuestionsComponent {
 
   techCount(slug: string): number {
     return this.questions().filter(q => q.technology === slug).length;
-  }
-
-  onSearchInput(event: Event): void {
-    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
   generate(): void {
