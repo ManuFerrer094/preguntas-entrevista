@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { MfButtonComponent, MfSnackbarService } from 'ng-comps';
+import { MfSnackbarService, MfButtonComponent } from 'ng-comps';
 
 @Component({
   selector: 'app-actions-card',
@@ -14,7 +14,8 @@ import { MfButtonComponent, MfSnackbarService } from 'ng-comps';
         variant="text"
         leadingIcon="link"
         (mfClick)="copyLink()"
-      />
+        (click)="copyLink()"
+      ></mf-button>
     </div>
   `,
   styles: [`

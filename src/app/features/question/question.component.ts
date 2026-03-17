@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, computed, effect, untracked
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MfIconComponent, MfButtonComponent, MfSnackbarService } from 'ng-comps';
+import { MfSnackbarService } from 'ng-comps';
+import { MfIconComponent } from 'ng-comps';
+import { MfButtonComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
@@ -19,7 +21,15 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
 @Component({
   selector: 'app-question',
   standalone: true,
-  imports: [RouterLink, MfIconComponent, MfButtonComponent, AuthorCardComponent, ProgressCardComponent, RelatedQuestionsComponent, ActionsCardComponent],
+  imports: [
+    RouterLink,
+    MfIconComponent,
+    MfButtonComponent,
+    AuthorCardComponent,
+    ProgressCardComponent,
+    RelatedQuestionsComponent,
+    ActionsCardComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (question()) {

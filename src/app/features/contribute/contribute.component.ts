@@ -9,6 +9,7 @@ import {
   untracked,
   PLATFORM_ID,
   ViewChild,
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { isPlatformBrowser } from '@angular/common';
@@ -28,14 +29,9 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
   imports: [
     RouterLink,
     ReactiveFormsModule,
-    MfIconComponent,
-    MfProgressSpinnerComponent,
-    MfButtonComponent,
-    MfSelectComponent,
-    MfInputComponent,
-    MfTextareaComponent,
     MatStepperModule,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="breadcrumb" aria-label="Ruta de navegación">
@@ -135,7 +131,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
                   [value]="step1.controls.title.value"
                   [error]="step1.controls.title.touched && step1.controls.title.errors?.['required'] ? 'El título es obligatorio' : ''"
                   [fullWidth]="true"
-                  (mfInput)="step1.controls.title.setValue($event)"
+                  (mfInput)="onTitleInput($event)"
                   (mfBlur)="step1.controls.title.markAsTouched()"
                 />
               </div>
@@ -949,16 +945,27 @@ export class ContributeComponent {
     { value: 'hard', label: 'Difícil' },
   ];
 
-  onTechnologyChange(value: string | number | (string | number)[]): void {
-    const v = Array.isArray(value) ? String(value[0]) : String(value);
+  onTechnologyChange(value: any): void {
+    let v: string;
+    if (Array.isArray(value)) v = String(value[0]);
+    else if (value && typeof value === 'object') v = String((value as any).value ?? (value as any).target?.value ?? value);
+    else v = String(value ?? '');
     this.step1.controls.technology.setValue(v);
     this.step1.controls.technology.markAsTouched();
   }
 
-  onDifficultyChange(value: string | number | (string | number)[]): void {
-    const v = Array.isArray(value) ? String(value[0]) : String(value);
+  onDifficultyChange(value: any): void {
+    let v: string;
+    if (Array.isArray(value)) v = String(value[0]);
+    else if (value && typeof value === 'object') v = String((value as any).value ?? (value as any).target?.value ?? value);
+    else v = String(value ?? '');
     this.step1.controls.difficulty.setValue(v);
     this.step1.controls.difficulty.markAsTouched();
+  }
+
+  onTitleInput(event: any): void {
+    const val = typeof event === 'string' ? event : (event?.target?.value ?? (event?.value ?? ''));
+    this.step1.controls.title.setValue(val);
   }
 
   constructor() {
