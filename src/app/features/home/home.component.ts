@@ -84,14 +84,9 @@ import { SeoService } from '../../core/services/seo.service';
         </mf-card>
       </div>
     </section>
-
-    <footer class="footer">
-      <p>Creado por <a href="https://manuelferrer.vercel.app/" target="_blank" rel="noopener noreferrer" class="footer-link">Manuel Ferrer</a></p>
-    </footer>
   `,
   styles: [
     `
-    /* Simplified hero: surface card with clear CTA and search */
     .hero { padding: 40px 16px; }
     .hero-inner {
       max-width: 920px;
@@ -120,7 +115,16 @@ import { SeoService } from '../../core/services/seo.service';
 
     .contribute-section { margin-top: 28px; }
     .contribute-content { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .contribute-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--app-border); background: transparent; color: var(--app-primary); font-weight: 600; text-decoration: none; }
+    .contribute-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--app-border); background: transparent; color: var(--app-primary); font-weight: 600; text-decoration: none; transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.08s ease; }
+    .contribute-btn mf-icon { color: currentColor; transition: color 0.18s ease; }
+    .contribute-btn:hover, .contribute-btn:focus-visible {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border-color: transparent;
+      box-shadow: var(--app-shadow-sm);
+      transform: translateY(-2px);
+    }
+    .contribute-btn:active { transform: translateY(0); }
 
     .footer { text-align: center; padding: 28px 0 12px; font-size: 0.9rem; color: var(--app-text-muted); }
 

@@ -3,17 +3,19 @@ import { RouterOutlet } from '@angular/router';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ContentStore } from './core/stores/content.store';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-navbar />
     <main class="main-content">
       <router-outlet />
     </main>
+    <app-footer />
   `,
   styles: [`
     :host {

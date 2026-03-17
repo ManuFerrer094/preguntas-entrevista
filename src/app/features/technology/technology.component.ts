@@ -384,7 +384,7 @@ const PAGE_SIZE = 10;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
       margin-top: 24px;
       flex-wrap: wrap;
     }
