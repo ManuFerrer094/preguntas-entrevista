@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { MfIconComponent, MfProgressSpinnerComponent } from 'ng-comps';
+import { MfIconComponent, MfProgressSpinnerComponent, MfCardComponent, MfProgressBarComponent, MfButtonComponent, MfRadioButtonComponent, MfRadioOption } from 'ng-comps';
 import { SeoService } from '../../core/services/seo.service';
 import { SavedSessionsService, SavedQuizSession } from '../../core/services/saved-sessions.service';
 import { QuizQuestion, QuizDifficulty } from '../../domain/models/quiz.model';
@@ -25,7 +25,7 @@ const PASS_THRESHOLD = 0.6;
 @Component({
   selector: 'app-cuestionarios',
   standalone: true,
-  imports: [RouterLink, FormsModule, SlicePipe, MfIconComponent, MfProgressSpinnerComponent],
+  imports: [RouterLink, FormsModule, SlicePipe, MfIconComponent, MfProgressSpinnerComponent, MfCardComponent, MfProgressBarComponent, MfButtonComponent, MfRadioButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- ==================== LOADING OVERLAY ==================== -->
@@ -61,7 +61,7 @@ const PASS_THRESHOLD = 0.6;
     <!-- ======================== SETUP SCREEN ======================== -->
     @if (screen() === 'setup') {
       <div class="setup-section">
-        <div class="setup-card">
+        <mf-card variant="outlined" padding="lg" class="setup-card">
           <div class="setup-field">
             <label for="quiz-job-desc" class="input-label">
               <mf-icon name="work_outline" color="inherit" />
@@ -105,23 +105,13 @@ const PASS_THRESHOLD = 0.6;
               <mf-icon name="signal_cellular_alt" color="inherit" />
               Dificultad
             </p>
-            <div class="difficulty-options">
-              @for (opt of difficultyOptions; track opt.value) {
-                <button
-                  class="diff-option-btn"
-                  [class.diff-option-btn--active]="difficulty() === opt.value"
-                  [class.diff-option-btn--mixed]="opt.value === 'mixed'"
-                  [class.diff-option-btn--easy]="opt.value === 'easy'"
-                  [class.diff-option-btn--medium]="opt.value === 'medium'"
-                  [class.diff-option-btn--hard]="opt.value === 'hard'"
-                  (click)="difficulty.set(opt.value)"
-                  [disabled]="loading()"
-                >
-                  <mf-icon [name]="opt.icon" color="inherit" />
-                  {{ opt.label }}
-                </button>
-              }
-            </div>
+            <mf-radio-button
+              [options]="difficultyRadioOptions"
+              [value]="difficulty()"
+              direction="horizontal"
+              ariaLabel="Selecciona dificultad"
+              (mfChange)="difficulty.set($any($event))"
+            />
           </div>
 
           @if (error()) {
@@ -131,20 +121,14 @@ const PASS_THRESHOLD = 0.6;
             </div>
           }
 
-          <button
-            class="generate-btn"
-            (click)="generateQuiz()"
+          <mf-button
+            [label]="loading() ? 'Generando examen...' : 'Generar Examen'"
+            variant="filled"
+            [leadingIcon]="loading() ? '' : 'auto_awesome'"
             [disabled]="loading() || jobDescription().trim().length === 0"
-          >
-            @if (loading()) {
-              <mf-progress-spinner mode="indeterminate" [diameter]="20" />
-              Generando examen...
-            } @else {
-              <mf-icon name="auto_awesome" color="inherit" />
-              Generar Examen
-            }
-          </button>
-        </div>
+            (mfClick)="generateQuiz()"
+          />
+        </mf-card>
       </div>
 
       <!-- ===================== SAVED QUIZZES ===================== -->
@@ -156,7 +140,7 @@ const PASS_THRESHOLD = 0.6;
           </h2>
           <div class="saved-list">
             @for (session of savedSessions.savedQuizSessions(); track session.id) {
-              <div class="saved-card">
+              <mf-card variant="outlined" padding="md" class="saved-card">
                 <div class="saved-card-info">
                   <p class="saved-card-date">{{ formatDate(session.savedAt) }}</p>
                   <p class="saved-card-desc">{{ session.jobDescription | slice:0:120 }}{{ session.jobDescription.length > 120 ? '…' : '' }}</p>
@@ -166,22 +150,15 @@ const PASS_THRESHOLD = 0.6;
                   </div>
                 </div>
                 <div class="saved-card-actions">
-                  <button class="saved-action-btn saved-action-btn--load" (click)="loadSavedQuiz(session)" title="Repetir este cuestionario">
-                    <mf-icon name="replay" color="inherit" />
-                    Repetir
-                  </button>
-                  <button class="saved-action-btn saved-action-btn--delete" (click)="savedSessions.deleteQuizSession(session.id)" title="Eliminar">
-                    <mf-icon name="delete_outline" color="inherit" />
-                  </button>
+                  <mf-button label="Repetir" variant="outlined" size="sm" leadingIcon="replay" (mfClick)="loadSavedQuiz(session)" />
+                  <mf-button label="" variant="text" size="sm" leadingIcon="delete_outline" (mfClick)="savedSessions.deleteQuizSession(session.id)" />
                 </div>
-              </div>
+              </mf-card>
             }
           </div>
         </div>
       }
     }
-
-    <!-- ======================== QUIZ SCREEN ======================== -->
     @if (screen() === 'quiz') {
       <div class="quiz-section">
         <!-- Progress bar -->
@@ -194,16 +171,11 @@ const PASS_THRESHOLD = 0.6;
               ✓ {{ correctCount() }} correctas
             </span>
           </div>
-          <div class="progress-bar-track">
-            <div
-              class="progress-bar-fill"
-              [style.width.%]="progressPercent()"
-            ></div>
-          </div>
+          <mf-progress-bar mode="determinate" [value]="progressPercent()" color="brand" [showValue]="false" [height]="6" />
         </div>
 
         <!-- Question card -->
-        <div class="question-card">
+        <mf-card variant="outlined" padding="lg" class="question-card">
           <p class="question-number">Pregunta {{ currentIndex() + 1 }}</p>
           <h2 class="question-text">{{ currentQuestion()?.question }}</h2>
 
@@ -244,19 +216,13 @@ const PASS_THRESHOLD = 0.6;
 
             <div class="quiz-actions">
               @if (isLastQuestion()) {
-                <button class="next-btn next-btn--finish" (click)="finishQuiz()">
-                  Ver resultados
-                  <mf-icon name="flag" color="inherit" />
-                </button>
+                <mf-button label="Ver resultados" variant="filled" trailingIcon="flag" (mfClick)="finishQuiz()" />
               } @else {
-                <button class="next-btn" (click)="nextQuestion()">
-                  Siguiente pregunta
-                  <mf-icon name="arrow_forward" color="inherit" />
-                </button>
+                <mf-button label="Siguiente pregunta" variant="filled" trailingIcon="arrow_forward" (mfClick)="nextQuestion()" />
               }
             </div>
           }
-        </div>
+        </mf-card>
       </div>
     }
 
@@ -277,21 +243,21 @@ const PASS_THRESHOLD = 0.6;
 
         <!-- Score summary -->
         <div class="score-summary">
-          <div class="score-card score-card--correct">
+          <mf-card variant="outlined" padding="md" class="score-card score-card--correct">
             <mf-icon name="check_circle" color="inherit" />
             <span class="score-num">{{ correctCount() }}</span>
             <span class="score-label">Correctas</span>
-          </div>
-          <div class="score-card score-card--wrong">
+          </mf-card>
+          <mf-card variant="outlined" padding="md" class="score-card score-card--wrong">
             <mf-icon name="cancel" color="inherit" />
             <span class="score-num">{{ questions().length - correctCount() }}</span>
             <span class="score-label">Incorrectas</span>
-          </div>
-          <div class="score-card score-card--percent">
+          </mf-card>
+          <mf-card variant="outlined" padding="md" class="score-card score-card--percent">
             <mf-icon name="percent" color="inherit" />
             <span class="score-num">{{ scorePercent() }}</span>
             <span class="score-label">Puntuación</span>
-          </div>
+          </mf-card>
         </div>
 
         <!-- Detailed answers review -->
@@ -329,18 +295,15 @@ const PASS_THRESHOLD = 0.6;
 
         <!-- Action buttons -->
         <div class="results-actions">
-          <button class="action-btn action-btn--repeat" (click)="repeatQuiz()">
-            <mf-icon name="replay" color="inherit" />
-            Repetir examen
-          </button>
-          <button class="action-btn action-btn--save" (click)="saveCurrentQuiz()" [disabled]="quizAlreadySaved()">
-            <mf-icon [name]="quizAlreadySaved() ? 'bookmark' : 'bookmark_border'" color="inherit" />
-            {{ quizAlreadySaved() ? 'Guardado' : 'Guardar' }}
-          </button>
-          <button class="action-btn action-btn--new" (click)="newQuiz()">
-            <mf-icon name="add_circle_outline" color="inherit" />
-            Crear nuevo examen
-          </button>
+          <mf-button label="Repetir examen" variant="outlined" leadingIcon="replay" (mfClick)="repeatQuiz()" />
+          <mf-button
+            [label]="quizAlreadySaved() ? 'Guardado' : 'Guardar'"
+            variant="outlined"
+            [leadingIcon]="quizAlreadySaved() ? 'bookmark' : 'bookmark_border'"
+            [disabled]="quizAlreadySaved()"
+            (mfClick)="saveCurrentQuiz()"
+          />
+          <mf-button label="Crear nuevo examen" variant="filled" leadingIcon="add_circle_outline" (mfClick)="newQuiz()" />
         </div>
       </div>
     }
@@ -401,10 +364,6 @@ const PASS_THRESHOLD = 0.6;
       gap: 20px;
     }
     .setup-card {
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 16px;
-      padding: 28px;
       display: flex;
       flex-direction: column;
       gap: 24px;
@@ -479,28 +438,6 @@ const PASS_THRESHOLD = 0.6;
     }
     .error-message p { margin: 0; font-size: 0.9rem; }
 
-    /* Generate button */
-    .generate-btn {
-      align-self: flex-end;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
-      border: none;
-      border-radius: 10px;
-      background: var(--app-primary);
-      color: white;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .generate-btn:hover:not(:disabled) {
-      background: var(--app-primary-hover);
-      transform: translateY(-1px);
-    }
-    .generate-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
     /* ===== QUIZ ===== */
     .quiz-section { display: flex; flex-direction: column; gap: 20px; }
 
@@ -518,25 +455,7 @@ const PASS_THRESHOLD = 0.6;
     }
     .quiz-progress-text { font-size: 0.88rem; color: var(--app-text-muted); font-weight: 500; }
     .quiz-score-live { font-size: 0.88rem; color: #22c55e; font-weight: 600; }
-    .progress-bar-track {
-      height: 6px;
-      background: var(--app-border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--app-primary);
-      border-radius: 3px;
-      transition: width 0.3s ease;
-    }
 
-    .question-card {
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 16px;
-      padding: 28px;
-    }
     .question-number { font-size: 0.8rem; font-weight: 600; color: var(--app-primary); margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.05em; }
     .question-text { font-size: 1.15rem; font-weight: 600; color: var(--app-text); line-height: 1.5; margin: 0 0 24px; }
 
@@ -617,23 +536,6 @@ const PASS_THRESHOLD = 0.6;
 
     /* Quiz nav */
     .quiz-actions { display: flex; justify-content: flex-end; }
-    .next-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 10px;
-      background: var(--app-primary);
-      color: white;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .next-btn:hover { background: var(--app-primary-hover); }
-    .next-btn--finish { background: #16a34a; }
-    .next-btn--finish:hover { background: #15803d; }
 
     /* ===== RESULTS ===== */
     .results-section { display: flex; flex-direction: column; gap: 24px; }
@@ -670,10 +572,6 @@ const PASS_THRESHOLD = 0.6;
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      padding: 20px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--app-border);
-      background: var(--app-surface);
     }
     .score-card mf-icon { font-size: 28px; width: 28px; height: 28px; }
     .score-card--correct mf-icon { color: #22c55e; }
@@ -721,44 +619,10 @@ const PASS_THRESHOLD = 0.6;
 
     /* Results action buttons */
     .results-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 2px solid;
-      transition: all 0.15s;
-    }
-    .action-btn--repeat {
-      border-color: var(--app-primary);
-      background: transparent;
-      color: var(--app-primary);
-    }
-    .action-btn--repeat:hover {
-      background: color-mix(in srgb, var(--app-primary) 8%, transparent);
-    }
-    .action-btn--save {
-      border-color: #16a34a;
-      background: transparent;
-      color: #16a34a;
-    }
-    .action-btn--save:hover:not([disabled]) {
-      background: color-mix(in srgb, #16a34a 8%, transparent);
-    }
-    .action-btn--save[disabled] {
-      opacity: 0.6;
-      cursor: default;
-    }
-    .action-btn--new {
-      border-color: transparent;
-      background: var(--app-primary);
-      color: white;
-    }
-    .action-btn--new:hover { background: var(--app-primary-hover); }
+
+    /* Component display */
+    mf-card { display: block; }
+    mf-progress-bar { display: block; }
 
     /* Responsive */
     @media (max-width: 600px) {
@@ -772,7 +636,6 @@ const PASS_THRESHOLD = 0.6;
       .verdict-banner { flex-direction: column; text-align: center; padding: 20px; }
       .verdict-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
       .results-actions { flex-direction: column; }
-      .action-btn { justify-content: center; }
     }
   `]
 })
@@ -794,6 +657,13 @@ export class CuestionariosComponent {
     { value: 'easy',   label: 'Fácil',   icon: 'sentiment_satisfied' },
     { value: 'medium', label: 'Media',   icon: 'sentiment_neutral' },
     { value: 'hard',   label: 'Difícil', icon: 'sentiment_dissatisfied' },
+  ];
+
+  readonly difficultyRadioOptions: MfRadioOption[] = [
+    { value: 'mixed', label: 'Mixta' },
+    { value: 'easy', label: 'Fácil' },
+    { value: 'medium', label: 'Media' },
+    { value: 'hard', label: 'Difícil' },
   ];
 
   // App state
