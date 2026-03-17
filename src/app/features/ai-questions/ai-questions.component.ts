@@ -2,9 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed, effect } 
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MfIconComponent, MfProgressSpinnerComponent } from 'ng-comps';
 import { AiQuestionsService, AiQuestion } from '../../core/services/ai-questions.service';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
@@ -17,14 +15,14 @@ import { Technology } from '../../domain/models/technology.model';
 @Component({
   selector: 'app-ai-questions',
   standalone: true,
-  imports: [RouterLink, FormsModule, SlicePipe, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, FormsModule, SlicePipe, MfIconComponent, MfProgressSpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- ==================== LOADING OVERLAY ==================== -->
     @if (loading()) {
       <div class="loading-overlay" role="status" aria-live="polite" aria-label="Analizando oferta">
         <div class="loading-overlay-card">
-          <mat-spinner diameter="52"></mat-spinner>
+          <mf-progress-spinner mode="indeterminate" [diameter]="52" />
           <p class="loading-overlay-title">Analizando oferta con IA...</p>
           <p class="loading-overlay-desc">Esto puede tardar unos segundos</p>
         </div>
@@ -65,10 +63,10 @@ import { Technology } from '../../domain/models/technology.model';
             [disabled]="loading() || jobDescription().trim().length === 0"
           >
             @if (loading()) {
-              <mat-spinner diameter="20"></mat-spinner>
+              <mf-progress-spinner mode="indeterminate" [diameter]="20" />
               Analizando oferta...
             } @else {
-              <mat-icon>auto_awesome</mat-icon>
+              <mf-icon name="auto_awesome" color="inherit" />
               Generar Preguntas
             }
           </button>
@@ -79,7 +77,7 @@ import { Technology } from '../../domain/models/technology.model';
       @if (savedSessions.savedAiSessions().length > 0) {
         <div class="saved-section">
           <h2 class="saved-title">
-            <mat-icon>bookmark</mat-icon>
+            <mf-icon name="bookmark" color="inherit" />
             Preguntas IA guardadas
           </h2>
           <div class="saved-list">
@@ -100,11 +98,11 @@ import { Technology } from '../../domain/models/technology.model';
                 </div>
                 <div class="saved-card-actions">
                   <button class="saved-action-btn saved-action-btn--load" (click)="loadSavedSession(session)" title="Cargar sesión">
-                    <mat-icon>open_in_new</mat-icon>
+                    <mf-icon name="open_in_new" color="inherit" />
                     Cargar
                   </button>
                   <button class="saved-action-btn saved-action-btn--delete" (click)="savedSessions.deleteAiSession(session.id)" title="Eliminar">
-                    <mat-icon>delete_outline</mat-icon>
+                    <mf-icon name="delete_outline" color="inherit" />
                   </button>
                 </div>
               </div>
@@ -116,7 +114,7 @@ import { Technology } from '../../domain/models/technology.model';
 
     @if (error()) {
       <div class="error-message">
-        <mat-icon>error_outline</mat-icon>
+        <mf-icon name="error_outline" color="inherit" />
         <p>{{ error() }}</p>
       </div>
     }
@@ -136,11 +134,11 @@ import { Technology } from '../../domain/models/technology.model';
           </div>
           <div class="results-header-actions">
             <button class="save-btn" (click)="saveCurrentSession()" [disabled]="sessionAlreadySaved()">
-              <mat-icon>{{ sessionAlreadySaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+              <mf-icon [name]="sessionAlreadySaved() ? 'bookmark' : 'bookmark_border'" color="inherit" />
               {{ sessionAlreadySaved() ? 'Guardado' : 'Guardar' }}
             </button>
             <button class="reset-btn" (click)="reset()">
-              <mat-icon>refresh</mat-icon>
+              <mf-icon name="refresh" color="inherit" />
               Nueva consulta
             </button>
           </div>
@@ -199,7 +197,7 @@ import { Technology } from '../../domain/models/technology.model';
           <!-- Question list -->
           <main class="main-col">
             <div class="search-container">
-              <mat-icon class="search-icon">search</mat-icon>
+              <mf-icon name="search" color="inherit" class="search-icon" />
               <input
                 type="text"
                 class="search-input"
@@ -236,11 +234,11 @@ import { Technology } from '../../domain/models/technology.model';
                       }
                     </div>
                   </div>
-                  <mat-icon class="chevron">chevron_right</mat-icon>
+                  <mf-icon name="chevron_right" color="inherit" class="chevron" />
                 </a>
               } @empty {
                 <div class="empty-message">
-                  <mat-icon>search_off</mat-icon>
+                  <mf-icon name="search_off" color="inherit" />
                   <p>No se encontraron preguntas con estos filtros.</p>
                 </div>
               }
@@ -255,7 +253,7 @@ import { Technology } from '../../domain/models/technology.model';
                   (click)="goToPage(currentPage() - 1)"
                   aria-label="Página anterior"
                 >
-                  <mat-icon>chevron_left</mat-icon>
+                  <mf-icon name="chevron_left" color="inherit" />
                 </button>
                 @for (page of pageNumbers(); track page) {
                   <button
@@ -271,7 +269,7 @@ import { Technology } from '../../domain/models/technology.model';
                   (click)="goToPage(currentPage() + 1)"
                   aria-label="Página siguiente"
                 >
-                  <mat-icon>chevron_right</mat-icon>
+                  <mf-icon name="chevron_right" color="inherit" />
                 </button>
               </nav>
             }
@@ -369,7 +367,7 @@ import { Technology } from '../../domain/models/technology.model';
       opacity: 0.5;
       cursor: not-allowed;
     }
-    .generate-btn mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .generate-btn mf-icon { font-size: 20px; width: 20px; height: 20px; }
 
     /* Error */
     .error-message {
@@ -431,7 +429,7 @@ import { Technology } from '../../domain/models/technology.model';
     .reset-btn:hover {
       background: var(--app-surface-variant);
     }
-    .reset-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .reset-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
 
     .results-layout {
       display: grid;
@@ -600,7 +598,7 @@ import { Technology } from '../../domain/models/technology.model';
       padding: 48px;
       opacity: 0.5;
     }
-    .empty-message mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
+    .empty-message mf-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
 
     /* Pagination */
     .pagination {
@@ -635,7 +633,7 @@ import { Technology } from '../../domain/models/technology.model';
       font-weight: 700;
     }
     .page-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
-    .page-btn mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .page-btn mf-icon { font-size: 20px; width: 20px; height: 20px; }
 
     /* Loading overlay */
     .loading-overlay {
@@ -709,7 +707,7 @@ import { Technology } from '../../domain/models/technology.model';
       opacity: 0.6;
       cursor: default;
     }
-    .save-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .save-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
   `]
 })
 export class AiQuestionsComponent {

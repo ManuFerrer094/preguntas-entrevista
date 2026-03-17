@@ -2,10 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, computed, effect, untracked
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MfIconComponent, MfButtonComponent, MfSnackbarService } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
@@ -22,7 +19,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
 @Component({
   selector: 'app-question',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, MatSnackBarModule, AuthorCardComponent, ProgressCardComponent, RelatedQuestionsComponent, ActionsCardComponent],
+  imports: [RouterLink, MfIconComponent, MfButtonComponent, AuthorCardComponent, ProgressCardComponent, RelatedQuestionsComponent, ActionsCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (question()) {
@@ -65,26 +62,24 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
           <div class="mark-read-card">
             <div class="mark-read-content">
               @if (isRead()) {
-                <mat-icon class="mark-read-icon done">check_circle</mat-icon>
+                <mf-icon name="check_circle" color="inherit" class="mark-read-icon done" />
                 <div>
                   <strong>¡Sección completada!</strong>
                   <p>Ya has leído esta pregunta.</p>
                 </div>
               } @else {
-                <mat-icon class="mark-read-icon pending">radio_button_unchecked</mat-icon>
+                <mf-icon name="radio_button_unchecked" color="inherit" class="mark-read-icon pending" />
                 <div>
                   <strong>¿Completaste esta sección?</strong>
                   <p>Marcarla como leída actualiza tu progreso.</p>
                 </div>
               }
             </div>
-            <button
-              mat-flat-button
-              [color]="isRead() ? 'accent' : 'primary'"
-              (click)="toggleRead()"
-            >
-              {{ isRead() ? 'Marcar como no leída' : 'Marcar como Leída' }}
-            </button>
+            <mf-button
+              [label]="isRead() ? 'Marcar como no leída' : 'Marcar como Leída'"
+              variant="filled"
+              (mfClick)="toggleRead()"
+            />
           </div>
 
           <!-- Prev / Next Navigation -->
@@ -96,7 +91,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
                 class="nav-card nav-prev"
               >
                 <span class="nav-direction">
-                  <mat-icon>arrow_back</mat-icon> ANTERIOR
+                  <mf-icon name="arrow_back" size="sm" color="inherit" /> ANTERIOR
                 </span>
                 <span class="nav-title">{{ previousQuestion()!.title }}</span>
               </a>
@@ -111,7 +106,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
                 class="nav-card nav-next"
               >
                 <span class="nav-direction">
-                  SIGUIENTE <mat-icon>arrow_forward</mat-icon>
+                  SIGUIENTE <mf-icon name="arrow_forward" size="sm" color="inherit" />
                 </span>
                 <span class="nav-title">{{ nextQuestion()!.title }}</span>
               </a>
@@ -131,7 +126,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
       </div>
     } @else {
       <p>Pregunta no encontrada.</p>
-      <a mat-button routerLink="/">Volver al inicio</a>
+      <a routerLink="/" class="back-link">Volver al inicio</a>
     }
   `,
   styles: [`
@@ -333,7 +328,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
       text-transform: uppercase;
       opacity: 0.5;
     }
-    .nav-direction mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    .nav-direction mf-icon { font-size: 16px; width: 16px; height: 16px; }
     .nav-next { text-align: right; }
     .nav-next .nav-direction { justify-content: flex-end; }
     .nav-title {
@@ -366,7 +361,7 @@ export class QuestionComponent {
   readonly store = inject(ContentStore);
   private readonly seo = inject(SeoService);
   private readonly markdownParser = inject(MarkdownParserService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly snackbar = inject(MfSnackbarService);
   readonly progress = inject(ProgressService);
   private readonly aiService = inject(AiQuestionsService);
 
@@ -453,7 +448,7 @@ export class QuestionComponent {
     if (q) {
       this.progress.toggleRead(q.id);
       const msg = this.progress.isRead(q.id) ? '¡Pregunta marcada como leída!' : 'Pregunta marcada como no leída';
-      this.snackBar.open(msg, 'Cerrar', { duration: 2000 });
+      this.snackbar.info(msg, 'Cerrar');
     }
   }
 

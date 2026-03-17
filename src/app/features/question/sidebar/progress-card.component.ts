@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { MfIconComponent } from 'ng-comps';
 import { Question } from '../../../domain/models/question.model';
 import { ContentStore } from '../../../core/stores/content.store';
 import { ProgressService } from '../../../core/services/progress.service';
@@ -7,12 +7,12 @@ import { ProgressService } from '../../../core/services/progress.service';
 @Component({
   selector: 'app-progress-card',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="sidebar-card">
       <div class="sidebar-card-header">
-        <mat-icon class="sidebar-icon">trending_up</mat-icon>
+        <mf-icon name="trending_up" size="sm" color="brand" class="sidebar-icon" />
         <strong>Tu Progreso</strong>
       </div>
       <div class="progress-bar-track">

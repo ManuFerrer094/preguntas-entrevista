@@ -15,12 +15,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MfIconComponent, MfProgressSpinnerComponent, MfButtonComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfTextareaComponent } from 'ng-comps';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
@@ -33,12 +28,12 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
   imports: [
     RouterLink,
     ReactiveFormsModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    MfIconComponent,
+    MfProgressSpinnerComponent,
+    MfButtonComponent,
+    MfSelectComponent,
+    MfInputComponent,
+    MfTextareaComponent,
     MatStepperModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,21 +57,21 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     <!-- Success state -->
     @if (prUrl()) {
       <div class="success-card">
-        <mat-icon class="success-icon">check_circle</mat-icon>
+        <mf-icon name="check_circle" color="inherit" class="success-icon" />
         <h2>¡Contribución enviada!</h2>
         <p>Tu pregunta ha sido enviada para revisión. Puedes seguir el estado en GitHub:</p>
         <a [href]="prUrl()" target="_blank" rel="noopener noreferrer" class="pr-link">
-          <mat-icon>open_in_new</mat-icon>
+          <mf-icon name="open_in_new" color="inherit" />
           Ver Pull Request
         </a>
         <button class="reset-btn" (click)="resetForm()">
-          <mat-icon>add</mat-icon>
+          <mf-icon name="add" color="inherit" />
           Enviar otra pregunta
         </button>
       </div>
     } @else if (authService.loading()) {
       <div class="login-card">
-        <mat-spinner diameter="40"></mat-spinner>
+        <mf-progress-spinner mode="indeterminate" [diameter]="40" />
         <p style="margin-top: 16px; opacity: 0.7">Autenticando con GitHub...</p>
       </div>
     } @else if (!authService.isAuthenticated()) {
@@ -89,7 +84,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
            La Pull Request se creará bajo tu nombre de usuario.</p>
         @if (authService.error()) {
           <div class="error-message" style="margin: 16px 0 0; justify-content: center">
-            <mat-icon>error_outline</mat-icon>
+            <mf-icon name="error_outline" color="inherit" />
             <p>{{ authService.error() }}</p>
           </div>
         }
@@ -108,7 +103,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           <span class="user-handle">&#64;{{ authService.user()!.username }}</span>
         </div>
         <button class="logout-btn" (click)="authService.logout()" type="button">
-          <mat-icon>logout</mat-icon>
+          <mf-icon name="logout" color="inherit" />
           Cerrar sesión
         </button>
       </div>
@@ -121,42 +116,38 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
 
           <div class="step-content">
             <div class="field">
-              <mat-form-field appearance="outline" class="mat-fullwidth">
-                <mat-label>Tecnología</mat-label>
-                <mat-select [formControl]="step1.controls.technology" placeholder="Selecciona una tecnología">
-                  @for (tech of technologies(); track tech.id) {
-                    <mat-option [value]="tech.slug">{{ tech.name }}</mat-option>
-                  }
-                </mat-select>
-                @if (step1.controls.technology.touched && step1.controls.technology.errors?.['required']) {
-                  <mat-error>Selecciona una tecnología</mat-error>
-                }
-              </mat-form-field>
+              <mf-select
+                label="Tecnología"
+                placeholder="Selecciona una tecnología"
+                [options]="technologyOptions()"
+                [value]="step1.controls.technology.value"
+                [error]="step1.controls.technology.touched && step1.controls.technology.errors?.['required'] ? 'Selecciona una tecnología' : ''"
+                [fullWidth]="true"
+                (mfSelectionChange)="onTechnologyChange($event)"
+              />
             </div>
 
             <div class="field-row">
               <div class="field field-grow">
-                <mat-form-field appearance="outline" class="mat-fullwidth">
-                  <mat-label>Título de la pregunta</mat-label>
-                  <input matInput [formControl]="step1.controls.title"
-                         placeholder="Ej: ¿Qué es el Virtual DOM en React?" maxlength="200" />
-                  @if (step1.controls.title.touched && step1.controls.title.errors?.['required']) {
-                    <mat-error>El título es obligatorio</mat-error>
-                  }
-                </mat-form-field>
+                <mf-input
+                  label="Título de la pregunta"
+                  placeholder="Ej: ¿Qué es el Virtual DOM en React?"
+                  [value]="step1.controls.title.value"
+                  [error]="step1.controls.title.touched && step1.controls.title.errors?.['required'] ? 'El título es obligatorio' : ''"
+                  [fullWidth]="true"
+                  (mfInput)="step1.controls.title.setValue($event)"
+                  (mfBlur)="step1.controls.title.markAsTouched()"
+                />
               </div>
               <div class="field field-sm">
-                <mat-form-field appearance="outline">
-                  <mat-label>Dificultad</mat-label>
-                  <mat-select [formControl]="step1.controls.difficulty" placeholder="Nivel">
-                    <mat-option value="easy">Fácil</mat-option>
-                    <mat-option value="medium">Media</mat-option>
-                    <mat-option value="hard">Difícil</mat-option>
-                  </mat-select>
-                  @if (step1.controls.difficulty.touched && step1.controls.difficulty.errors?.['required']) {
-                    <mat-error>Selecciona una dificultad</mat-error>
-                  }
-                </mat-form-field>
+                <mf-select
+                  label="Dificultad"
+                  placeholder="Nivel"
+                  [options]="difficultyOptions"
+                  [value]="step1.controls.difficulty.value"
+                  [error]="step1.controls.difficulty.touched && step1.controls.difficulty.errors?.['required'] ? 'Selecciona una dificultad' : ''"
+                  (mfSelectionChange)="onDifficultyChange($event)"
+                />
               </div>
             </div>
 
@@ -181,10 +172,10 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions">
-            <button mat-flat-button color="primary" matStepperNext
+            <button class="step-btn step-btn--primary" matStepperNext
                     [disabled]="step1.invalid">
               Siguiente
-              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+              <mf-icon name="arrow_forward" size="sm" color="inherit" />
             </button>
           </div>
         </mat-step>
@@ -203,31 +194,31 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
 
                 <div class="editor-toolbar" role="toolbar" aria-label="Controles de formato markdown">
                   <button type="button" class="tool-btn" (click)="applyInlineWrap('**', '**')" title="Negrita">
-                    <mat-icon>format_bold</mat-icon>
+                    <mf-icon name="format_bold" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="applyInlineWrap('*', '*')" title="Cursiva">
-                    <mat-icon>format_italic</mat-icon>
+                    <mf-icon name="format_italic" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="applyInlineCode()" title="Código inline">
-                    <mat-icon>code</mat-icon>
+                    <mf-icon name="code" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="applyBlockPrefix('## ')" title="Título H2">
-                    <mat-icon>title</mat-icon>
+                    <mf-icon name="title" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="applyBlockPrefix('- ')" title="Lista">
-                    <mat-icon>format_list_bulleted</mat-icon>
+                    <mf-icon name="format_list_bulleted" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="applyBlockPrefix('1. ')" title="Lista numerada">
-                    <mat-icon>format_list_numbered</mat-icon>
+                    <mf-icon name="format_list_numbered" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="applyBlockPrefix('> ')" title="Cita">
-                    <mat-icon>format_quote</mat-icon>
+                    <mf-icon name="format_quote" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="insertLink()" title="Enlace">
-                    <mat-icon>link</mat-icon>
+                    <mf-icon name="link" color="inherit" />
                   </button>
                   <button type="button" class="tool-btn" (click)="insertCodeBlock()" title="Bloque de código">
-                    <mat-icon>data_object</mat-icon>
+                    <mf-icon name="data_object" color="inherit" />
                   </button>
                 </div>
 
@@ -274,14 +265,14 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions">
-            <button mat-stroked-button matStepperPrev>
-              <mat-icon>arrow_back</mat-icon>
+            <button class="step-btn step-btn--outline" matStepperPrev>
+              <mf-icon name="arrow_back" size="sm" color="inherit" />
               Atrás
             </button>
-            <button mat-flat-button color="primary" matStepperNext
+            <button class="step-btn step-btn--primary" matStepperNext
                     [disabled]="step2.invalid">
               Siguiente
-              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+              <mf-icon name="arrow_forward" size="sm" color="inherit" />
             </button>
           </div>
         </mat-step>
@@ -328,24 +319,24 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
 
             @if (error()) {
               <div class="error-message">
-                <mat-icon>error_outline</mat-icon>
+                <mf-icon name="error_outline" color="inherit" />
                 <p>{{ error() }}</p>
               </div>
             }
           </div>
 
           <div class="step-actions step-actions--submit">
-            <button mat-stroked-button matStepperPrev [disabled]="submitting()">
-              <mat-icon>arrow_back</mat-icon>
+            <button class="step-btn step-btn--outline" matStepperPrev [disabled]="submitting()">
+              <mf-icon name="arrow_back" size="sm" color="inherit" />
               Atrás
             </button>
             <button type="button" class="submit-btn" (click)="onSubmit()"
                     [disabled]="submitting()">
               @if (submitting()) {
-                <mat-spinner diameter="20"></mat-spinner>
+                <mf-progress-spinner mode="indeterminate" [diameter]="20" />
                 Enviando...
               } @else {
-                <mat-icon>send</mat-icon>
+                <mf-icon name="send" color="inherit" />
                 Enviar para revisión
               }
             </button>
@@ -662,7 +653,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       color: var(--app-primary);
       background: var(--app-surface-raised);
     }
-    .tool-btn mat-icon {
+    .tool-btn mf-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
@@ -947,6 +938,26 @@ export class ContributeComponent {
     const content = this.contentValue().trim();
     return content ? this.markdownParser.renderMarkdown(content) : '';
   });
+
+  readonly technologyOptions = computed<MfSelectOption[]>(() =>
+    this.technologies().map(t => ({ value: t.slug, label: t.name }))
+  );
+
+  readonly difficultyOptions: MfSelectOption[] = [
+    { value: 'easy', label: 'Fácil' },
+    { value: 'medium', label: 'Media' },
+    { value: 'hard', label: 'Difícil' },
+  ];
+
+  onTechnologyChange(value: string | number | (string | number)[]): void {
+    this.step1.controls.technology.setValue(String(value));
+    this.step1.controls.technology.markAsTouched();
+  }
+
+  onDifficultyChange(value: string | number | (string | number)[]): void {
+    this.step1.controls.difficulty.setValue(String(value));
+    this.step1.controls.difficulty.markAsTouched();
+  }
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
