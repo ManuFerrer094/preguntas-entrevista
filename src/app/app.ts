@@ -19,12 +19,14 @@ import { FooterComponent } from './shared/components/footer/footer.component';
   `,
   styles: [`
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
       background: var(--app-bg);
       color: var(--app-text);
     }
     .main-content {
+      flex: 1 0 auto;
       max-width: 1200px;
       margin: 0 auto;
       padding: 24px 16px;
