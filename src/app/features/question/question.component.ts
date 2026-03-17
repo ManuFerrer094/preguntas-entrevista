@@ -72,7 +72,8 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
 
           <!-- Mark as read -->
           <mf-card variant="outlined" padding="md" class="mark-read-card">
-            <div class="mark-read-content">
+            <div class="mark-read-inner">
+              <div class="mark-read-content">
               @if (isRead()) {
                 <mf-icon name="check_circle" color="inherit" class="mark-read-icon done" />
                 <div>
@@ -92,6 +93,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
               variant="filled"
               (mfClick)="toggleRead()"
             />
+            </div>
           </mf-card>
 
           <!-- Prev / Next Navigation -->
@@ -293,7 +295,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
       display: block;
       margin: 40px 0 32px;
     }
-    :host ::ng-deep .mark-read-card .mf-card__body {
+    .mark-read-card .mark-read-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;

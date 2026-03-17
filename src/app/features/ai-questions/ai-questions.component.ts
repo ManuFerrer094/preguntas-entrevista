@@ -248,7 +248,6 @@ import { Technology } from '../../domain/models/technology.model';
     .page-desc { margin: 0; opacity: 0.7; font-size: 0.9rem; }
 
     /* Input section */
-    .input-section { }
     mf-card { display: block; }
     .input-label {
       display: block;

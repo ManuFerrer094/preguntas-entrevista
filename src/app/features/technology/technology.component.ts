@@ -100,7 +100,7 @@ const PAGE_SIZE = 10;
             </div>
           </header>
 
-          <mf-input type="search" placeholder="Buscar por palabra clave, tema o etiqueta..." leadingIcon="search" [value]="searchQuery()" [fullWidth]="true" (mfInput)="searchQuery.set($event)" aria-label="Buscar preguntas" />
+          <mf-input type="search" placeholder="Buscar por palabra clave, tema o etiqueta..." leadingIcon="search" [value]="searchQuery()" [fullWidth]="true" (mfInput)="searchQuery.set($event)" label="Buscar preguntas" />
 
           @if (store.loading()) {
             <div class="loading-container">

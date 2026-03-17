@@ -110,7 +110,7 @@ const PASS_THRESHOLD = 0.6;
               [value]="difficulty()"
               direction="horizontal"
               ariaLabel="Selecciona dificultad"
-              (mfChange)="difficulty.set($any($event))"
+              (mfChange)="onDifficultyChange($event)"
             />
           </div>
 
@@ -712,6 +712,10 @@ export class CuestionariosComponent {
       title: 'Cuestionarios - Preguntas de Entrevista',
       description: 'Genera un examen tipo test personalizado con IA a partir de una oferta de empleo. Practica para tu entrevista técnica.'
     });
+  }
+
+  onDifficultyChange(value: string): void {
+    this.difficulty.set(value as QuizDifficulty);
   }
 
   generateQuiz(): void {
