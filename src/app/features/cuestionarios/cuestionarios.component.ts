@@ -121,13 +121,15 @@ const PASS_THRESHOLD = 0.6;
             </div>
           }
 
-          <mf-button
-            [label]="loading() ? 'Generando examen...' : 'Generar Examen'"
-            variant="filled"
-            [leadingIcon]="loading() ? '' : 'auto_awesome'"
-            [disabled]="loading() || jobDescription().trim().length === 0"
-            (mfClick)="generateQuiz()"
-          />
+          <div class="setup-actions">
+            <mf-button
+              [label]="loading() ? 'Generando examen...' : 'Generar Examen'"
+              variant="filled"
+              [leadingIcon]="loading() ? '' : 'auto_awesome'"
+              [disabled]="loading() || jobDescription().trim().length === 0"
+              (mfClick)="generateQuiz()"
+            />
+          </div>
         </mf-card>
       </div>
 
@@ -368,6 +370,7 @@ const PASS_THRESHOLD = 0.6;
       flex-direction: column;
       gap: 24px;
     }
+    .setup-actions { display: flex; justify-content: flex-end; }
     .setup-field { display: flex; flex-direction: column; gap: 10px; }
     .input-label {
       display: flex;

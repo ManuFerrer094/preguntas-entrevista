@@ -181,13 +181,14 @@ html {
 
   --mdc-circular-progress-active-indicator-color: var(--app-primary);
   --mdc-linear-progress-active-indicator-color:   var(--app-primary);
+  --mat-progress-bar-active-indicator-color: var(--app-primary);
+  --mat-progress-spinner-active-indicator-color: var(--app-primary);
   --mdc-outlined-text-field-focus-outline-color:      var(--app-primary);
   --mdc-outlined-text-field-focus-label-text-color:   var(--app-primary);
   --mdc-filled-text-field-focus-active-indicator-color: var(--app-primary);
   --mdc-filled-text-field-focus-label-text-color:     var(--app-primary);
   --mat-select-focused-arrow-color:                   var(--app-primary);
   --mat-form-field-focus-select-arrow-color:          var(--app-primary);
-  /* dark-theme mappings for native blue tokens */
   --mat-pseudo-checkbox-full-selected-icon-color: var(--app-primary);
   --mat-pseudo-checkbox-minimal-selected-checkmark-color: var(--app-primary);
 
@@ -487,4 +488,31 @@ img, table, blockquote, .technologies-grid, .questions-list {
   font-size: 0.85rem;
   color: var(--app-text-muted);
   margin: 0;
+}
+
+mf-input {
+  display: block !important;
+  width: 100% !important;
+}
+
+.hero-search, .search-wrapper, .tech-header, main, .main-col {
+  width: 100%;
+}
+
+mf-input .mat-mdc-form-field {
+  width: 100% !important;
+}
+
+@media (max-width: 600px) {
+  mf-button {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .mark-read-card .mark-read-inner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: left;
+  }
+  .mark-read-card mf-button { margin-top: 12px; }
 }

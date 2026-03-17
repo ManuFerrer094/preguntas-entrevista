@@ -11,34 +11,27 @@ import { SeoService } from '../../core/services/seo.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="hero" aria-labelledby="hero-title">
-      <span class="hero-badge">PREPARA TU ENTREVISTA</span>
-      <h1 id="hero-title" class="hero-title">
-        Domina tu Próxima<br/>
-        <span class="hero-highlight">Entrevista Técnica</span>
-      </h1>
-      <p class="hero-subtitle">
-        Preparación completa para ingenieros de software. Accede a preguntas reales
-        de entrevistas técnicas organizadas por tecnología.
-      </p>
+      <div class="hero-inner">
+        <h1 id="hero-title" class="hero-title">Domina tu próxima <span class="hero-accent">entrevista técnica</span></h1>
+        <p class="hero-subtitle">Preguntas reales por tecnología — práctica rápida y seguimiento de progreso.</p>
 
-      <div class="hero-explore">
-        <p class="hero-explore-title">Explorar por Tecnología</p>
-        <p class="hero-explore-subtitle">Selecciona una tecnología para empezar tu preparación</p>
-        <div class="search-wrapper">
-          <mf-input
-            type="search"
-            placeholder="Buscar React, Angular, Node.js..."
-            leadingIcon="search"
-            [value]="searchQuery()"
-            [fullWidth]="true"
-            (mfInput)="searchQuery.set($event)"
-          />
+        <div class="hero-actions">
+          <div class="hero-search">
+            <mf-input
+              type="search"
+              placeholder="Buscar React, Angular, Node.js..."
+              leadingIcon="search"
+              [value]="searchQuery()"
+              [fullWidth]="true"
+              (mfInput)="searchQuery.set($event)"
+            />
+          </div>
         </div>
       </div>
     </section>
 
     <section id="technologies" class="tech-section" aria-label="Explorar por tecnología">
-
+      <h2 class="section-title">Explorar por tecnología</h2>
       <div class="technologies-grid">
         @for (tech of filteredTechnologies(); track tech.id) {
           <a [routerLink]="['/', tech.slug]" class="tech-card-link" [attr.aria-label]="'Ver preguntas de ' + tech.name">
@@ -49,12 +42,8 @@ import { SeoService } from '../../core/services/seo.service';
               <h3 class="tech-card-name">{{ tech.name }}</h3>
               <p class="tech-card-keywords">{{ tech.keywords }}</p>
               <div mfCardFooter class="tech-card-footer">
-                <span class="tech-card-count">
-                  {{ tech.questionCount || '—' }} Preguntas
-                </span>
-                <span class="tech-card-link-text">
-                  Empezar <mf-icon name="arrow_forward" size="sm" color="inherit" class="link-arrow" />
-                </span>
+                <span class="tech-card-count">{{ tech.questionCount || '—' }} Preguntas</span>
+                <span class="tech-card-link-text">Empezar <mf-icon name="arrow_forward" size="sm" color="inherit" class="link-arrow" /></span>
               </div>
             </mf-card>
           </a>
@@ -69,42 +58,30 @@ import { SeoService } from '../../core/services/seo.service';
         <div class="contribute-content">
           <div class="contribute-text">
             <h2>¿Tienes preguntas de entrevista?</h2>
-            <p>Comparte tu conocimiento con la comunidad. Envía tus preguntas y ayuda a otros desarrolladores a prepararse.</p>
+            <p>Comparte una pregunta y ayuda a otros a prepararse.</p>
           </div>
           <a routerLink="/contribuir" class="contribute-btn">
             <mf-icon name="edit_note" color="inherit" />
-            Contribuir una Pregunta
+            Contribuir
           </a>
         </div>
       </mf-card>
     </section>
 
     <section class="why-section" aria-label="Por qué usar esta herramienta">
-      <div class="why-content">
-        <h2>¿Por qué prepararte aquí?</h2>
-        <div class="why-items">
-          <div class="why-item">
-            <mf-icon name="check_circle" color="inherit" class="why-icon" />
-            <div>
-              <strong>Contenido Open Source</strong>
-              <p>Preguntas revisadas y actualizadas por la comunidad.</p>
-            </div>
-          </div>
-          <div class="why-item">
-            <mf-icon name="check_circle" color="inherit" class="why-icon" />
-            <div>
-              <strong>Seguimiento de Progreso</strong>
-              <p>Marca las preguntas como leídas y ve tu avance.</p>
-            </div>
-          </div>
-          <div class="why-item">
-            <mf-icon name="check_circle" color="inherit" class="why-icon" />
-            <div>
-              <strong>Preguntas Reales</strong>
-              <p>Basadas en entrevistas de empresas top de tecnología.</p>
-            </div>
-          </div>
-        </div>
+      <h2>¿Por qué prepararte aquí?</h2>
+      <div class="why-cards">
+        <mf-card title="Contenido Open Source" subtitle="Preguntas revisadas por la comunidad." variant="outlined" padding="lg">
+          <p class="card-body" style="margin:0;">Preguntas revisadas y actualizadas por la comunidad. Contribuye y mejora el contenido.</p>
+        </mf-card>
+
+        <mf-card title="Seguimiento" subtitle="Marca y mide tu progreso." variant="outlined" padding="lg">
+          <p class="card-body" style="margin:0;">Lleva el control de las preguntas que practicas y visualiza tu avance a lo largo del tiempo.</p>
+        </mf-card>
+
+        <mf-card title="Preguntas Reales" subtitle="Basadas en entrevistas reales." variant="outlined" padding="lg">
+          <p class="card-body" style="margin:0;">Ejercita con preguntas tomadas de entrevistas en empresas reales y mejora tu preparación.</p>
+        </mf-card>
       </div>
     </section>
 
@@ -112,195 +89,85 @@ import { SeoService } from '../../core/services/seo.service';
       <p>Creado por <a href="https://manuelferrer.vercel.app/" target="_blank" rel="noopener noreferrer" class="footer-link">Manuel Ferrer</a></p>
     </footer>
   `,
-  styles: [`
-    .hero {
-      text-align: center;
-      padding: 64px 16px 48px;
-      background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-primary-hover) 100%);
-      color: var(--app-on-primary);
-      border-radius: 0 0 28px 28px;
-      margin: 0 0 32px 0;
-      box-sizing: border-box;
-      overflow: hidden;
-      width: 100%;
-    }
-    .hero-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      color: #90caf9;
-      margin-bottom: 16px;
-    }
-    .hero-title {
-      font-size: 2.75rem;
-      font-weight: 800;
-      line-height: 1.15;
-      margin: 0 0 20px;
-    }
-    .hero-highlight {
-      background: linear-gradient(90deg, color-mix(in srgb, var(--app-primary) 36%, #ffffff), color-mix(in srgb, var(--app-primary-hover) 24%, #ffffff));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero-subtitle {
-      font-size: 1.125rem;
-      max-width: 560px;
-      margin: 0 auto 0;
-      line-height: 1.7;
-      opacity: 0.92;
-    }
-
-    .hero-explore {
-      margin-top: 40px;
-      padding-top: 32px;
-      border-top: 1px solid rgba(255, 255, 255, 0.18);
-    }
-    .hero-explore-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: white;
-      margin: 0 0 6px;
-    }
-    .hero-explore-subtitle {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.75);
-      margin: 0 0 20px;
-    }
-    .search-wrapper {
-      max-width: 480px;
+  styles: [
+    `
+    /* Simplified hero: surface card with clear CTA and search */
+    .hero { padding: 40px 16px; }
+    .hero-inner {
+      max-width: 920px;
       margin: 0 auto;
-    }
-
-    .tech-section { padding: 0 0 32px; }
-
-    .technologies-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
-      margin-top: 32px;
-    }
-    .tech-card-link {
-      text-decoration: none;
+      background: var(--app-surface);
       color: var(--app-text);
-      display: block;
-    }
-    .tech-card-icon {
-      width: 52px;
-      height: 52px;
       border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
+      padding: 28px;
+      box-shadow: var(--app-shadow-md);
+      text-align: center;
     }
-    .tech-card-icon i {
-      font-size: 28px;
-    }
-    .tech-card-name {
-      font-size: 1.125rem;
-      font-weight: 700;
-      margin: 0 0 6px;
-    }
-    .tech-card-keywords {
-      font-size: 0.85rem;
-      opacity: 0.65;
-      margin: 0 0 20px;
-      line-height: 1.5;
-      flex: 1;
-    }
+    .hero-title { font-size: 2rem; margin: 0 0 8px; font-weight: 800; }
+    .hero-accent { color: var(--app-primary); }
+    .hero-subtitle { margin: 0 0 18px; color: var(--app-text-muted); font-size: 1rem; }
+    .hero-search { max-width: 640px; margin: 0 auto; }
+
+    .section-title { margin: 8px 0 18px; font-size: 1.25rem; font-weight: 700; color: var(--app-text); }
+    .tech-section { padding: 24px 0 36px; }
+    .technologies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+    .tech-card-link { text-decoration: none; color: inherit; display: block; }
+
+    .why-section { margin-top: 28px; padding: 8px 0 20px; background: transparent; border-radius: 12px; }
+    .why-section h2 { margin: 0 0 14px; }
+    .why-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .card-body { color: var(--mf-color-neutral-600); font-size: 0.95rem; line-height: 1.4; }
+
+    .contribute-section { margin-top: 28px; }
+    .contribute-content { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .contribute-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--app-border); background: transparent; color: var(--app-primary); font-weight: 600; text-decoration: none; }
+
+    .footer { text-align: center; padding: 28px 0 12px; font-size: 0.9rem; color: var(--app-text-muted); }
+
+    .tech-card-icon { width: 48px; height: 48px; border-radius: 12px; display:flex; align-items:center; justify-content:center; margin-bottom: 12px; }
+    .tech-card-name { font-size: 1.05rem; margin: 0 0 6px; font-weight: 700; }
+    .tech-card-keywords { font-size: 0.85rem; color: var(--app-text-muted); margin: 0 0 14px; }
+
+    /* Footer inside each tech card: left badge + right action, with clear separation */
     .tech-card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.8rem;
-      padding: 0 16px 16px;
+      gap: 12px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--app-border);
       box-sizing: border-box;
+      margin-top: 12px;
+      background: transparent;
     }
     .tech-card-count {
-      font-weight: 600;
-      opacity: 0.7;
-    }
-    .tech-card-link-text {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: var(--app-primary);
-      font-weight: 600;
-    }
-    .link-arrow { font-size: 18px; width: 18px; height: 18px; }
-
-    .why-section {
-      margin-top: 40px;
-      padding: 48px 32px;
-      background: linear-gradient(135deg, var(--app-primary-hover), var(--app-primary));
-      border-radius: 20px;
-      color: var(--app-on-primary);
-    }
-    .why-content h2 { margin: 0 0 28px; font-size: 1.5rem; font-weight: 700; }
-    .why-items { display: flex; flex-direction: column; gap: 20px; }
-    .why-item {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-    .why-icon { color: #66bb6a; margin-top: 2px; }
-    .why-item strong { display: block; margin-bottom: 4px; }
-    .why-item p { margin: 0; opacity: 0.88; font-size: 0.9rem; line-height: 1.5; }
-
-    .contribute-section {
-      margin-top: 40px;
-    }
-    .contribute-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-    .contribute-text h2 { margin: 0 0 8px; font-size: 1.25rem; font-weight: 700; }
-    .contribute-text p { margin: 0; opacity: 0.7; font-size: 0.92rem; line-height: 1.5; }
-    .contribute-btn {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 14px 28px;
-      background: linear-gradient(135deg, var(--app-primary), var(--app-primary-hover));
-      color: var(--app-on-primary);
-      text-decoration: none;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      white-space: nowrap;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    .contribute-btn:hover { opacity: 0.88; transform: translateY(-2px); }
-
-    .footer {
-      text-align: center;
-      padding: 32px 0 16px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--app-primary) 12%, transparent);
+      color: var(--app-primary);
+      font-weight: 700;
       font-size: 0.85rem;
-      opacity: 0.5;
     }
-    .footer-link {
-      color: inherit;
-      text-decoration: underline;
+    .tech-card-link-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--app-primary);
+      font-weight: 700;
+      padding-left: 8px;
     }
-    .footer-link:hover {
-      opacity: 0.8;
-    }
-
-    .empty { text-align: center; grid-column: 1 / -1; padding: 32px; opacity: 0.6; }
 
     @media (max-width: 600px) {
-      .hero { padding: 48px 16px 40px; }
-      .hero-title { font-size: 1.85rem; }
-      .hero-explore { margin-top: 32px; padding-top: 24px; }
-      .technologies-grid { grid-template-columns: 1fr; margin-top: 24px; }
-      .why-section { padding: 32px 20px; }
-      .contribute-content { flex-direction: column; text-align: center; }
-      .contribute-section { padding: 0; }
+      .hero-inner { padding: 20px; }
+      .hero-title { font-size: 1.4rem; }
+      .technologies-grid { grid-template-columns: 1fr; }
+      .contribute-content { flex-direction: column; align-items: flex-start; }
     }
-  `]
+    `
+  ]
 })
 export class HomeComponent implements OnInit {
   readonly store = inject(ContentStore);
