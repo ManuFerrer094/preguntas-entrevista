@@ -36,6 +36,7 @@
               }
             ],
             "styles": [
+              "node_modules/ng-comps/src/styles.css",
               "src/styles.scss",
               "node_modules/highlight.js/styles/atom-one-dark.min.css"
             ],

@@ -2,9 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, computed, effect, signal, u
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ViewportScroller } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MfIconComponent, MfProgressSpinnerComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
@@ -16,7 +14,7 @@ const PAGE_SIZE = 10;
 @Component({
   selector: 'app-technology',
   standalone: true,
-  imports: [RouterLink, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, MfIconComponent, MfProgressSpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (technology()) {
@@ -48,7 +46,7 @@ const PAGE_SIZE = 10;
               [class.active]="filter() === 'all'"
               (click)="filter.set('all')"
             >
-              <mat-icon>list</mat-icon>
+              <mf-icon name="list" color="inherit" />
               Todas
             </button>
             <button
@@ -56,7 +54,7 @@ const PAGE_SIZE = 10;
               [class.active]="filter() === 'completed'"
               (click)="filter.set('completed')"
             >
-              <mat-icon>check_circle</mat-icon>
+              <mf-icon name="check_circle" color="inherit" />
               Completadas
             </button>
             <button
@@ -64,7 +62,7 @@ const PAGE_SIZE = 10;
               [class.active]="filter() === 'pending'"
               (click)="filter.set('pending')"
             >
-              <mat-icon>radio_button_unchecked</mat-icon>
+              <mf-icon name="radio_button_unchecked" color="inherit" />
               Pendientes
             </button>
           </nav>
@@ -126,7 +124,7 @@ const PAGE_SIZE = 10;
           </header>
 
           <div class="search-container">
-            <mat-icon class="search-icon">search</mat-icon>
+            <mf-icon name="search" color="inherit" class="search-icon" />
             <input
               type="text"
               class="search-input"
@@ -139,7 +137,7 @@ const PAGE_SIZE = 10;
 
           @if (store.loading()) {
             <div class="loading-container">
-              <mat-spinner diameter="40" aria-label="Cargando preguntas..."></mat-spinner>
+              <mf-progress-spinner mode="indeterminate" [diameter]="40" label="Cargando preguntas..." />
             </div>
           } @else {
             <div class="questions-list" role="list" aria-label="Lista de preguntas">
@@ -152,9 +150,9 @@ const PAGE_SIZE = 10;
                 >
                   <div class="question-status">
                     @if (progress.isRead(question.id)) {
-                      <mat-icon class="status-done">check_circle</mat-icon>
+                      <mf-icon name="check_circle" color="inherit" class="status-done" />
                     } @else {
-                      <mat-icon class="status-pending">radio_button_unchecked</mat-icon>
+                      <mf-icon name="radio_button_unchecked" color="inherit" class="status-pending" />
                     }
                   </div>
                   <div class="question-info">
@@ -168,18 +166,18 @@ const PAGE_SIZE = 10;
                       }
                       <span class="read-status">
                         @if (progress.isRead(question.id)) {
-                          <mat-icon class="meta-icon">visibility</mat-icon> Leída
+                          <mf-icon name="visibility" size="sm" color="inherit" class="meta-icon" /> Leída
                         } @else {
-                          <mat-icon class="meta-icon">visibility_off</mat-icon> Sin leer
+                          <mf-icon name="visibility_off" size="sm" color="inherit" class="meta-icon" /> Sin leer
                         }
                       </span>
                     </div>
                   </div>
-                  <mat-icon class="chevron">chevron_right</mat-icon>
+                  <mf-icon name="chevron_right" color="inherit" class="chevron" />
                 </a>
               } @empty {
                 <div class="empty-message">
-                  <mat-icon>search_off</mat-icon>
+                  <mf-icon name="search_off" color="inherit" />
                   <p>No se encontraron preguntas.</p>
                 </div>
               }
@@ -194,7 +192,7 @@ const PAGE_SIZE = 10;
                   (click)="goToPage(currentPage() - 1)"
                   aria-label="Página anterior"
                 >
-                  <mat-icon>chevron_left</mat-icon>
+                  <mf-icon name="chevron_left" color="inherit" />
                 </button>
 
                 @for (page of pageNumbers(); track page) {
@@ -213,7 +211,7 @@ const PAGE_SIZE = 10;
                   (click)="goToPage(currentPage() + 1)"
                   aria-label="Página siguiente"
                 >
-                  <mat-icon>chevron_right</mat-icon>
+                  <mf-icon name="chevron_right" color="inherit" />
                 </button>
               </nav>
             }
@@ -222,7 +220,7 @@ const PAGE_SIZE = 10;
       </div>
     } @else {
       <p>Tecnología no encontrada.</p>
-      <a mat-button routerLink="/">Volver al inicio</a>
+      <a routerLink="/" class="back-link">Volver al inicio</a>
     }
   `,
   styles: [`
@@ -404,7 +402,7 @@ const PAGE_SIZE = 10;
       border-color: var(--app-primary);
       box-shadow: var(--app-shadow-sm);
     }
-    .pdf-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .pdf-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
 
     .search-container {
       display: flex;
@@ -500,7 +498,7 @@ const PAGE_SIZE = 10;
       padding: 48px;
       opacity: 0.5;
     }
-    .empty-message mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
+    .empty-message mf-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
 
     /* Pagination */
     .pagination {
@@ -535,7 +533,7 @@ const PAGE_SIZE = 10;
       font-weight: 700;
     }
     .page-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
-    .page-btn mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .page-btn mf-icon { font-size: 20px; width: 20px; height: 20px; }
 
     @media (max-width: 768px) {
       .tech-layout {

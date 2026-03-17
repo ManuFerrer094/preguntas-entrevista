@@ -9,9 +9,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MfIconComponent, MfProgressSpinnerComponent } from 'ng-comps';
 import { SeoService } from '../../core/services/seo.service';
 import { SavedSessionsService, SavedQuizSession } from '../../core/services/saved-sessions.service';
 import { QuizQuestion, QuizDifficulty } from '../../domain/models/quiz.model';
@@ -27,14 +25,14 @@ const PASS_THRESHOLD = 0.6;
 @Component({
   selector: 'app-cuestionarios',
   standalone: true,
-  imports: [RouterLink, FormsModule, SlicePipe, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [RouterLink, FormsModule, SlicePipe, MfIconComponent, MfProgressSpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- ==================== LOADING OVERLAY ==================== -->
     @if (loading()) {
       <div class="loading-overlay" role="status" aria-live="polite" aria-label="Generando examen">
         <div class="loading-overlay-card">
-          <mat-spinner diameter="52"></mat-spinner>
+          <mf-progress-spinner mode="indeterminate" [diameter]="52" />
           <p class="loading-overlay-title">Generando examen con IA...</p>
           <p class="loading-overlay-desc">Esto puede tardar unos segundos</p>
         </div>
@@ -50,7 +48,7 @@ const PASS_THRESHOLD = 0.6;
     <header class="page-header">
       <div class="page-header-info">
         <h1>
-          <mat-icon class="header-icon">quiz</mat-icon>
+          <mf-icon name="quiz" color="inherit" class="header-icon" />
           Cuestionarios
         </h1>
         <p class="page-desc">
@@ -66,7 +64,7 @@ const PASS_THRESHOLD = 0.6;
         <div class="setup-card">
           <div class="setup-field">
             <label for="quiz-job-desc" class="input-label">
-              <mat-icon>work_outline</mat-icon>
+              <mf-icon name="work_outline" color="inherit" />
               Descripción de la oferta de empleo
             </label>
             <textarea
@@ -85,7 +83,7 @@ const PASS_THRESHOLD = 0.6;
 
           <div class="setup-field">
             <p class="input-label">
-              <mat-icon>format_list_numbered</mat-icon>
+              <mf-icon name="format_list_numbered" color="inherit" />
               Número de preguntas
             </p>
             <div class="count-options">
@@ -104,7 +102,7 @@ const PASS_THRESHOLD = 0.6;
 
           <div class="setup-field">
             <p class="input-label">
-              <mat-icon>signal_cellular_alt</mat-icon>
+              <mf-icon name="signal_cellular_alt" color="inherit" />
               Dificultad
             </p>
             <div class="difficulty-options">
@@ -119,7 +117,7 @@ const PASS_THRESHOLD = 0.6;
                   (click)="difficulty.set(opt.value)"
                   [disabled]="loading()"
                 >
-                  <mat-icon>{{ opt.icon }}</mat-icon>
+                  <mf-icon [name]="opt.icon" color="inherit" />
                   {{ opt.label }}
                 </button>
               }
@@ -128,7 +126,7 @@ const PASS_THRESHOLD = 0.6;
 
           @if (error()) {
             <div class="error-message">
-              <mat-icon>error_outline</mat-icon>
+              <mf-icon name="error_outline" color="inherit" />
               <p>{{ error() }}</p>
             </div>
           }
@@ -139,10 +137,10 @@ const PASS_THRESHOLD = 0.6;
             [disabled]="loading() || jobDescription().trim().length === 0"
           >
             @if (loading()) {
-              <mat-spinner diameter="20"></mat-spinner>
+              <mf-progress-spinner mode="indeterminate" [diameter]="20" />
               Generando examen...
             } @else {
-              <mat-icon>auto_awesome</mat-icon>
+              <mf-icon name="auto_awesome" color="inherit" />
               Generar Examen
             }
           </button>
@@ -153,7 +151,7 @@ const PASS_THRESHOLD = 0.6;
       @if (savedSessions.savedQuizSessions().length > 0) {
         <div class="saved-section">
           <h2 class="saved-title">
-            <mat-icon>bookmark</mat-icon>
+            <mf-icon name="bookmark" color="inherit" />
             Cuestionarios guardados
           </h2>
           <div class="saved-list">
@@ -169,11 +167,11 @@ const PASS_THRESHOLD = 0.6;
                 </div>
                 <div class="saved-card-actions">
                   <button class="saved-action-btn saved-action-btn--load" (click)="loadSavedQuiz(session)" title="Repetir este cuestionario">
-                    <mat-icon>replay</mat-icon>
+                    <mf-icon name="replay" color="inherit" />
                     Repetir
                   </button>
                   <button class="saved-action-btn saved-action-btn--delete" (click)="savedSessions.deleteQuizSession(session.id)" title="Eliminar">
-                    <mat-icon>delete_outline</mat-icon>
+                    <mf-icon name="delete_outline" color="inherit" />
                   </button>
                 </div>
               </div>
@@ -223,9 +221,9 @@ const PASS_THRESHOLD = 0.6;
                 <span class="option-text">{{ option }}</span>
                 @if (answered()) {
                   @if ($index === currentQuestion()?.correctIndex) {
-                    <mat-icon class="option-icon option-icon--correct">check_circle</mat-icon>
+                    <mf-icon name="check_circle" color="inherit" class="option-icon option-icon--correct" />
                   } @else if (selectedIndex() === $index) {
-                    <mat-icon class="option-icon option-icon--wrong">cancel</mat-icon>
+                    <mf-icon name="cancel" color="inherit" class="option-icon option-icon--wrong" />
                   }
                 }
               </button>
@@ -235,7 +233,7 @@ const PASS_THRESHOLD = 0.6;
           <!-- Feedback after answering -->
           @if (answered()) {
             <div class="answer-feedback" [class.answer-feedback--correct]="lastAnswerCorrect()" [class.answer-feedback--wrong]="!lastAnswerCorrect()">
-              <mat-icon>{{ lastAnswerCorrect() ? 'check_circle' : 'cancel' }}</mat-icon>
+              <mf-icon [name]="lastAnswerCorrect() ? 'check_circle' : 'cancel'" color="inherit" />
               <div>
                 <p class="feedback-title">{{ lastAnswerCorrect() ? '¡Correcto!' : 'Incorrecto' }}</p>
                 @if (currentQuestion()?.explanation) {
@@ -248,12 +246,12 @@ const PASS_THRESHOLD = 0.6;
               @if (isLastQuestion()) {
                 <button class="next-btn next-btn--finish" (click)="finishQuiz()">
                   Ver resultados
-                  <mat-icon>flag</mat-icon>
+                  <mf-icon name="flag" color="inherit" />
                 </button>
               } @else {
                 <button class="next-btn" (click)="nextQuestion()">
                   Siguiente pregunta
-                  <mat-icon>arrow_forward</mat-icon>
+                  <mf-icon name="arrow_forward" color="inherit" />
                 </button>
               }
             </div>
@@ -267,7 +265,7 @@ const PASS_THRESHOLD = 0.6;
       <div class="results-section">
         <!-- Verdict banner -->
         <div class="verdict-banner" [class.verdict-banner--passed]="passed()" [class.verdict-banner--failed]="!passed()">
-          <mat-icon class="verdict-icon">{{ passed() ? 'emoji_events' : 'sentiment_dissatisfied' }}</mat-icon>
+          <mf-icon [name]="passed() ? 'emoji_events' : 'sentiment_dissatisfied'" color="inherit" class="verdict-icon" />
           <div class="verdict-info">
             <h2 class="verdict-title">{{ passed() ? '¡Aprobado!' : 'Suspenso' }}</h2>
             <p class="verdict-subtitle">
@@ -280,17 +278,17 @@ const PASS_THRESHOLD = 0.6;
         <!-- Score summary -->
         <div class="score-summary">
           <div class="score-card score-card--correct">
-            <mat-icon>check_circle</mat-icon>
+            <mf-icon name="check_circle" color="inherit" />
             <span class="score-num">{{ correctCount() }}</span>
             <span class="score-label">Correctas</span>
           </div>
           <div class="score-card score-card--wrong">
-            <mat-icon>cancel</mat-icon>
+            <mf-icon name="cancel" color="inherit" />
             <span class="score-num">{{ questions().length - correctCount() }}</span>
             <span class="score-label">Incorrectas</span>
           </div>
           <div class="score-card score-card--percent">
-            <mat-icon>percent</mat-icon>
+            <mf-icon name="percent" color="inherit" />
             <span class="score-num">{{ scorePercent() }}</span>
             <span class="score-label">Puntuación</span>
           </div>
@@ -307,9 +305,7 @@ const PASS_THRESHOLD = 0.6;
             >
               <div class="answer-item-header">
                 <span class="answer-num">{{ $index + 1 }}</span>
-                <mat-icon class="answer-status-icon">
-                  {{ userAnswers()[$index] === q.correctIndex ? 'check_circle' : 'cancel' }}
-                </mat-icon>
+                <mf-icon [name]="userAnswers()[$index] === q.correctIndex ? 'check_circle' : 'cancel'" color="inherit" class="answer-status-icon" />
                 <p class="answer-question">{{ q.question }}</p>
               </div>
               <div class="answer-item-detail">
@@ -334,15 +330,15 @@ const PASS_THRESHOLD = 0.6;
         <!-- Action buttons -->
         <div class="results-actions">
           <button class="action-btn action-btn--repeat" (click)="repeatQuiz()">
-            <mat-icon>replay</mat-icon>
+            <mf-icon name="replay" color="inherit" />
             Repetir examen
           </button>
           <button class="action-btn action-btn--save" (click)="saveCurrentQuiz()" [disabled]="quizAlreadySaved()">
-            <mat-icon>{{ quizAlreadySaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+            <mf-icon [name]="quizAlreadySaved() ? 'bookmark' : 'bookmark_border'" color="inherit" />
             {{ quizAlreadySaved() ? 'Guardado' : 'Guardar' }}
           </button>
           <button class="action-btn action-btn--new" (click)="newQuiz()">
-            <mat-icon>add_circle_outline</mat-icon>
+            <mf-icon name="add_circle_outline" color="inherit" />
             Crear nuevo examen
           </button>
         </div>
@@ -422,7 +418,7 @@ const PASS_THRESHOLD = 0.6;
       font-weight: 600;
       color: var(--app-text);
     }
-    .input-label mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--app-primary); }
+    .input-label mf-icon { font-size: 18px; width: 18px; height: 18px; color: var(--app-primary); }
     .job-textarea {
       width: 100%;
       padding: 14px;
@@ -615,7 +611,7 @@ const PASS_THRESHOLD = 0.6;
       border: 1px solid color-mix(in srgb, #ef4444 28%, transparent);
       color: #dc2626;
     }
-    .answer-feedback mat-icon { font-size: 22px; width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; }
+    .answer-feedback mf-icon { font-size: 22px; width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; }
     .feedback-title { font-weight: 700; font-size: 0.95rem; margin: 0 0 4px; }
     .feedback-explanation { margin: 0; font-size: 0.88rem; line-height: 1.5; }
 
@@ -679,10 +675,10 @@ const PASS_THRESHOLD = 0.6;
       border: 1px solid var(--app-border);
       background: var(--app-surface);
     }
-    .score-card mat-icon { font-size: 28px; width: 28px; height: 28px; }
-    .score-card--correct mat-icon { color: #22c55e; }
-    .score-card--wrong mat-icon { color: #ef4444; }
-    .score-card--percent mat-icon { color: var(--app-primary); }
+    .score-card mf-icon { font-size: 28px; width: 28px; height: 28px; }
+    .score-card--correct mf-icon { color: #22c55e; }
+    .score-card--wrong mf-icon { color: #ef4444; }
+    .score-card--percent mf-icon { color: var(--app-primary); }
     .score-num { font-size: 1.8rem; font-weight: 700; color: var(--app-text); line-height: 1; }
     .score-label { font-size: 0.8rem; color: var(--app-text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
 

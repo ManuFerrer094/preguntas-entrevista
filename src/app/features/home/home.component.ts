@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { MfIconComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule],
+  imports: [RouterLink, MfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="hero" aria-labelledby="hero-title">
@@ -26,7 +25,7 @@ import { SeoService } from '../../core/services/seo.service';
         <p class="hero-explore-title">Explorar por Tecnología</p>
         <p class="hero-explore-subtitle">Selecciona una tecnología para empezar tu preparación</p>
         <div class="search-container">
-          <mat-icon class="search-icon">search</mat-icon>
+          <mf-icon name="search" color="inherit" class="search-icon" />
           <input
             type="text"
             class="search-input"
@@ -54,7 +53,7 @@ import { SeoService } from '../../core/services/seo.service';
                 {{ tech.questionCount || '—' }} Preguntas
               </span>
               <span class="tech-card-link">
-                Empezar <mat-icon class="link-arrow">arrow_forward</mat-icon>
+                Empezar <mf-icon name="arrow_forward" size="sm" color="inherit" class="link-arrow" />
               </span>
             </div>
           </a>
@@ -71,7 +70,7 @@ import { SeoService } from '../../core/services/seo.service';
           <p>Comparte tu conocimiento con la comunidad. Envía tus preguntas y ayuda a otros desarrolladores a prepararse.</p>
         </div>
         <a routerLink="/contribuir" class="contribute-btn">
-          <mat-icon>edit_note</mat-icon>
+          <mf-icon name="edit_note" color="inherit" />
           Contribuir una Pregunta
         </a>
       </div>
@@ -82,21 +81,21 @@ import { SeoService } from '../../core/services/seo.service';
         <h2>¿Por qué prepararte aquí?</h2>
         <div class="why-items">
           <div class="why-item">
-            <mat-icon class="why-icon">check_circle</mat-icon>
+            <mf-icon name="check_circle" color="inherit" class="why-icon" />
             <div>
               <strong>Contenido Open Source</strong>
               <p>Preguntas revisadas y actualizadas por la comunidad.</p>
             </div>
           </div>
           <div class="why-item">
-            <mat-icon class="why-icon">check_circle</mat-icon>
+            <mf-icon name="check_circle" color="inherit" class="why-icon" />
             <div>
               <strong>Seguimiento de Progreso</strong>
               <p>Marca las preguntas como leídas y ve tu avance.</p>
             </div>
           </div>
           <div class="why-item">
-            <mat-icon class="why-icon">check_circle</mat-icon>
+            <mf-icon name="check_circle" color="inherit" class="why-icon" />
             <div>
               <strong>Preguntas Reales</strong>
               <p>Basadas en entrevistas de empresas top de tecnología.</p>

@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { MfIconComponent } from 'ng-comps';
 import { Question } from '../../../domain/models/question.model';
 
 @Component({
   selector: 'app-author-card',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="sidebar-card author-card">
       <div class="sidebar-card-header">
-        <mat-icon class="sidebar-icon">person</mat-icon>
+        <mf-icon name="person" size="sm" color="brand" class="sidebar-icon" />
         <strong>Subido por</strong>
       </div>
       <div class="author-sidebar">

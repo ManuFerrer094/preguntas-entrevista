@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { MfIconComponent } from 'ng-comps';
 import { Question } from '../../../domain/models/question.model';
 import { ContentStore } from '../../../core/stores/content.store';
 import { AiQuestionsService } from '../../../core/services/ai-questions.service';
@@ -9,12 +9,12 @@ import { difficultyLabel } from '../../../core/utils/difficulty';
 @Component({
   selector: 'app-related-questions',
   standalone: true,
-  imports: [RouterLink, MatIconModule],
+  imports: [RouterLink, MfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="sidebar-card">
       <div class="sidebar-card-header">
-        <mat-icon class="sidebar-icon">quiz</mat-icon>
+        <mf-icon name="quiz" size="sm" color="brand" class="sidebar-icon" />
         <strong>Preguntas Relacionadas</strong>
       </div>
       <div class="related-list">

@@ -1,15 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MfIconComponent, MfTooltipComponent } from 'ng-comps';
 import { ContentStore } from '../../../core/stores/content.store';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, MatToolbarModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [RouterLink, MfIconComponent, MfTooltipComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="navbar" role="navigation" aria-label="Navegación principal">
@@ -17,42 +14,46 @@ import { ContentStore } from '../../../core/stores/content.store';
         <span class="brand-name">Preguntas Entrevista</span>
       </a>
       <div class="nav-actions">
-        <a
-          routerLink="/ai-questions"
-          class="ai-link"
-          matTooltip="Generar preguntas con IA"
-          aria-label="Generar preguntas con IA"
-        >
-          <mat-icon>auto_awesome</mat-icon>
-          <span class="ai-link-text">Preguntas IA</span>
-        </a>
-        <a
-          routerLink="/cuestionarios"
-          class="ai-link"
-          matTooltip="Cuestionarios tipo test"
-          aria-label="Cuestionarios tipo test"
-        >
-          <mat-icon>quiz</mat-icon>
-          <span class="ai-link-text">Cuestionarios</span>
-        </a>
-        <button
-          mat-icon-button
-          (click)="store.toggleDarkMode()"
-          [matTooltip]="store.darkMode() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
-          aria-label="Cambiar tema"
-        >
-          <mat-icon>{{ store.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-        </button>
-        <a
-          mat-icon-button
-          href="https://github.com/ManuFerrer094/preguntas-entrevista"
-          target="_blank"
-          rel="noopener noreferrer"
-          matTooltip="Ver en GitHub"
-          aria-label="Ver en GitHub"
-        >
-          <mat-icon>code</mat-icon>
-        </a>
+        <mf-tooltip text="Generar preguntas con IA">
+          <a
+            routerLink="/ai-questions"
+            class="ai-link"
+            aria-label="Generar preguntas con IA"
+          >
+            <mf-icon name="auto_awesome" size="sm" color="inherit" />
+            <span class="ai-link-text">Preguntas IA</span>
+          </a>
+        </mf-tooltip>
+        <mf-tooltip text="Cuestionarios tipo test">
+          <a
+            routerLink="/cuestionarios"
+            class="ai-link"
+            aria-label="Cuestionarios tipo test"
+          >
+            <mf-icon name="quiz" size="sm" color="inherit" />
+            <span class="ai-link-text">Cuestionarios</span>
+          </a>
+        </mf-tooltip>
+        <mf-tooltip [text]="store.darkMode() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'">
+          <button
+            class="icon-btn"
+            (click)="store.toggleDarkMode()"
+            aria-label="Cambiar tema"
+          >
+            <mf-icon [name]="store.darkMode() ? 'light_mode' : 'dark_mode'" color="inherit" />
+          </button>
+        </mf-tooltip>
+        <mf-tooltip text="Ver en GitHub">
+          <a
+            class="icon-btn"
+            href="https://github.com/ManuFerrer094/preguntas-entrevista"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ver en GitHub"
+          >
+            <mf-icon name="code" color="inherit" />
+          </a>
+        </mf-tooltip>
       </div>
     </nav>
   `,
@@ -90,7 +91,7 @@ import { ContentStore } from '../../../core/stores/content.store';
       justify-content: center;
       color: white;
     }
-    .brand-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .brand-icon mf-icon { font-size: 20px; width: 20px; height: 20px; }
     .nav-actions { display: flex; align-items: center; gap: 4px; }
     .ai-link {
       display: flex;
@@ -108,7 +109,24 @@ import { ContentStore } from '../../../core/stores/content.store';
     .ai-link:hover {
       background: color-mix(in srgb, var(--app-primary) 8%, transparent);
     }
-    .ai-link mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .ai-link mf-icon { font-size: 18px; width: 18px; height: 18px; }
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--app-text);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .icon-btn:hover {
+      background: color-mix(in srgb, var(--app-text) 8%, transparent);
+    }
     @media (max-width: 600px) {
       .brand-name { display: none; }
       .navbar { padding: 0 12px; }
