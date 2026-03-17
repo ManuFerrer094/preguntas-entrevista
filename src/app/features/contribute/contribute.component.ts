@@ -16,7 +16,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MfIconComponent, MfProgressSpinnerComponent, MfButtonComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfTextareaComponent } from 'ng-comps';
+import { MfIconComponent, MfProgressSpinnerComponent, MfButtonComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfTextareaComponent, MfCardComponent, MfFormFieldComponent } from 'ng-comps';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
@@ -52,7 +52,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
 
     <!-- Success state -->
     @if (prUrl()) {
-      <div class="success-card">
+      <mf-card variant="outlined" padding="lg" class="success-card">
         <mf-icon name="check_circle" color="inherit" class="success-icon" />
         <h2>¡Contribución enviada!</h2>
         <p>Tu pregunta ha sido enviada para revisión. Puedes seguir el estado en GitHub:</p>
@@ -64,14 +64,14 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           <mf-icon name="add" color="inherit" />
           Enviar otra pregunta
         </button>
-      </div>
+      </mf-card>
     } @else if (authService.loading()) {
-      <div class="login-card">
+      <mf-card variant="outlined" padding="lg" class="login-card">
         <mf-progress-spinner mode="indeterminate" [diameter]="40" />
         <p style="margin-top: 16px; opacity: 0.7">Autenticando con GitHub...</p>
-      </div>
+      </mf-card>
     } @else if (!authService.isAuthenticated()) {
-      <div class="login-card">
+      <mf-card variant="outlined" padding="lg" class="login-card">
         <svg class="github-logo" viewBox="0 0 16 16" fill="currentColor" width="56" height="56">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
         </svg>
@@ -90,9 +90,9 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </svg>
           Iniciar sesión con GitHub
         </button>
-      </div>
+      </mf-card>
     } @else {
-      <div class="user-bar">
+      <mf-card variant="outlined" padding="sm" class="user-bar">
         <img [src]="authService.user()!.avatarUrl" [alt]="authService.user()!.username" class="user-avatar" />
         <div class="user-info">
           <span class="user-name">{{ authService.user()!.name }}</span>
@@ -102,7 +102,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           <mf-icon name="logout" color="inherit" />
           Cerrar sesión
         </button>
-      </div>
+      </mf-card>
 
       <mat-stepper [linear]="true" #stepper class="contribute-stepper">
 
@@ -147,8 +147,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
               </div>
             </div>
 
-            <div class="field">
-              <label class="field-label">Tags <span class="label-hint">(opcional)</span></label>
+            <mf-form-field label="Tags" hint="opcional">
               @if (availableTags().length > 0) {
                 <div class="tags-selector" role="group" aria-label="Selecciona los tags de la pregunta">
                   @for (tag of availableTags(); track tag) {
@@ -164,15 +163,11 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
               } @else {
                 <p class="tags-placeholder">Selecciona una tecnología para ver los tags disponibles</p>
               }
-            </div>
+            </mf-form-field>
           </div>
 
           <div class="step-actions">
-            <button class="step-btn step-btn--primary" matStepperNext
-                    [disabled]="step1.invalid">
-              Siguiente
-              <mf-icon name="arrow_forward" size="sm" color="inherit" />
-            </button>
+            <mf-button label="Siguiente" variant="filled" trailingIcon="arrow_forward" [disabled]="step1.invalid" matStepperNext />
           </div>
         </mat-step>
 
@@ -261,15 +256,8 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions">
-            <button class="step-btn step-btn--outline" matStepperPrev>
-              <mf-icon name="arrow_back" size="sm" color="inherit" />
-              Atrás
-            </button>
-            <button class="step-btn step-btn--primary" matStepperNext
-                    [disabled]="step2.invalid">
-              Siguiente
-              <mf-icon name="arrow_forward" size="sm" color="inherit" />
-            </button>
+            <mf-button label="Atrás" variant="outlined" leadingIcon="arrow_back" matStepperPrev />
+            <mf-button label="Siguiente" variant="filled" trailingIcon="arrow_forward" [disabled]="step2.invalid" matStepperNext />
           </div>
         </mat-step>
 
@@ -278,7 +266,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           <ng-template matStepLabel>Enviar a revisión</ng-template>
 
           <div class="step-content">
-            <div class="review-card">
+            <mf-card variant="outlined" padding="lg" class="review-card">
               <h3 class="review-title">Resumen de tu contribución</h3>
 
               <div class="review-grid">
@@ -311,7 +299,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
                   <span class="review-value review-value--muted">{{ contentValue().length }} caracteres escritos</span>
                 </div>
               </div>
-            </div>
+            </mf-card>
 
             @if (error()) {
               <div class="error-message">
@@ -322,10 +310,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions step-actions--submit">
-            <button class="step-btn step-btn--outline" matStepperPrev [disabled]="submitting()">
-              <mf-icon name="arrow_back" size="sm" color="inherit" />
-              Atrás
-            </button>
+            <mf-button label="Atrás" variant="outlined" leadingIcon="arrow_back" [disabled]="submitting()" matStepperPrev />
             <button type="button" class="submit-btn" (click)="onSubmit()"
                     [disabled]="submitting()">
               @if (submitting()) {
@@ -381,14 +366,11 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       max-width: 600px;
     }
 
+    mf-card { display: block; }
+
     /* Login card */
     .login-card {
       text-align: center;
-      padding: 48px 24px;
-      border: 1px solid var(--app-border);
-      border-radius: 18px;
-      background: var(--app-surface);
-      box-shadow: var(--app-shadow-sm);
     }
     .login-card h2 { margin: 16px 0 8px; }
     .login-card p { color: var(--app-text-muted); margin: 0 0 24px; line-height: 1.6; }
@@ -415,12 +397,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 14px 20px;
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
       margin-bottom: 24px;
-      background: var(--app-surface);
-      box-shadow: var(--app-shadow-sm);
     }
     .user-avatar {
       width: 40px;
@@ -737,11 +714,6 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
 
     /* ── Review card (step 3) ─────────────────────────────────────────── */
     .review-card {
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 24px;
-      background: var(--app-surface);
-      box-shadow: var(--app-shadow-sm);
     }
     .review-title {
       margin: 0 0 20px;
@@ -830,11 +802,6 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     /* ── Success card ─────────────────────────────────────────────────── */
     .success-card {
       text-align: center;
-      padding: 48px 24px;
-      border: 1px solid var(--app-border);
-      border-radius: 18px;
-      background: var(--app-surface);
-      box-shadow: var(--app-shadow-sm);
     }
     .success-icon { font-size: 56px; width: 56px; height: 56px; color: #43a047; }
     .success-card h2 { margin: 12px 0 8px; }
