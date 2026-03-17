@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MfIconComponent } from 'ng-comps';
+import { MfIconComponent, MfCardComponent } from 'ng-comps';
 import { Question } from '../../../domain/models/question.model';
 import { ContentStore } from '../../../core/stores/content.store';
 import { AiQuestionsService } from '../../../core/services/ai-questions.service';
@@ -9,10 +9,10 @@ import { difficultyLabel } from '../../../core/utils/difficulty';
 @Component({
   selector: 'app-related-questions',
   standalone: true,
-  imports: [RouterLink, MfIconComponent],
+  imports: [RouterLink, MfIconComponent, MfCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="sidebar-card">
+    <mf-card variant="outlined" padding="md">
       <div class="sidebar-card-header">
         <mf-icon name="quiz" size="sm" color="brand" class="sidebar-icon" />
         <strong>Preguntas Relacionadas</strong>
@@ -32,16 +32,10 @@ import { difficultyLabel } from '../../../core/utils/difficulty';
       <a [routerLink]="isAiMode ? ['/ai-questions'] : ['/', technology]" class="view-all-link">
         {{ isAiMode ? 'Volver a Preguntas IA' : 'Ver todas las preguntas de ' + technologyName }}
       </a>
-    </div>
+    </mf-card>
   `,
   styles: [`
-    .sidebar-card {
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 20px;
-      background: var(--app-surface);
-      color: var(--app-text);
-    }
+    mf-card { display: block; }
     .sidebar-card-header {
       display: flex;
       align-items: center;

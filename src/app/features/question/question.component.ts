@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MfSnackbarService } from 'ng-comps';
 import { MfIconComponent } from 'ng-comps';
 import { MfButtonComponent } from 'ng-comps';
+import { MfCardComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
@@ -25,6 +26,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
     RouterLink,
     MfIconComponent,
     MfButtonComponent,
+    MfCardComponent,
     AuthorCardComponent,
     ProgressCardComponent,
     RelatedQuestionsComponent,
@@ -69,7 +71,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
           ></div>
 
           <!-- Mark as read -->
-          <div class="mark-read-card">
+          <mf-card variant="outlined" padding="md" class="mark-read-card">
             <div class="mark-read-content">
               @if (isRead()) {
                 <mf-icon name="check_circle" color="inherit" class="mark-read-icon done" />
@@ -90,7 +92,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
               variant="filled"
               (mfClick)="toggleRead()"
             />
-          </div>
+          </mf-card>
 
           <!-- Prev / Next Navigation -->
           <nav class="question-navigation" aria-label="Navegación entre preguntas">
@@ -98,12 +100,14 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
               <a
                 [routerLink]="['/', previousQuestion()!.technology, previousQuestion()!.slug]"
                 [queryParams]="isAiMode() ? { ai: 1 } : {}"
-                class="nav-card nav-prev"
+                class="nav-card-link"
               >
-                <span class="nav-direction">
-                  <mf-icon name="arrow_back" size="sm" color="inherit" /> ANTERIOR
-                </span>
-                <span class="nav-title">{{ previousQuestion()!.title }}</span>
+                <mf-card variant="outlined" [interactive]="true" padding="md" class="nav-card nav-prev">
+                  <span class="nav-direction">
+                    <mf-icon name="arrow_back" size="sm" color="inherit" /> ANTERIOR
+                  </span>
+                  <span class="nav-title">{{ previousQuestion()!.title }}</span>
+                </mf-card>
               </a>
             } @else {
               <span></span>
@@ -113,12 +117,14 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
               <a
                 [routerLink]="['/', nextQuestion()!.technology, nextQuestion()!.slug]"
                 [queryParams]="isAiMode() ? { ai: 1 } : {}"
-                class="nav-card nav-next"
+                class="nav-card-link"
               >
-                <span class="nav-direction">
-                  SIGUIENTE <mf-icon name="arrow_forward" size="sm" color="inherit" />
-                </span>
-                <span class="nav-title">{{ nextQuestion()!.title }}</span>
+                <mf-card variant="outlined" [interactive]="true" padding="md" class="nav-card nav-next">
+                  <span class="nav-direction">
+                    SIGUIENTE <mf-icon name="arrow_forward" size="sm" color="inherit" />
+                  </span>
+                  <span class="nav-title">{{ nextQuestion()!.title }}</span>
+                </mf-card>
               </a>
             }
           </nav>
@@ -284,16 +290,14 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
     }
 
     .mark-read-card {
+      display: block;
+      margin: 40px 0 32px;
+    }
+    :host ::ng-deep .mark-read-card .mf-card__body {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 20px 24px;
-      margin: 40px 0 32px;
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      background: var(--app-surface);
-      color: var(--app-text);
     }
     .mark-read-content {
       display: flex;
@@ -311,22 +315,16 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
       gap: 16px;
       margin-top: 16px;
     }
-    .nav-card {
+    .nav-card-link {
       flex: 1;
+      text-decoration: none;
+      color: var(--app-text);
+      display: block;
+    }
+    .nav-card {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding: 16px 20px;
-      border: 1px solid var(--app-border);
-      border-radius: 12px;
-      text-decoration: none;
-      color: var(--app-text);
-      background: var(--app-surface);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .nav-card:hover {
-      border-color: var(--app-primary);
-      box-shadow: var(--app-shadow-sm);
     }
     .nav-direction {
       display: flex;

@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MfIconComponent, MfTooltipComponent } from 'ng-comps';
+import { MfIconComponent, MfTooltipComponent, MfToolbarComponent, MfButtonComponent } from 'ng-comps';
 import { ContentStore } from '../../../core/stores/content.store';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, MfIconComponent, MfTooltipComponent],
+  imports: [RouterLink, MfIconComponent, MfTooltipComponent, MfToolbarComponent, MfButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="navbar" role="navigation" aria-label="Navegación principal">
-      <a routerLink="/" class="brand" aria-label="Ir al inicio">
+    <mf-toolbar variant="surface" [bordered]="true" [sticky]="true">
+      <a mfToolbarStart routerLink="/" class="brand" aria-label="Ir al inicio">
         <span class="brand-name">Preguntas Entrevista</span>
       </a>
-      <div class="nav-actions">
+      <div mfToolbarEnd class="nav-actions">
         <mf-tooltip text="Generar preguntas con IA">
           <a
             routerLink="/ai-questions"
@@ -55,23 +55,9 @@ import { ContentStore } from '../../../core/stores/content.store';
           </a>
         </mf-tooltip>
       </div>
-    </nav>
+    </mf-toolbar>
   `,
   styles: [`
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 64px;
-      background: var(--app-surface);
-      border-bottom: 1px solid var(--app-border);
-      backdrop-filter: blur(12px);
-      color: var(--app-text);
-    }
     .brand {
       display: flex;
       align-items: center;
@@ -81,17 +67,6 @@ import { ContentStore } from '../../../core/stores/content.store';
       font-weight: 700;
       font-size: 1.15rem;
     }
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #1565c0, #1976d2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-    }
-    .brand-icon mf-icon { font-size: 20px; width: 20px; height: 20px; }
     .nav-actions { display: flex; align-items: center; gap: 4px; }
     .ai-link {
       display: flex;
@@ -129,7 +104,6 @@ import { ContentStore } from '../../../core/stores/content.store';
     }
     @media (max-width: 600px) {
       .brand-name { display: none; }
-      .navbar { padding: 0 12px; }
       .ai-link-text { display: none; }
       .ai-link { padding: 6px; margin-right: 0; }
     }

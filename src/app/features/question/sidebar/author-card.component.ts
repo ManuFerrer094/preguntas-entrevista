@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { MfIconComponent } from 'ng-comps';
+import { MfIconComponent, MfCardComponent } from 'ng-comps';
 import { Question } from '../../../domain/models/question.model';
 
 @Component({
   selector: 'app-author-card',
   standalone: true,
-  imports: [MfIconComponent],
+  imports: [MfIconComponent, MfCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="sidebar-card author-card">
+    <mf-card variant="outlined" padding="md">
       <div class="sidebar-card-header">
         <mf-icon name="person" size="sm" color="brand" class="sidebar-icon" />
         <strong>Subido por</strong>
@@ -20,16 +20,10 @@ import { Question } from '../../../domain/models/question.model';
           <a class="author-profile" [href]="url" target="_blank" rel="noopener noreferrer">Ver perfil</a>
         </div>
       </div>
-    </div>
+    </mf-card>
   `,
   styles: [`
-    .sidebar-card {
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 20px;
-      background: var(--app-surface);
-      color: var(--app-text);
-    }
+    mf-card { display: block; }
     .sidebar-card-header {
       display: flex;
       align-items: center;
