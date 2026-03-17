@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MfIconComponent, MfTooltipComponent, MfToolbarComponent, MfButtonComponent } from 'ng-comps';
+import { MfIconComponent, MfTooltipComponent, MfToolbarComponent } from 'ng-comps';
 import { ContentStore } from '../../../core/stores/content.store';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, MfIconComponent, MfTooltipComponent, MfToolbarComponent, MfButtonComponent],
+  imports: [RouterLink, MfIconComponent, MfTooltipComponent, MfToolbarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mf-toolbar variant="surface" [bordered]="true" [sticky]="true">
