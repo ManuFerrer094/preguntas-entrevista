@@ -950,12 +950,14 @@ export class ContributeComponent {
   ];
 
   onTechnologyChange(value: string | number | (string | number)[]): void {
-    this.step1.controls.technology.setValue(String(value));
+    const v = Array.isArray(value) ? String(value[0]) : String(value);
+    this.step1.controls.technology.setValue(v);
     this.step1.controls.technology.markAsTouched();
   }
 
   onDifficultyChange(value: string | number | (string | number)[]): void {
-    this.step1.controls.difficulty.setValue(String(value));
+    const v = Array.isArray(value) ? String(value[0]) : String(value);
+    this.step1.controls.difficulty.setValue(v);
     this.step1.controls.difficulty.markAsTouched();
   }
 
