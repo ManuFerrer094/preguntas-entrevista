@@ -45,10 +45,10 @@ html {
   --app-text-subtle:      #94a3b8;
   // Bordes
   --app-border:           #e2e8f0;
-  --app-border-focus:     #1976d2;
+  --app-border-focus:     #115e59;
   // Primario
-  --app-primary:          #1565c0;
-  --app-primary-hover:    #1976d2;
+  --app-primary:          #0f766e;
+  --app-primary-hover:    #115e59;
   --app-on-primary:       #ffffff;
   // Sombras
   --app-shadow-sm:        0 1px 4px rgba(0,0,0,0.07);
@@ -65,15 +65,176 @@ html {
   --app-text-muted:       #8b949e;
   --app-text-subtle:      #6e7681;
   --app-border:           #30363d;
-  --app-border-focus:     #58a6ff;
-  --app-primary:          #388bfd;
-  --app-primary-hover:    #58a6ff;
+  --app-border-focus:     #115e59;
+  --app-primary:          #0f766e;
+  --app-primary-hover:    #115e59;
   --app-on-primary:       #0d1117;
   --app-shadow-sm:        0 1px 4px rgba(0,0,0,0.4);
   --app-shadow-md:        0 4px 16px rgba(0,0,0,0.5);
   --app-shadow-lg:        0 8px 32px rgba(0,0,0,0.6);
 }
-// ───────────────────────────────────────────────────────────────────────────────
+
+html {
+  --mat-sys-primary:              var(--app-primary);
+  --mat-progress-bar-active-indicator-color:              var(--app-primary);
+  --mat-progress-spinner-active-indicator-color:              var(--app-primary);
+  --mat-sys-on-primary:           var(--app-on-primary);
+  --mat-sys-primary-container:    color-mix(in srgb, var(--app-primary) 18%, white);
+  --mat-sys-on-primary-container: var(--app-primary-hover);
+  --mdc-circular-progress-active-indicator-color: var(--app-primary);
+  --mdc-linear-progress-active-indicator-color:   var(--app-primary);
+  --mdc-outlined-text-field-focus-outline-color:      var(--app-primary);
+  --mdc-outlined-text-field-focus-label-text-color:   var(--app-primary);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--app-primary);
+  --mdc-filled-text-field-focus-label-text-color:     var(--app-primary);
+  --mat-select-focused-arrow-color:     var(--app-primary);
+  --mat-form-field-focus-select-arrow-color: var(--app-primary);
+  --mat-pseudo-checkbox-full-selected-icon-color: var(--app-primary);
+  --mat-pseudo-checkbox-minimal-selected-checkmark-color: var(--app-primary);
+  --mat-form-field-filled-caret-color: var(--app-primary);
+  --mat-form-field-filled-focus-active-indicator-color: var(--app-primary);
+  --mat-form-field-filled-focus-label-text-color: var(--app-primary);
+  --mat-form-field-outlined-caret-color: var(--app-primary);
+  --mat-form-field-outlined-focus-label-text-color: var(--app-primary);
+  --mat-form-field-outlined-focus-outline-color: var(--app-primary);
+
+  --mat-slide-toggle-selected-focus-state-layer-color: var(--app-primary);
+  --mat-slide-toggle-selected-focus-track-color: var(--app-primary);
+  --mat-slide-toggle-selected-hover-state-layer-color: var(--app-primary);
+  --mat-slide-toggle-selected-hover-track-color: var(--app-primary);
+  --mat-slide-toggle-selected-pressed-state-layer-color: var(--app-primary);
+  --mat-slide-toggle-selected-pressed-track-color: var(--app-primary);
+  --mat-slide-toggle-selected-track-color: var(--app-primary);
+
+  --mat-radio-checked-ripple-color: var(--app-primary);
+  --mat-radio-selected-focus-icon-color: var(--app-primary);
+  --mat-radio-selected-hover-icon-color: var(--app-primary);
+  --mat-radio-selected-icon-color: var(--app-primary);
+  --mat-radio-selected-pressed-icon-color: var(--app-primary);
+
+  --mat-slider-active-track-color: var(--app-primary);
+  --mat-slider-focus-handle-color: var(--app-primary);
+  --mat-slider-focus-state-layer-color: color-mix(in srgb, var(--app-primary) 20%, transparent);
+  --mat-slider-handle-color: var(--app-primary);
+  --mat-slider-hover-handle-color: var(--app-primary);
+  --mat-slider-hover-state-layer-color: color-mix(in srgb, var(--app-primary) 5%, transparent);
+  --mat-slider-label-container-color: var(--app-primary);
+  --mat-slider-ripple-color: var(--app-primary);
+
+  --mat-list-list-item-selected-trailing-icon-color: var(--app-primary);
+
+  --mat-tab-active-focus-indicator-color: var(--app-primary);
+  --mat-tab-active-hover-indicator-color: var(--app-primary);
+  --mat-tab-active-indicator-color: var(--app-primary);
+
+  --mat-checkbox-selected-focus-icon-color: var(--app-primary);
+  --mat-checkbox-selected-focus-state-layer-color: var(--app-primary);
+  --mat-checkbox-selected-hover-icon-color: var(--app-primary);
+  --mat-checkbox-selected-hover-state-layer-color: var(--app-primary);
+  --mat-checkbox-selected-icon-color: var(--app-primary);
+  --mat-checkbox-selected-pressed-icon-color: var(--app-primary);
+  --mat-checkbox-unselected-pressed-state-layer-color: var(--app-primary);
+
+  --mat-button-filled-container-color: var(--app-primary);
+  --mat-button-outlined-label-text-color: var(--app-primary);
+  --mat-button-outlined-state-layer-color: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  --mat-button-protected-label-text-color: var(--app-primary);
+  --mat-button-protected-state-layer-color: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  --mat-button-text-label-text-color: var(--app-primary);
+  --mat-button-text-state-layer-color: color-mix(in srgb, var(--app-primary) 12%, transparent);
+
+  --mat-datepicker-calendar-date-preview-state-outline-color: var(--app-primary);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--app-primary);
+  --mat-datepicker-calendar-date-today-outline-color: var(--app-primary);
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: var(--app-primary);
+  --mat-datepicker-toggle-active-state-icon-color: var(--app-primary);
+
+  --mat-stepper-header-done-state-icon-background-color: var(--app-primary);
+  --mat-stepper-header-edit-state-icon-background-color: var(--app-primary);
+  --mat-stepper-header-selected-state-icon-background-color: var(--app-primary);
+}
+
+.dark-theme {
+  --mat-sys-primary:              var(--app-primary);
+  --mat-sys-on-primary:           #ffffff;
+  --mat-sys-primary-container:    color-mix(in srgb, var(--app-primary) 20%, black);
+  --mat-sys-on-primary-container: color-mix(in srgb, var(--app-primary) 60%, white);
+
+  --mdc-circular-progress-active-indicator-color: var(--app-primary);
+  --mdc-linear-progress-active-indicator-color:   var(--app-primary);
+  --mdc-outlined-text-field-focus-outline-color:      var(--app-primary);
+  --mdc-outlined-text-field-focus-label-text-color:   var(--app-primary);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--app-primary);
+  --mdc-filled-text-field-focus-label-text-color:     var(--app-primary);
+  --mat-select-focused-arrow-color:                   var(--app-primary);
+  --mat-form-field-focus-select-arrow-color:          var(--app-primary);
+  /* dark-theme mappings for native blue tokens */
+  --mat-pseudo-checkbox-full-selected-icon-color: var(--app-primary);
+  --mat-pseudo-checkbox-minimal-selected-checkmark-color: var(--app-primary);
+
+  --mat-form-field-filled-caret-color: var(--app-primary);
+  --mat-form-field-filled-focus-active-indicator-color: var(--app-primary);
+  --mat-form-field-filled-focus-label-text-color: var(--app-primary);
+  --mat-form-field-outlined-caret-color: var(--app-primary);
+  --mat-form-field-outlined-focus-label-text-color: var(--app-primary);
+  --mat-form-field-outlined-focus-outline-color: var(--app-primary);
+
+  --mat-slide-toggle-selected-focus-state-layer-color: var(--app-primary);
+  --mat-slide-toggle-selected-focus-track-color: var(--app-primary);
+  --mat-slide-toggle-selected-hover-state-layer-color: var(--app-primary);
+  --mat-slide-toggle-selected-hover-track-color: var(--app-primary);
+  --mat-slide-toggle-selected-pressed-state-layer-color: var(--app-primary);
+  --mat-slide-toggle-selected-pressed-track-color: var(--app-primary);
+  --mat-slide-toggle-selected-track-color: var(--app-primary);
+
+  --mat-radio-checked-ripple-color: var(--app-primary);
+  --mat-radio-selected-focus-icon-color: var(--app-primary);
+  --mat-radio-selected-hover-icon-color: var(--app-primary);
+  --mat-radio-selected-icon-color: var(--app-primary);
+  --mat-radio-selected-pressed-icon-color: var(--app-primary);
+
+  --mat-slider-active-track-color: var(--app-primary);
+  --mat-slider-focus-handle-color: var(--app-primary);
+  --mat-slider-focus-state-layer-color: color-mix(in srgb, var(--app-primary) 20%, transparent);
+  --mat-slider-handle-color: var(--app-primary);
+  --mat-slider-hover-handle-color: var(--app-primary);
+  --mat-slider-hover-state-layer-color: color-mix(in srgb, var(--app-primary) 5%, transparent);
+  --mat-slider-label-container-color: var(--app-primary);
+  --mat-slider-ripple-color: var(--app-primary);
+
+  --mat-list-list-item-selected-trailing-icon-color: var(--app-primary);
+
+  --mat-tab-active-focus-indicator-color: var(--app-primary);
+  --mat-tab-active-hover-indicator-color: var(--app-primary);
+  --mat-tab-active-indicator-color: var(--app-primary);
+
+  --mat-checkbox-selected-focus-icon-color: var(--app-primary);
+  --mat-checkbox-selected-focus-state-layer-color: var(--app-primary);
+  --mat-checkbox-selected-hover-icon-color: var(--app-primary);
+  --mat-checkbox-selected-hover-state-layer-color: var(--app-primary);
+  --mat-checkbox-selected-icon-color: var(--app-primary);
+  --mat-checkbox-selected-pressed-icon-color: var(--app-primary);
+  --mat-checkbox-unselected-pressed-state-layer-color: var(--app-primary);
+
+  --mat-button-filled-container-color: var(--app-primary);
+  --mat-button-outlined-label-text-color: var(--app-primary);
+  --mat-button-outlined-state-layer-color: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  --mat-button-protected-label-text-color: var(--app-primary);
+  --mat-button-protected-state-layer-color: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  --mat-button-text-label-text-color: var(--app-primary);
+  --mat-button-text-state-layer-color: color-mix(in srgb, var(--app-primary) 12%, transparent);
+
+  --mat-datepicker-calendar-date-preview-state-outline-color: var(--app-primary);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--app-primary);
+  --mat-datepicker-calendar-date-today-outline-color: var(--app-primary);
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: var(--app-primary);
+  --mat-datepicker-toggle-active-state-icon-color: var(--app-primary);
+
+  --mat-stepper-header-done-state-icon-background-color: var(--app-primary);
+  --mat-stepper-header-edit-state-icon-background-color: var(--app-primary);
+  --mat-stepper-header-selected-state-icon-background-color: var(--app-primary);
+}
+// ────────────────────────────────────────────────────────────────────────────────
 
 *, *::before, *::after {
   box-sizing: border-box;

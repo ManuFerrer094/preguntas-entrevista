@@ -116,8 +116,8 @@ import { SeoService } from '../../core/services/seo.service';
     .hero {
       text-align: center;
       padding: 64px 16px 48px;
-      background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
-      color: white;
+      background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-primary-hover) 100%);
+      color: var(--app-on-primary);
       border-radius: 0 0 28px 28px;
       margin: 0 0 32px 0;
       box-sizing: border-box;
@@ -139,7 +139,7 @@ import { SeoService } from '../../core/services/seo.service';
       margin: 0 0 20px;
     }
     .hero-highlight {
-      background: linear-gradient(90deg, #90caf9, #e3f2fd);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--app-primary) 36%, #ffffff), color-mix(in srgb, var(--app-primary-hover) 24%, #ffffff));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -214,6 +214,8 @@ import { SeoService } from '../../core/services/seo.service';
       align-items: center;
       justify-content: space-between;
       font-size: 0.8rem;
+      padding: 0 16px 16px;
+      box-sizing: border-box;
     }
     .tech-card-count {
       font-weight: 600;
@@ -231,9 +233,9 @@ import { SeoService } from '../../core/services/seo.service';
     .why-section {
       margin-top: 40px;
       padding: 48px 32px;
-      background: linear-gradient(135deg, #0d47a1, #1565c0);
+      background: linear-gradient(135deg, var(--app-primary-hover), var(--app-primary));
       border-radius: 20px;
-      color: white;
+      color: var(--app-on-primary);
     }
     .why-content h2 { margin: 0 0 28px; font-size: 1.5rem; font-weight: 700; }
     .why-items { display: flex; flex-direction: column; gap: 20px; }
@@ -262,8 +264,8 @@ import { SeoService } from '../../core/services/seo.service';
       align-items: center;
       gap: 8px;
       padding: 14px 28px;
-      background: linear-gradient(135deg, #1565c0, #1976d2);
-      color: white;
+      background: linear-gradient(135deg, var(--app-primary), var(--app-primary-hover));
+      color: var(--app-on-primary);
       text-decoration: none;
       border-radius: 12px;
       font-weight: 600;

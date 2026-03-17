@@ -21,7 +21,7 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 };
 
 const C = {
-  primary:    '#1565c0',
+  primary:    '#0f766e',
   text:       '#0f172a',
   textMuted:  '#64748b',
   textSubtle: '#94a3b8',
