@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, computed, effect, signal, u
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ViewportScroller } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MfIconComponent, MfProgressSpinnerComponent } from 'ng-comps';
+import { MfIconComponent, MfProgressSpinnerComponent, MfProgressBarComponent, MfCardComponent, MfInputComponent, MfButtonComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
@@ -14,7 +14,7 @@ const PAGE_SIZE = 10;
 @Component({
   selector: 'app-technology',
   standalone: true,
-  imports: [RouterLink, MfIconComponent, MfProgressSpinnerComponent],
+  imports: [RouterLink, MfIconComponent, MfProgressSpinnerComponent, MfProgressBarComponent, MfCardComponent, MfInputComponent, MfButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (technology()) {
@@ -27,48 +27,25 @@ const PAGE_SIZE = 10;
       <div class="tech-layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-          <div class="progress-card">
+          <mf-card variant="outlined" padding="md">
             <div class="progress-header">
               <span>Tu Progreso</span>
               <strong class="progress-pct">{{ progressPct() }}%</strong>
             </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" [style.width.%]="progressPct()"></div>
-            </div>
+            <mf-progress-bar mode="determinate" [value]="progressPct()" color="brand" [showValue]="false" [height]="8" />
             <span class="progress-detail">
               {{ readCount() }} de {{ allQuestions().length }} completadas
             </span>
-          </div>
+          </mf-card>
 
           <nav class="sidebar-nav">
-            <button
-              class="sidebar-btn"
-              [class.active]="filter() === 'all'"
-              (click)="filter.set('all')"
-            >
-              <mf-icon name="list" color="inherit" />
-              Todas
-            </button>
-            <button
-              class="sidebar-btn"
-              [class.active]="filter() === 'completed'"
-              (click)="filter.set('completed')"
-            >
-              <mf-icon name="check_circle" color="inherit" />
-              Completadas
-            </button>
-            <button
-              class="sidebar-btn"
-              [class.active]="filter() === 'pending'"
-              (click)="filter.set('pending')"
-            >
-              <mf-icon name="radio_button_unchecked" color="inherit" />
-              Pendientes
-            </button>
+            <mf-button label="Todas" [variant]="filter() === 'all' ? 'filled' : 'text'" leadingIcon="list" [fullWidth]="true" (mfClick)="filter.set('all')" />
+            <mf-button label="Completadas" [variant]="filter() === 'completed' ? 'filled' : 'text'" leadingIcon="check_circle" [fullWidth]="true" (mfClick)="filter.set('completed')" />
+            <mf-button label="Pendientes" [variant]="filter() === 'pending' ? 'filled' : 'text'" leadingIcon="radio_button_unchecked" [fullWidth]="true" (mfClick)="filter.set('pending')" />
           </nav>
 
           <!-- Difficulty filter -->
-          <div class="filter-section">
+          <mf-card variant="outlined" padding="md">
             <p class="filter-label">Dificultad</p>
             <div class="difficulty-filters">
               <button
@@ -92,11 +69,11 @@ const PAGE_SIZE = 10;
                 (click)="difficultyFilter.set('hard')"
               >Difícil</button>
             </div>
-          </div>
+          </mf-card>
 
           <!-- Tag filter -->
           @if (availableTags().length > 0) {
-            <div class="filter-section">
+            <mf-card variant="outlined" padding="md">
               <p class="filter-label">Etiquetas</p>
               <div class="tag-filters">
                 @for (tag of availableTags(); track tag) {
@@ -107,7 +84,7 @@ const PAGE_SIZE = 10;
                   >{{ tag }}</button>
                 }
               </div>
-            </div>
+            </mf-card>
           }
         </aside>
 
@@ -123,17 +100,7 @@ const PAGE_SIZE = 10;
             </div>
           </header>
 
-          <div class="search-container">
-            <mf-icon name="search" color="inherit" class="search-icon" />
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Buscar por palabra clave, tema o etiqueta..."
-              [value]="searchQuery()"
-              (input)="onSearchInput($event)"
-              aria-label="Buscar preguntas"
-            />
-          </div>
+          <mf-input type="search" placeholder="Buscar por palabra clave, tema o etiqueta..." leadingIcon="search" [value]="searchQuery()" [fullWidth]="true" (mfInput)="searchQuery.set($event)" label="Buscar preguntas" />
 
           @if (store.loading()) {
             <div class="loading-container">
@@ -186,33 +153,13 @@ const PAGE_SIZE = 10;
             <!-- Pagination -->
             @if (totalPages() > 1) {
               <nav class="pagination" aria-label="Paginación">
-                <button
-                  class="page-btn"
-                  [disabled]="currentPage() === 1"
-                  (click)="goToPage(currentPage() - 1)"
-                  aria-label="Página anterior"
-                >
-                  <mf-icon name="chevron_left" color="inherit" />
-                </button>
+                <mf-button label="" variant="outlined" leadingIcon="chevron_left" [disabled]="currentPage() === 1" (mfClick)="goToPage(currentPage() - 1)" aria-label="Página anterior" />
 
                 @for (page of pageNumbers(); track page) {
-                  <button
-                    class="page-btn"
-                    [class.active]="page === currentPage()"
-                    (click)="goToPage(page)"
-                    [attr.aria-label]="'Página ' + page"
-                    [attr.aria-current]="page === currentPage() ? 'page' : null"
-                  >{{ page }}</button>
+                  <mf-button [label]="'' + page" [variant]="page === currentPage() ? 'filled' : 'outlined'" (mfClick)="goToPage(page)" [attr.aria-label]="'Página ' + page" [attr.aria-current]="page === currentPage() ? 'page' : null" />
                 }
 
-                <button
-                  class="page-btn"
-                  [disabled]="currentPage() === totalPages()"
-                  (click)="goToPage(currentPage() + 1)"
-                  aria-label="Página siguiente"
-                >
-                  <mf-icon name="chevron_right" color="inherit" />
-                </button>
+                <mf-button label="" variant="outlined" leadingIcon="chevron_right" [disabled]="currentPage() === totalPages()" (mfClick)="goToPage(currentPage() + 1)" aria-label="Página siguiente" />
               </nav>
             }
           }
@@ -245,13 +192,8 @@ const PAGE_SIZE = 10;
       position: sticky;
       top: 80px;
     }
-    .progress-card {
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
+    mf-card { display: block; margin-bottom: 12px; }
+    mf-progress-bar { display: block; margin-bottom: 8px; }
     .progress-header {
       display: flex;
       justify-content: space-between;
@@ -261,50 +203,11 @@ const PAGE_SIZE = 10;
       margin-bottom: 12px;
     }
     .progress-pct { color: var(--app-primary); }
-    .progress-bar-track {
-      height: 8px;
-      border-radius: 4px;
-      background: var(--app-surface-variant);
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      background: var(--app-primary);
-      transition: width 0.4s ease;
-    }
     .progress-detail { font-size: 0.78rem; opacity: 0.6; }
 
     .sidebar-nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
-    .sidebar-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border: none;
-      border-radius: 10px;
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.88rem;
-      font-family: inherit;
-      color: inherit;
-      transition: background 0.15s;
-    }
-    .sidebar-btn:hover { background: var(--app-surface-variant); }
-    .sidebar-btn.active {
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      font-weight: 600;
-    }
 
-    .filter-section {
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
+
     .filter-label {
       font-size: 0.78rem;
       font-weight: 600;
@@ -404,30 +307,6 @@ const PAGE_SIZE = 10;
     }
     .pdf-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
 
-    .search-container {
-      display: flex;
-      align-items: center;
-      background: var(--app-surface-variant);
-      border-radius: 12px;
-      padding: 0 16px;
-      border: 1px solid var(--app-border);
-      margin-bottom: 20px;
-      transition: border-color 0.2s;
-    }
-    .search-container:focus-within {
-      border-color: var(--app-primary);
-    }
-    .search-icon { color: var(--app-text-muted); margin-right: 12px; }
-    .search-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 14px 0;
-      font-size: 0.9rem;
-      outline: none;
-      font-family: inherit;
-      color: inherit;
-    }
 
     .questions-list { display: flex; flex-direction: column; gap: 8px; }
     .question-row {
@@ -509,31 +388,6 @@ const PAGE_SIZE = 10;
       margin-top: 24px;
       flex-wrap: wrap;
     }
-    .page-btn {
-      min-width: 36px;
-      height: 36px;
-      padding: 0 10px;
-      border: 1px solid var(--app-border);
-      border-radius: 8px;
-      background: var(--app-surface);
-      cursor: pointer;
-      font-size: 0.88rem;
-      font-family: inherit;
-      color: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .page-btn:hover:not([disabled]) { background: var(--app-surface-variant); border-color: var(--app-primary); }
-    .page-btn.active {
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      border-color: var(--app-primary);
-      font-weight: 700;
-    }
-    .page-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
-    .page-btn mf-icon { font-size: 20px; width: 20px; height: 20px; }
 
     @media (max-width: 768px) {
       .tech-layout {
@@ -644,9 +498,6 @@ export class TechnologyComponent {
     this.activeTag.update(current => (current === tag ? null : tag));
   }
 
-  onSearchInput(event: Event): void {
-    this.searchQuery.set((event.target as HTMLInputElement).value);
-  }
 
   goToPage(page: number): void {
     const total = this.totalPages();

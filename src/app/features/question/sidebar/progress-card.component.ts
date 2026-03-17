@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
-import { MfIconComponent } from 'ng-comps';
+import { MfIconComponent, MfCardComponent, MfProgressBarComponent } from 'ng-comps';
 import { Question } from '../../../domain/models/question.model';
 import { ContentStore } from '../../../core/stores/content.store';
 import { ProgressService } from '../../../core/services/progress.service';
@@ -7,28 +7,26 @@ import { ProgressService } from '../../../core/services/progress.service';
 @Component({
   selector: 'app-progress-card',
   standalone: true,
-  imports: [MfIconComponent],
+  imports: [MfIconComponent, MfCardComponent, MfProgressBarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="sidebar-card">
+    <mf-card variant="outlined" padding="md">
       <div class="sidebar-card-header">
         <mf-icon name="trending_up" size="sm" color="brand" class="sidebar-icon" />
         <strong>Tu Progreso</strong>
       </div>
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" [style.width.%]="progressPct"></div>
-      </div>
+      <mf-progress-bar
+        mode="determinate"
+        [value]="progressPct"
+        color="brand"
+        [showValue]="false"
+        [height]="8"
+      />
       <span class="progress-detail">{{ progressPct }}% de "{{ technologyName }}" completado</span>
-    </div>
+    </mf-card>
   `,
   styles: [`
-    .sidebar-card {
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 20px;
-      background: var(--app-surface);
-      color: var(--app-text);
-    }
+    mf-card { display: block; }
     .sidebar-card-header {
       display: flex;
       align-items: center;
@@ -37,16 +35,7 @@ import { ProgressService } from '../../../core/services/progress.service';
       margin-bottom: 14px;
     }
     .sidebar-icon { font-size: 20px; width: 20px; height: 20px; color: var(--app-primary); }
-    .progress-bar-track {
-      height: 8px; border-radius: 4px;
-      background: var(--app-surface-variant);
-      overflow: hidden; margin-bottom: 8px;
-    }
-    .progress-bar-fill {
-      height: 100%; border-radius: 4px;
-      background: var(--app-primary);
-      transition: width 0.4s ease;
-    }
+    mf-progress-bar { display: block; margin-bottom: 8px; }
     .progress-detail { font-size: 0.78rem; opacity: 0.6; }
   `]
 })

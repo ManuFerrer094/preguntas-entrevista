@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MfIconComponent } from 'ng-comps';
+import { MfIconComponent, MfInputComponent, MfCardComponent, MfButtonComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, MfIconComponent],
+  imports: [RouterLink, MfIconComponent, MfInputComponent, MfCardComponent, MfButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="hero" aria-labelledby="hero-title">
@@ -24,15 +24,14 @@ import { SeoService } from '../../core/services/seo.service';
       <div class="hero-explore">
         <p class="hero-explore-title">Explorar por Tecnología</p>
         <p class="hero-explore-subtitle">Selecciona una tecnología para empezar tu preparación</p>
-        <div class="search-container">
-          <mf-icon name="search" color="inherit" class="search-icon" />
-          <input
-            type="text"
-            class="search-input"
+        <div class="search-wrapper">
+          <mf-input
+            type="search"
             placeholder="Buscar React, Angular, Node.js..."
+            leadingIcon="search"
             [value]="searchQuery()"
-            (input)="onSearchInput($event)"
-            aria-label="Buscar tecnología"
+            [fullWidth]="true"
+            (mfInput)="searchQuery.set($event)"
           />
         </div>
       </div>
@@ -42,20 +41,22 @@ import { SeoService } from '../../core/services/seo.service';
 
       <div class="technologies-grid">
         @for (tech of filteredTechnologies(); track tech.id) {
-          <a [routerLink]="['/', tech.slug]" class="tech-card" [attr.aria-label]="'Ver preguntas de ' + tech.name">
-            <div class="tech-card-icon" [style.background]="tech.color + '15'">
-              <i [class]="tech.devicon" [style.color]="tech.color"></i>
-            </div>
-            <h3 class="tech-card-name">{{ tech.name }}</h3>
-            <p class="tech-card-keywords">{{ tech.keywords }}</p>
-            <div class="tech-card-footer">
-              <span class="tech-card-count">
-                {{ tech.questionCount || '—' }} Preguntas
-              </span>
-              <span class="tech-card-link">
-                Empezar <mf-icon name="arrow_forward" size="sm" color="inherit" class="link-arrow" />
-              </span>
-            </div>
+          <a [routerLink]="['/', tech.slug]" class="tech-card-link" [attr.aria-label]="'Ver preguntas de ' + tech.name">
+            <mf-card variant="outlined" [interactive]="true" padding="lg">
+              <div class="tech-card-icon" [style.background]="tech.color + '15'">
+                <i [class]="tech.devicon" [style.color]="tech.color"></i>
+              </div>
+              <h3 class="tech-card-name">{{ tech.name }}</h3>
+              <p class="tech-card-keywords">{{ tech.keywords }}</p>
+              <div mfCardFooter class="tech-card-footer">
+                <span class="tech-card-count">
+                  {{ tech.questionCount || '—' }} Preguntas
+                </span>
+                <span class="tech-card-link-text">
+                  Empezar <mf-icon name="arrow_forward" size="sm" color="inherit" class="link-arrow" />
+                </span>
+              </div>
+            </mf-card>
           </a>
         } @empty {
           <p class="empty">No se encontraron tecnologías</p>
@@ -64,16 +65,18 @@ import { SeoService } from '../../core/services/seo.service';
     </section>
 
     <section class="contribute-section" aria-label="Contribuir">
-      <div class="contribute-content">
-        <div class="contribute-text">
-          <h2>¿Tienes preguntas de entrevista?</h2>
-          <p>Comparte tu conocimiento con la comunidad. Envía tus preguntas y ayuda a otros desarrolladores a prepararse.</p>
+      <mf-card variant="outlined" padding="lg">
+        <div class="contribute-content">
+          <div class="contribute-text">
+            <h2>¿Tienes preguntas de entrevista?</h2>
+            <p>Comparte tu conocimiento con la comunidad. Envía tus preguntas y ayuda a otros desarrolladores a prepararse.</p>
+          </div>
+          <a routerLink="/contribuir" class="contribute-btn">
+            <mf-icon name="edit_note" color="inherit" />
+            Contribuir una Pregunta
+          </a>
         </div>
-        <a routerLink="/contribuir" class="contribute-btn">
-          <mf-icon name="edit_note" color="inherit" />
-          Contribuir una Pregunta
-        </a>
-      </div>
+      </mf-card>
     </section>
 
     <section class="why-section" aria-label="Por qué usar esta herramienta">
@@ -164,33 +167,10 @@ import { SeoService } from '../../core/services/seo.service';
       color: rgba(255, 255, 255, 0.75);
       margin: 0 0 20px;
     }
-    .search-container {
-      display: flex;
-      align-items: center;
+    .search-wrapper {
       max-width: 480px;
       margin: 0 auto;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 0 16px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      transition: border-color 0.2s, background 0.2s;
     }
-    .search-container:focus-within {
-      border-color: rgba(255, 255, 255, 0.6);
-      background: rgba(255, 255, 255, 0.18);
-    }
-    .search-icon { color: rgba(255, 255, 255, 0.65); margin-right: 12px; }
-    .search-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 14px 0;
-      font-size: 0.95rem;
-      outline: none;
-      font-family: inherit;
-      color: white;
-    }
-    .search-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
     .tech-section { padding: 0 0 32px; }
 
@@ -200,21 +180,10 @@ import { SeoService } from '../../core/services/seo.service';
       gap: 20px;
       margin-top: 32px;
     }
-    .tech-card {
-      display: flex;
-      flex-direction: column;
+    .tech-card-link {
       text-decoration: none;
       color: var(--app-text);
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 16px;
-      padding: 24px;
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }
-    .tech-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--app-shadow-lg);
-      border-color: var(--app-primary);
+      display: block;
     }
     .tech-card-icon {
       width: 52px;
@@ -250,7 +219,7 @@ import { SeoService } from '../../core/services/seo.service';
       font-weight: 600;
       opacity: 0.7;
     }
-    .tech-card-link {
+    .tech-card-link-text {
       display: flex;
       align-items: center;
       gap: 4px;
@@ -279,10 +248,6 @@ import { SeoService } from '../../core/services/seo.service';
 
     .contribute-section {
       margin-top: 40px;
-      padding: 32px;
-      border: 2px dashed var(--app-primary, #1976d2);
-      border-radius: 18px;
-      background: var(--app-surface, #fff);
     }
     .contribute-content {
       display: flex;
@@ -331,7 +296,7 @@ import { SeoService } from '../../core/services/seo.service';
       .technologies-grid { grid-template-columns: 1fr; margin-top: 24px; }
       .why-section { padding: 32px 20px; }
       .contribute-content { flex-direction: column; text-align: center; }
-      .contribute-section { padding: 24px 20px; }
+      .contribute-section { padding: 0; }
     }
   `]
 })
@@ -358,9 +323,5 @@ export class HomeComponent implements OnInit {
       description: 'Preguntas típicas de entrevistas técnicas para Angular, React, Vue, Node.js, TypeScript, JavaScript, Testing y System Design.',
       keywords: 'entrevistas técnicas, angular, react, vue, nodejs, typescript, javascript, preguntas'
     });
-  }
-
-  onSearchInput(event: Event): void {
-    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 }

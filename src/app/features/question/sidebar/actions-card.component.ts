@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { MfSnackbarService, MfButtonComponent } from 'ng-comps';
+import { MfSnackbarService, MfButtonComponent, MfCardComponent } from 'ng-comps';
 
 @Component({
   selector: 'app-actions-card',
   standalone: true,
-  imports: [MfButtonComponent],
+  imports: [MfButtonComponent, MfCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="sidebar-card actions-card">
+    <mf-card variant="outlined" padding="sm">
       <mf-button
         label="Copiar enlace"
         variant="text"
@@ -16,17 +16,10 @@ import { MfSnackbarService, MfButtonComponent } from 'ng-comps';
         (mfClick)="copyLink()"
         (click)="copyLink()"
       ></mf-button>
-    </div>
+    </mf-card>
   `,
   styles: [`
-    .sidebar-card {
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      padding: 12px 16px;
-      background: var(--app-surface);
-      color: var(--app-text);
-    }
-    .actions-card { display: flex; flex-direction: column; gap: 8px; }
+    mf-card { display: block; }
   `]
 })
 export class ActionsCardComponent {
