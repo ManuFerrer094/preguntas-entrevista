@@ -15,7 +15,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MfIconComponent, MfProgressSpinnerComponent, MfButtonComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfCardComponent, MfFormFieldComponent } from 'ng-comps';
+import { MfIconComponent, MfProgressSpinnerComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfCardComponent, MfFormFieldComponent } from 'ng-comps';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
@@ -31,7 +31,6 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     MatStepperModule,
     MfIconComponent,
     MfProgressSpinnerComponent,
-    MfButtonComponent,
     MfSelectComponent,
     MfInputComponent,
     MfCardComponent,
@@ -172,7 +171,10 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions">
-            <mf-button label="Siguiente" variant="filled" trailingIcon="arrow_forward" [disabled]="step1.invalid" matStepperNext />
+            <button type="button" class="nav-btn nav-btn--filled" matStepperNext [disabled]="step1.invalid">
+              Siguiente
+              <mf-icon name="arrow_forward" color="inherit" />
+            </button>
           </div>
         </mat-step>
 
@@ -261,8 +263,14 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions">
-            <mf-button label="Atrás" variant="outlined" leadingIcon="arrow_back" matStepperPrev />
-            <mf-button label="Siguiente" variant="filled" trailingIcon="arrow_forward" [disabled]="step2.invalid" matStepperNext />
+            <button type="button" class="nav-btn nav-btn--outlined" matStepperPrev>
+              <mf-icon name="arrow_back" color="inherit" />
+              Atrás
+            </button>
+            <button type="button" class="nav-btn nav-btn--filled" matStepperNext [disabled]="step2.invalid">
+              Siguiente
+              <mf-icon name="arrow_forward" color="inherit" />
+            </button>
           </div>
         </mat-step>
 
@@ -315,7 +323,10 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions step-actions--submit">
-            <mf-button label="Atrás" variant="outlined" leadingIcon="arrow_back" [disabled]="submitting()" matStepperPrev />
+            <button type="button" class="nav-btn nav-btn--outlined" matStepperPrev [disabled]="submitting()">
+              <mf-icon name="arrow_back" color="inherit" />
+              Atrás
+            </button>
             <button type="button" class="submit-btn" (click)="onSubmit()"
                     [disabled]="submitting()">
               @if (submitting()) {
@@ -499,6 +510,34 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     .step-actions--submit {
       justify-content: space-between;
     }
+
+    /* ── Stepper navigation buttons ──────────────────────────────────── */
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .nav-btn--filled {
+      background: var(--app-primary);
+      color: var(--app-on-primary);
+      border: none;
+    }
+    .nav-btn--filled:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .nav-btn--filled:disabled { opacity: 0.45; cursor: not-allowed; }
+    .nav-btn--outlined {
+      background: transparent;
+      color: var(--app-text);
+      border: 1px solid var(--app-border);
+    }
+    .nav-btn--outlined:hover:not(:disabled) { background: var(--app-surface-raised); }
+    .nav-btn--outlined:disabled { opacity: 0.45; cursor: not-allowed; }
 
     /* ── Form fields ──────────────────────────────────────────────────── */
     .field { display: flex; flex-direction: column; gap: 4px; }
