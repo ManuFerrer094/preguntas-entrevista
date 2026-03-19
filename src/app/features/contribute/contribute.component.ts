@@ -9,14 +9,13 @@ import {
   untracked,
   PLATFORM_ID,
   ViewChild,
-  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MfIconComponent, MfProgressSpinnerComponent, MfButtonComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfTextareaComponent, MfCardComponent, MfFormFieldComponent } from 'ng-comps';
+import { MfIconComponent, MfProgressSpinnerComponent, MfButtonComponent, MfSelectComponent, MfSelectOption, MfInputComponent, MfCardComponent, MfFormFieldComponent } from 'ng-comps';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
@@ -30,8 +29,14 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
     RouterLink,
     ReactiveFormsModule,
     MatStepperModule,
+    MfIconComponent,
+    MfProgressSpinnerComponent,
+    MfButtonComponent,
+    MfSelectComponent,
+    MfInputComponent,
+    MfCardComponent,
+    MfFormFieldComponent,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="breadcrumb" aria-label="Ruta de navegación">
