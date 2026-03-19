@@ -263,7 +263,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions">
-            <button type="button" class="nav-btn nav-btn--outlined" matStepperPrev>
+            <button type="button" class="nav-btn nav-btn--outlined" matStepperPrevious>
               <mf-icon name="arrow_back" color="inherit" />
               Atrás
             </button>
@@ -323,7 +323,7 @@ import { TECHNOLOGY_TAGS } from './technology-tags';
           </div>
 
           <div class="step-actions step-actions--submit">
-            <button type="button" class="nav-btn nav-btn--outlined" matStepperPrev [disabled]="submitting()">
+            <button type="button" class="nav-btn nav-btn--outlined" matStepperPrevious [disabled]="submitting()">
               <mf-icon name="arrow_back" color="inherit" />
               Atrás
             </button>

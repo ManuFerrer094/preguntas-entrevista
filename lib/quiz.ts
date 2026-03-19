@@ -1,17 +1,7 @@
-import { AiQuestionsConfig } from './ai-questions.js';
+import type { AiQuestionsConfig } from './interfaces/ai-questions.interfaces.js';
+import type { QuizQuestion, QuizResponse, QuizDifficulty } from './interfaces/quiz.interfaces.js';
 
-export interface QuizQuestion {
-  question: string;
-  options: [string, string, string, string];
-  correctIndex: 0 | 1 | 2 | 3;
-  explanation: string;
-}
-
-export interface QuizResponse {
-  questions: QuizQuestion[];
-}
-
-export type QuizDifficulty = 'mixed' | 'easy' | 'medium' | 'hard';
+export type { QuizQuestion, QuizResponse, QuizDifficulty };
 
 const DIFFICULTY_INSTRUCTIONS: Record<QuizDifficulty, string> = {
   mixed: 'Mezcla preguntas de distintos niveles de dificultad (fácil, media y difícil).',

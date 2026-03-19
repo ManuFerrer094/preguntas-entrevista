@@ -1,5 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
+import type { Frontmatter } from './interfaces/frontmatter.interface.js';
+import type { QuestionSummary, AiQuestionsConfig } from './interfaces/ai-questions.interfaces.js';
+
+export type { QuestionSummary, AiQuestionsConfig };
 
 export const VALID_TECHNOLOGIES = ['angular', 'react', 'vue', 'nodejs', 'typescript', 'javascript'];
 
@@ -11,19 +15,6 @@ const TECH_DISPLAY_NAMES: Record<string, string> = {
   typescript: 'TypeScript',
   javascript: 'JavaScript',
 };
-
-export interface QuestionSummary {
-  technology: string;
-  title: string;
-  difficulty: string;
-  tags: string[];
-}
-
-interface Frontmatter {
-  title?: string;
-  difficulty?: string;
-  tags?: string[];
-}
 
 export function parseFrontmatter(content: string): { metadata: Frontmatter; body: string } {
   if (!content.startsWith('---')) return { metadata: {}, body: content };
@@ -135,12 +126,6 @@ REGLAS:
 - Ordena las preguntas de mayor a menor relevancia.
 - Selecciona entre 10 y 30 preguntas, dependiendo de lo que cubra la oferta.
 - Si la oferta menciona una tecnología que no está en el catálogo, no inventes preguntas para ella. Solo selecciona del catálogo disponible.`;
-}
-
-export interface AiQuestionsConfig {
-  azureOpenAiEndpoint: string;
-  azureOpenAiKey: string;
-  azureOpenAiDeployment: string;
 }
 
 export async function handleAiQuestionsRequest(

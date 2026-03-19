@@ -1,6 +1,8 @@
 import { createRequire } from 'node:module';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import type { QuestionData } from './interfaces/generate-dossier.interfaces.js';
+import type { Segment } from './interfaces/pdf.interfaces.js';
 
 // createRequire is the standard way to use require() from ESM.
 // pdfkit must NOT be bundled because it reads .afm font files via
@@ -17,17 +19,6 @@ export const TECHNOLOGY_NAMES: Record<string, string> = {
   typescript: 'TypeScript',
   javascript: 'JavaScript',
 };
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface QuestionData {
-  title: string;
-  difficulty: string;
-  tags: string[];
-  content: string;
-}
 
 // ---------------------------------------------------------------------------
 // Design tokens
@@ -156,8 +147,6 @@ function ensureSpace(doc: Doc, needed: number): boolean {
 // ---------------------------------------------------------------------------
 // Inline markdown parsing
 // ---------------------------------------------------------------------------
-
-interface Segment { text: string; bold?: boolean; italic?: boolean; code?: boolean }
 
 function parseInline(text: string): Segment[] {
   const segments: Segment[] = [];
