@@ -1,14 +1,6 @@
-export interface SubmitQuestionInput {
-  technology?: string;
-  title?: string;
-  difficulty?: string;
-  tags?: string;
-  content?: string;
-}
+import type { SubmitQuestionInput, SubmitQuestionResult } from './interfaces/submit-question.interfaces.js';
 
-export interface SubmitQuestionResult {
-  prUrl: string;
-}
+export type { SubmitQuestionInput, SubmitQuestionResult };
 
 const VALID_TECHNOLOGIES = [
   'javascript','typescript','python','java','csharp','go','php','rust','ruby',

@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import PDFDocument from 'pdfkit';
+import type { Frontmatter } from '../../lib/interfaces/frontmatter.interface.js';
+import type { Question, Segment } from '../../lib/interfaces/pdf.interfaces.js';
 
 const VALID_TECHNOLOGIES = new Set(['angular', 'react', 'vue', 'nodejs', 'typescript', 'javascript']);
 
@@ -51,12 +53,6 @@ const CODE_RADIUS = 6;
 const BODY_FONT_SIZE = 10;
 const BODY_LINE_GAP = 3;
 
-interface Frontmatter {
-  title?: string;
-  difficulty?: string;
-  tags?: string[];
-}
-
 function parseFrontmatter(content: string): { metadata: Frontmatter; body: string } {
   if (!content.startsWith('---')) return { metadata: {}, body: content };
   const end = content.indexOf('\n---', 3);
@@ -77,13 +73,6 @@ function parseFrontmatter(content: string): { metadata: Frontmatter; body: strin
     }
   }
   return { metadata, body };
-}
-
-interface Question {
-  title: string;
-  difficulty: string;
-  tags: string[];
-  body: string;
 }
 
 async function loadQuestions(questionsDir: string, technology: string): Promise<Question[]> {
@@ -141,8 +130,6 @@ function ensureSpace(doc: PDFKit.PDFDocument, needed: number): boolean {
   }
   return false;
 }
-
-interface Segment { text: string; bold?: boolean; italic?: boolean; code?: boolean; }
 
 function parseInline(text: string): Segment[] {
   const segments: Segment[] = [];

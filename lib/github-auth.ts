@@ -1,9 +1,6 @@
-export interface GitHubUser {
-  token: string;
-  username: string;
-  name: string;
-  avatarUrl: string;
-}
+import type { GitHubUser } from './interfaces/github-auth.interfaces.js';
+
+export type { GitHubUser };
 
 export function getClientId(): string {
   return process.env['GITHUB_CLIENT_ID'] || '';
