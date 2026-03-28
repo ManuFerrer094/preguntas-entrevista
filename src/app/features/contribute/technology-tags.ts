@@ -1,23 +1,27 @@
 export const TECHNOLOGY_TAGS: Record<string, string[]> = {
   javascript: [
-    'closures', 'prototypes', 'async-await', 'promises', 'es6', 'scope',
-    'this', 'hoisting', 'event-loop', 'coercion', 'destructuring', 'performance',
+    'architecture', 'async', 'performance', 'security', 'debugging',
+    'real-world-scenarios',
+    'event-loop', 'closures', 'prototypes', 'scope', 'this', 'modules',
   ],
   typescript: [
-    'types', 'interfaces', 'generics', 'utility-types', 'type-inference',
-    'decorators', 'enums', 'modules', 'advanced-types', 'strict-mode',
+    'architecture', 'async', 'performance', 'testing', 'debugging',
+    'real-world-scenarios',
+    'type-system', 'generics', 'utility-types', 'inference', 'api-design', 'strict-mode',
   ],
   python: [
     'oop', 'decorators', 'async', 'generators', 'list-comprehension',
     'data-structures', 'testing', 'packaging', 'concurrency', 'typing',
   ],
   java: [
-    'oop', 'collections', 'concurrency', 'jvm', 'exceptions',
-    'generics', 'streams', 'interfaces', 'design-patterns', 'memory',
+    'architecture', 'async', 'data-access', 'performance', 'security',
+    'testing', 'debugging', 'real-world-scenarios',
+    'jvm', 'collections', 'concurrency', 'memory', 'api-design',
   ],
   csharp: [
-    'linq', 'async-await', 'oop', 'delegates', 'generics',
-    'attributes', 'memory-management', 'events', 'dependency-injection', 'nullable',
+    'architecture', 'async', 'data-access', 'performance', 'security',
+    'testing', 'debugging', 'real-world-scenarios',
+    'linq', 'dependency-injection', 'nullable', 'memory-management',
   ],
   go: [
     'goroutines', 'channels', 'interfaces', 'error-handling', 'concurrency',
@@ -44,16 +48,19 @@ export const TECHNOLOGY_TAGS: Record<string, string[]> = {
     'swiftui', 'closures', 'error-handling', 'property-wrappers', 'actors',
   ],
   angular: [
-    'dependency-injection', 'rxjs', 'lifecycle-hooks', 'pipes', 'directives',
-    'routing', 'forms', 'signals', 'components', 'modules',
+    'architecture', 'state-management', 'async', 'routing', 'rendering',
+    'performance', 'testing', 'security', 'debugging', 'real-world-scenarios',
+    'signals', 'rxjs', 'change-detection', 'dependency-injection', 'ssr',
   ],
   react: [
-    'hooks', 'virtual-dom', 'state-management', 'context', 'performance',
-    'react-router', 'server-components', 'suspense', 'refs', 'portals',
+    'architecture', 'state-management', 'async', 'rendering', 'performance',
+    'testing', 'security', 'debugging', 'real-world-scenarios',
+    'hooks', 'concurrent-rendering', 'server-components', 'react-query', 'forms',
   ],
   vue: [
-    'composition-api', 'options-api', 'vuex', 'pinia', 'directives',
-    'reactivity', 'routing', 'lifecycle-hooks', 'computed', 'watchers',
+    'architecture', 'state-management', 'async', 'routing', 'rendering',
+    'performance', 'testing', 'debugging', 'real-world-scenarios',
+    'composition-api', 'pinia', 'composables', 'reactivity', 'nuxt',
   ],
   nextjs: [
     'ssr', 'ssg', 'app-router', 'api-routes', 'performance',
@@ -72,16 +79,18 @@ export const TECHNOLOGY_TAGS: Record<string, string[]> = {
     'meta-tags', 'events', 'canvas', 'web-components', 'performance',
   ],
   nodejs: [
-    'event-loop', 'streams', 'express', 'authentication', 'middleware',
-    'performance', 'clustering', 'security', 'testing', 'modules',
+    'architecture', 'async', 'data-access', 'performance', 'security',
+    'testing', 'debugging', 'real-world-scenarios',
+    'event-loop', 'streams', 'express', 'worker-threads', 'caching',
   ],
   nestjs: [
     'dependency-injection', 'decorators', 'modules', 'guards', 'interceptors',
     'pipes', 'middleware', 'testing', 'microservices', 'authentication',
   ],
   dotnet: [
-    'asp-net', 'razor', 'blazor', 'minimal-api', 'entity-framework',
-    'middleware', 'dependency-injection', 'authentication', 'testing', 'performance',
+    'architecture', 'async', 'data-access', 'performance', 'security',
+    'testing', 'debugging', 'real-world-scenarios',
+    'aspnet-core', 'entity-framework', 'linq', 'middleware', 'dependency-injection',
   ],
   django: [
     'orm', 'views', 'templates', 'rest-framework', 'authentication',
@@ -130,5 +139,15 @@ export const TECHNOLOGY_TAGS: Record<string, string[]> = {
   reactnative: [
     'native-modules', 'navigation', 'expo', 'performance', 'styling',
     'platform', 'animations', 'storage', 'testing', 'debugging',
+  ],
+  razor: [
+    'rendering', 'security', 'testing', 'performance', 'debugging',
+    'real-world-scenarios',
+    'tag-helpers', 'forms', 'layout', 'server-rendering', 'blazor',
+  ],
+  winforms: [
+    'rendering', 'async', 'performance', 'testing', 'security',
+    'debugging', 'real-world-scenarios',
+    'threading', 'data-binding', 'validation', 'desktop', 'legacy',
   ],
 };

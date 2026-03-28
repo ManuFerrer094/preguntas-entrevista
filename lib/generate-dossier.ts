@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { QuestionData } from './interfaces/generate-dossier.interfaces.js';
 import type { Segment } from './interfaces/pdf.interfaces.js';
 
@@ -11,14 +11,43 @@ const _require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PDFDocument = _require('pdfkit') as new (options?: Record<string, unknown>) => any;
 
-export const TECHNOLOGY_NAMES: Record<string, string> = {
+const TECHNOLOGY_NAME_OVERRIDES: Record<string, string> = {
   angular: 'Angular',
   react: 'React',
   vue: 'Vue',
   nodejs: 'Node.js',
   typescript: 'TypeScript',
   javascript: 'JavaScript',
+  dotnet: '.NET / ASP.NET',
+  razor: 'Razor',
+  winforms: 'WinForms',
+  java: 'Java',
+  csharp: 'C#',
+  nextjs: 'Next.js',
+  reactnative: 'React Native',
+  graphql: 'GraphQL',
+  html: 'HTML',
+  css: 'CSS',
+  sql: 'SQL',
+  mongodb: 'MongoDB',
+  redis: 'Redis',
+  docker: 'Docker',
+  kubernetes: 'Kubernetes',
+  git: 'Git',
 };
+
+export function technologyNameFromSlug(slug: string): string {
+  const normalized = slug.trim().toLowerCase();
+  if (TECHNOLOGY_NAME_OVERRIDES[normalized]) {
+    return TECHNOLOGY_NAME_OVERRIDES[normalized];
+  }
+
+  return normalized
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 // ---------------------------------------------------------------------------
 // Design tokens
@@ -93,7 +122,7 @@ export function readQuestions(questionsDir: string): QuestionData[] {
   const fileList: string[] = JSON.parse(readFileSync(indexPath, 'utf-8'));
   const questions: QuestionData[] = [];
   for (const file of fileList) {
-    if (!/^q\d+\.md$/.test(file)) continue;
+    if (basename(file) !== file || !/^q\d+\.md$/.test(file)) continue;
     const filePath = join(questionsDir, file);
     if (!existsSync(filePath)) continue;
     const raw = readFileSync(filePath, 'utf-8').replace(/\r/g, '');

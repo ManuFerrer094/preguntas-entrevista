@@ -1,20 +1,31 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import type { Frontmatter } from './interfaces/frontmatter.interface.js';
 import type { QuestionSummary, AiQuestionsConfig } from './interfaces/ai-questions.interfaces.js';
 
 export type { QuestionSummary, AiQuestionsConfig };
 
-export const VALID_TECHNOLOGIES = ['angular', 'react', 'vue', 'nodejs', 'typescript', 'javascript'];
-
-const TECH_DISPLAY_NAMES: Record<string, string> = {
+const TECH_DISPLAY_NAME_OVERRIDES: Record<string, string> = {
   angular: 'Angular',
   react: 'React',
   vue: 'Vue.js',
   nodejs: 'Node.js',
   typescript: 'TypeScript',
   javascript: 'JavaScript',
+  dotnet: '.NET / ASP.NET',
+  razor: 'Razor',
+  winforms: 'WinForms',
+  java: 'Java',
 };
+
+function technologyDisplayName(slug: string): string {
+  return TECH_DISPLAY_NAME_OVERRIDES[slug]
+    ?? slug
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+}
 
 export function parseFrontmatter(content: string): { metadata: Frontmatter; body: string } {
   if (!content.startsWith('---')) return { metadata: {}, body: content };
@@ -40,8 +51,12 @@ export function parseFrontmatter(content: string): { metadata: Frontmatter; body
 
 export async function loadAllQuestionSummaries(questionsDir: string): Promise<QuestionSummary[]> {
   const summaries: QuestionSummary[] = [];
+  const candidateTechs = (await readdir(questionsDir, { withFileTypes: true }))
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+    .sort();
 
-  for (const tech of VALID_TECHNOLOGIES) {
+  for (const tech of candidateTechs) {
     const indexPath = join(questionsDir, tech, 'index.json');
     let filenames: string[];
     try {
@@ -87,7 +102,7 @@ export function buildSystemPrompt(summaries: QuestionSummary[]): string {
 
   let catalog = '';
   for (const [tech, questions] of grouped) {
-    const displayName = TECH_DISPLAY_NAMES[tech] ?? tech;
+    const displayName = technologyDisplayName(tech);
     catalog += `\n## ${displayName}\n`;
     for (const q of questions) {
       catalog += `- [${q.difficulty}] ${q.title} (tags: ${q.tags.join(', ')})\n`;
@@ -111,7 +126,7 @@ INSTRUCCIONES:
   "technologies_detected": ["lista de tecnologías detectadas en la oferta"],
   "questions": [
     {
-      "technology": "slug de la tecnología (angular, react, vue, nodejs, typescript, javascript)",
+      "technology": "slug exacto de la tecnología tal como aparece en el catálogo",
       "title": "título exacto de la pregunta del catálogo",
       "difficulty": "easy|medium|hard",
       "tags": ["tags de la pregunta"],
@@ -208,11 +223,12 @@ function validateAiResponse(parsed: unknown, summaries: QuestionSummary[]): {
   }
 
   const knownTitles = new Set(summaries.map((s) => s.title));
+  const knownTechnologies = new Set(summaries.map((s) => s.technology));
 
   const questions = (obj['questions'] as unknown[])
     .filter((q): q is Record<string, unknown> => q !== null && typeof q === 'object')
     .filter((q) => typeof q['title'] === 'string' && knownTitles.has(q['title'] as string))
-    .filter((q) => typeof q['technology'] === 'string' && VALID_TECHNOLOGIES.includes(q['technology'] as string))
+    .filter((q) => typeof q['technology'] === 'string' && knownTechnologies.has(q['technology'] as string))
     .map((q) => ({
       technology: q['technology'] as string,
       title: q['title'] as string,

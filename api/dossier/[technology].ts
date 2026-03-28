@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { generateDossierPdf, TECHNOLOGY_NAMES } from '../../lib/generate-dossier.js';
+import { generateDossierPdf, technologyNameFromSlug } from '../../lib/generate-dossier.js';
 
 interface HandlerRequest {
   method?: string;
@@ -22,22 +22,21 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
 
   const { technology } = req.query;
 
-  if (typeof technology !== 'string' || !TECHNOLOGY_NAMES[technology]) {
+  if (typeof technology !== 'string') {
     res.status(400).json({ error: 'Invalid technology' });
     return;
   }
 
-  const technologyName = TECHNOLOGY_NAMES[technology];
   const questionsDir = join(process.cwd(), 'questions', technology);
   console.log('Generating PDF for', technology, 'questionsDir=', questionsDir);
 
-  if (!existsSync(questionsDir)) {
+  if (!existsSync(questionsDir) || !existsSync(join(questionsDir, 'index.json'))) {
     res.status(404).json({ error: 'Technology not found' });
     return;
   }
 
   try {
-    const pdfBuffer = await generateDossierPdf(questionsDir, technologyName);
+    const pdfBuffer = await generateDossierPdf(questionsDir, technologyNameFromSlug(technology));
 
     res.status(200);
     res.setHeader('Content-Type', 'application/pdf');

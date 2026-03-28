@@ -32,8 +32,8 @@ describe('ContentStore', () => {
     expect(store).toBeTruthy();
   });
 
-  it('should initialise with 6 technologies', () => {
-    expect(store.technologies().length).toBe(6);
+  it('should initialise with all configured technologies', () => {
+    expect(store.technologies().length).toBe(35);
   });
 
   it('should initialise with no questions loaded', () => {

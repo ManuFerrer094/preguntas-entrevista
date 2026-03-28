@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MfIconComponent, MfInputComponent, MfCardComponent, MfButtonComponent } from 'ng-comps';
+import { MfIconComponent, MfInputComponent, MfCardComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, MfIconComponent, MfInputComponent, MfCardComponent, MfButtonComponent],
+  imports: [RouterLink, MfIconComponent, MfInputComponent, MfCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="hero" aria-labelledby="hero-title">
@@ -19,7 +19,7 @@ import { SeoService } from '../../core/services/seo.service';
           <div class="hero-search">
             <mf-input
               type="search"
-              placeholder="Buscar React, Angular, Node.js..."
+              placeholder="Buscar Angular, React, Node.js, .NET..."
               leadingIcon="search"
               [value]="searchQuery()"
               [fullWidth]="true"
@@ -193,8 +193,8 @@ export class HomeComponent implements OnInit {
     this.store.loadAllQuestionCounts();
     this.seo.setPageMeta({
       title: 'Inicio',
-      description: 'Preguntas típicas de entrevistas técnicas para Angular, React, Vue, Node.js, TypeScript, JavaScript, Testing y System Design.',
-      keywords: 'entrevistas técnicas, angular, react, vue, nodejs, typescript, javascript, preguntas'
+      description: 'Preguntas reales de entrevistas técnicas para Angular, React, Vue, Node.js, JavaScript, TypeScript, .NET, Razor, WinForms y Java.',
+      keywords: 'entrevistas técnicas, angular, react, vue, nodejs, javascript, typescript, dotnet, razor, winforms, java, preguntas'
     });
   }
 }
