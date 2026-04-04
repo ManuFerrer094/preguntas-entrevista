@@ -4,10 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MfCardComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
-import {
-  buildBreadcrumbSchema,
-  buildCollectionPageSchema,
-} from '../../core/seo/structured-data';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../core/seo/structured-data';
 import {
   MIN_GUIDE_QUESTIONS,
   MIN_LEVEL_QUESTIONS,
@@ -31,7 +28,7 @@ import {
 
       <section class="hero">
         <div class="hero-copy">
-          <p class="kicker">Guía evergreen</p>
+          <p class="kicker">Guía de referencia</p>
           <h1>Guía para entrevistas de {{ technology()!.name }}</h1>
           <p class="description">
             Ruta editorial para preparar {{ technology()!.name }} con preguntas reales, temas
@@ -61,7 +58,7 @@ import {
             <p class="section-kicker">Paso 2</p>
             <h2>Ataca los temas de más peso</h2>
             <p>
-              Prioriza los clústeres con más preguntas para cubrir lo que más suele aparecer en
+              Prioriza los temas con más preguntas para cubrir lo que más suele aparecer en
               entrevistas.
             </p>
           </mf-card>
@@ -104,7 +101,7 @@ import {
           <section class="content-section">
             <div class="section-head">
               <p class="section-kicker">Niveles</p>
-              <h2>Bloques por seniority</h2>
+              <h2>Bloques por nivel</h2>
             </div>
 
             <div class="card-grid levels">
@@ -140,7 +137,7 @@ import {
         <mf-card variant="outlined" padding="lg">
           <h2>Guía aún no indexable</h2>
           <p>
-            Esta tecnología todavía no tiene masa suficiente para una guía evergreen sólida. La
+            Esta tecnología todavía no tiene masa suficiente para una guía de referencia sólida. La
             página se mantiene accesible, pero fuera del índice hasta que haya más contenido.
           </p>
         </mf-card>
@@ -344,7 +341,7 @@ export class TechnologyGuideComponent {
 
       const url = this.seo.absoluteUrl(`/guia/${tech.slug}`);
       const indexable = this.questions().length >= MIN_GUIDE_QUESTIONS;
-      const description = `Guía de preparación para entrevistas de ${tech.name} con preguntas reales, temas frecuentes y rutas por seniority.`;
+      const description = `Guía de preparación para entrevistas de ${tech.name} con preguntas reales, temas frecuentes y rutas por nivel.`;
 
       this.seo.setPageMeta({
         title: `Guía de entrevista de ${tech.name}`,

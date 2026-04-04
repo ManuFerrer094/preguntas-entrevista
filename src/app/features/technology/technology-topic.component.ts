@@ -4,11 +4,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MfCardComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
-import {
-  buildBreadcrumbSchema,
-  buildCollectionPageSchema,
-} from '../../core/seo/structured-data';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../core/seo/structured-data';
 import { MIN_TOPIC_QUESTIONS } from '../../core/utils/question-taxonomy';
+import { getTagLabel } from '../../core/utils/tag-labels';
 
 @Component({
   selector: 'app-technology-topic',
@@ -29,7 +27,7 @@ import { MIN_TOPIC_QUESTIONS } from '../../core/utils/question-taxonomy';
 
       @if (topic()) {
         <section class="hero">
-          <p class="kicker">Cluster temático</p>
+          <p class="kicker">Tema destacado</p>
           <h1>{{ technology()!.name }}: {{ topic()!.label }}</h1>
           <p class="description">{{ topic()!.summary }}</p>
           <div class="hero-meta">{{ topic()!.questionCount }} preguntas relacionadas</div>
@@ -50,7 +48,7 @@ import { MIN_TOPIC_QUESTIONS } from '../../core/utils/question-taxonomy';
           <section class="content-section">
             <div class="section-head">
               <p class="kicker">Siguientes temas</p>
-              <h2>Otros clusters de {{ technology()!.name }}</h2>
+              <h2>Otros temas de {{ technology()!.name }}</h2>
             </div>
 
             <div class="topic-grid">
@@ -70,10 +68,10 @@ import { MIN_TOPIC_QUESTIONS } from '../../core/utils/question-taxonomy';
         }
       } @else {
         <mf-card variant="outlined" padding="lg">
-          <h2>Topic no disponible</h2>
+          <h2>Tema no disponible</h2>
           <p>
-            Este tema aún no tiene masa suficiente para ser una página SEO indexable. Puedes volver
-            a la guía o al listado general.
+            Este tema aún no tiene masa suficiente para ser una página indexable. Puedes volver a la
+            guía o al listado general.
           </p>
         </mf-card>
       }
@@ -192,11 +190,12 @@ export class TechnologyTopicComponent {
   readonly topic = computed(() => {
     const tech = this.technology();
     return tech
-      ? this.store.getTopicClusterByTechnology(tech.slug, this.topicSlug(), MIN_TOPIC_QUESTIONS) ?? null
+      ? (this.store.getTopicClusterByTechnology(tech.slug, this.topicSlug(), MIN_TOPIC_QUESTIONS) ??
+          null)
       : null;
   });
 
-  readonly topicLabel = computed(() => this.topic()?.label ?? this.topicSlug());
+  readonly topicLabel = computed(() => this.topic()?.label ?? getTagLabel(this.topicSlug()));
 
   readonly relatedTopics = computed(() => {
     const tech = this.technology();
@@ -220,13 +219,15 @@ export class TechnologyTopicComponent {
       const url = this.seo.absoluteUrl(`/${tech.slug}/tema/${this.topicSlug()}`);
       const description = topic
         ? `Preguntas de ${tech.name} sobre ${topic.label} para practicar decisiones reales, señales de entrevista y errores frecuentes.`
-        : `Cluster temático de ${tech.name} todavía en crecimiento.`;
+        : `Tema de ${tech.name} todavía en crecimiento.`;
 
       this.seo.setPageMeta({
         title: topic ? `${tech.name}: ${topic.label}` : `Tema de ${tech.name}`,
         description,
         canonical: url,
-        keywords: topic ? `${tech.name.toLowerCase()}, ${topic.label}, entrevista técnica` : undefined,
+        keywords: topic
+          ? `${tech.name.toLowerCase()}, ${topic.label}, entrevista técnica`
+          : undefined,
         robots: topic?.isIndexable ? 'index,follow' : 'noindex,follow',
         schema: topic
           ? [

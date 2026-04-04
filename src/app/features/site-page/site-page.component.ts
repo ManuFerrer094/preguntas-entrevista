@@ -2,10 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@a
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SeoService } from '../../core/services/seo.service';
-import {
-  buildBreadcrumbSchema,
-  buildWebPageSchema,
-} from '../../core/seo/structured-data';
+import { buildBreadcrumbSchema, buildWebPageSchema } from '../../core/seo/structured-data';
 
 interface SitePageContent {
   title: string;
@@ -40,7 +37,7 @@ const PAGES: Record<string, SitePageContent> = {
       'Qué es Preguntas Entrevista, para quién está pensado y cómo se construye el contenido técnico del proyecto.',
     body: [
       'Preguntas Entrevista es una biblioteca abierta de preparación técnica en español, organizada por tecnologías y enfocada en entrevistas reales de desarrollo de software.',
-      'El objetivo es ayudar a practicar mejor: menos listas vacías y más contexto sobre lo que evalúa el entrevistador, los trade-offs y los errores comunes.',
+      'El objetivo es ayudar a practicar mejor: menos listas vacías y más contexto sobre lo que evalúa el entrevistador, los compromisos técnicos y los errores comunes.',
       'La estrategia editorial prioriza contenido útil, actualizado y enlazado con criterio antes que crecer a base de páginas vacías o automatización sin revisión.',
     ],
   },
@@ -82,7 +79,8 @@ const PAGES: Record<string, SitePageContent> = {
 
         @if (pageKey() === 'contact') {
           <p class="contact-email">
-            Email de contacto: <a href="mailto:hola@preguntasentrevista.dev">hola@preguntasentrevista.dev</a>
+            Email de contacto:
+            <a href="mailto:hola@preguntasentrevista.dev">hola@preguntasentrevista.dev</a>
           </p>
         }
       </div>
@@ -144,7 +142,9 @@ const PAGES: Record<string, SitePageContent> = {
 export class SitePageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly seo = inject(SeoService);
-  private readonly routeData = toSignal(this.route.data, { initialValue: this.route.snapshot.data });
+  private readonly routeData = toSignal(this.route.data, {
+    initialValue: this.route.snapshot.data,
+  });
 
   readonly pageKey = computed(() => this.routeData()['page'] as string);
   readonly page = computed(() => PAGES[this.pageKey()] ?? PAGES['about']);

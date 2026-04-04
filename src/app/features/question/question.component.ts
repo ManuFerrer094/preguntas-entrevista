@@ -21,6 +21,7 @@ import { AiQuestionsService } from '../../core/services/ai-questions.service';
 import { buildArticleSchema, buildBreadcrumbSchema } from '../../core/seo/structured-data';
 
 import { difficultyLabel } from '../../core/utils/difficulty';
+import { getTagLabel } from '../../core/utils/tag-labels';
 
 import { AuthorCardComponent } from './sidebar/author-card.component';
 import { ProgressCardComponent } from './sidebar/progress-card.component';
@@ -73,7 +74,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
                 {{ difficultyLabel(question()!.difficulty) }}
               </span>
               @for (tag of question()!.tags; track tag) {
-                <span class="tag-badge">{{ tag }}</span>
+                <span class="tag-badge">{{ tagLabel(tag) }}</span>
               }
             </div>
           </header>
@@ -103,7 +104,7 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
                 }
               </div>
               <mf-button
-                [label]="isRead() ? 'Marcar como no leída' : 'Marcar como Leída'"
+                [label]="isRead() ? 'Marcar como no leída' : 'Marcar como leída'"
                 variant="filled"
                 (mfClick)="toggleRead()"
               />
@@ -524,6 +525,7 @@ export class QuestionComponent {
   });
 
   readonly difficultyLabel = difficultyLabel;
+  readonly tagLabel = getTagLabel;
   readonly currentQuestionUrl = computed(() => {
     const q = this.question();
     return q ? this.seo.absoluteUrl(`/${q.technology}/${q.slug}`) : this.seo.absoluteUrl('/');
@@ -579,7 +581,7 @@ export class QuestionComponent {
       case 'senior':
         return 'Senior';
       default:
-        return 'Mid';
+        return 'Intermedio';
     }
   }
 

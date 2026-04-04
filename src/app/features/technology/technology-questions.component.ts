@@ -23,10 +23,8 @@ import { ProgressService } from '../../core/services/progress.service';
 import { SeoService } from '../../core/services/seo.service';
 import { Difficulty } from '../../domain/models/question.model';
 import { difficultyLabel } from '../../core/utils/difficulty';
-import {
-  buildBreadcrumbSchema,
-  buildCollectionPageSchema,
-} from '../../core/seo/structured-data';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../core/seo/structured-data';
+import { getTagLabel } from '../../core/utils/tag-labels';
 
 const PAGE_SIZE = 10;
 
@@ -140,7 +138,7 @@ const PAGE_SIZE = 10;
                     [class.active]="activeTag() === tag"
                     (click)="toggleTag(tag)"
                   >
-                    {{ tag }}
+                    {{ tagLabel(tag) }}
                   </button>
                 }
               </div>
@@ -218,7 +216,7 @@ const PAGE_SIZE = 10;
                         difficultyLabel(question.difficulty)
                       }}</span>
                       @for (tag of question.tags.slice(0, 3); track tag) {
-                        <span class="tag-badge">{{ tag }}</span>
+                        <span class="tag-badge">{{ tagLabel(tag) }}</span>
                       }
                       <span class="read-status">
                         @if (progress.isRead(question.id)) {
@@ -652,6 +650,8 @@ export class TechnologyQuestionsComponent {
     return this.store.getQuestionsByTechnology(tech.slug);
   });
 
+  readonly tagLabel = getTagLabel;
+
   readonly availableTags = computed(() => {
     const tagSet = new Set<string>();
     for (const question of this.allQuestions()) {
@@ -659,7 +659,9 @@ export class TechnologyQuestionsComponent {
         tagSet.add(tag);
       }
     }
-    return Array.from(tagSet).sort();
+    return Array.from(tagSet).sort((left, right) =>
+      this.tagLabel(left).localeCompare(this.tagLabel(right), 'es'),
+    );
   });
 
   readonly readCount = computed(() => {
@@ -679,7 +681,10 @@ export class TechnologyQuestionsComponent {
       questions = questions.filter(
         (question) =>
           question.title.toLowerCase().includes(query) ||
-          question.tags.some((tag) => tag.toLowerCase().includes(query)),
+          question.tags.some(
+            (tag) =>
+              tag.toLowerCase().includes(query) || this.tagLabel(tag).toLowerCase().includes(query),
+          ),
       );
     }
     const difficulty = this.difficultyFilter();

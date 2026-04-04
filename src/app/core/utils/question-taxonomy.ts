@@ -1,5 +1,6 @@
 import { Difficulty, Question, Seniority } from '../../domain/models/question.model';
 import { generateSlug } from './slug-generator';
+import { getTagLabel } from './tag-labels';
 
 export interface TopicCluster {
   slug: string;
@@ -47,9 +48,7 @@ export function deriveSummary(content: string, fallbackTitle = ''): string {
 }
 
 export function estimateReadingTime(content: string): number {
-  const wordCount = stripMarkdown(content)
-    .split(/\s+/)
-    .filter(Boolean).length;
+  const wordCount = stripMarkdown(content).split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(wordCount / 190));
 }
 
@@ -71,7 +70,7 @@ export function labelForSeniority(seniority: Seniority): string {
     case 'senior':
       return 'Senior';
     default:
-      return 'Mid';
+      return 'Intermedio';
   }
 }
 
@@ -80,9 +79,9 @@ export function descriptionForSeniority(seniority: Seniority, technologyName: st
     case 'junior':
       return `Base esencial de ${technologyName}: fundamentos, conceptos clave y respuestas claras para procesos iniciales.`;
     case 'senior':
-      return `Escenarios complejos de ${technologyName}: arquitectura, trade-offs, rendimiento y decisiones de mayor impacto.`;
+      return `Escenarios complejos de ${technologyName}: arquitectura, compromisos técnicos, rendimiento y decisiones de mayor impacto.`;
     default:
-      return `Bloque intermedio de ${technologyName}: diseño práctico, debugging y capacidad de llevar una feature a producción.`;
+      return `Bloque intermedio de ${technologyName}: diseño práctico, depuración y capacidad de llevar una funcionalidad a producción.`;
   }
 }
 
@@ -107,16 +106,18 @@ export function buildTopicClusters(
 
   return Array.from(groups.entries())
     .map(([slug, topicQuestions]) => {
-      const label =
-        topicQuestions.flatMap((question) => question.tags).find((tag) => generateSlug(tag) === slug) ??
-        slug;
+      const rawLabel =
+        topicQuestions
+          .flatMap((question) => question.tags)
+          .find((tag) => generateSlug(tag) === slug) ?? slug;
+      const label = getTagLabel(rawLabel);
 
       return {
         slug,
         label,
         questionCount: topicQuestions.length,
         questions: topicQuestions.sort((a, b) => a.index - b.index),
-        summary: `Selección de preguntas sobre ${label} con foco en decisiones reales, errores comunes y señales que suelen salir en entrevista.`,
+        summary: `Selección de preguntas sobre ${label} con foco en decisiones reales, errores habituales y señales que suelen aparecer en entrevista.`,
         isIndexable: topicQuestions.length >= minQuestions,
       };
     })

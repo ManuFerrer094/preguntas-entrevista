@@ -4,10 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MfCardComponent, MfIconComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
-import {
-  buildBreadcrumbSchema,
-  buildCollectionPageSchema,
-} from '../../core/seo/structured-data';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../core/seo/structured-data';
 import {
   MIN_GUIDE_QUESTIONS,
   MIN_LEVEL_QUESTIONS,
@@ -91,11 +88,11 @@ import {
       </section>
 
       @if (questions().length >= minGuideQuestions) {
-        <section class="clusters-grid" aria-label="Clusters de {{ technology()!.name }}">
+        <section class="clusters-grid" aria-label="Bloques de {{ technology()!.name }}">
           <a [routerLink]="['/guia', technology()!.slug]" class="entry-link">
             <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
               <div class="entry-top">
-                <span class="entry-eyebrow">Evergreen</span>
+                <span class="entry-eyebrow">Guía</span>
                 <mf-icon name="north_east" color="inherit" />
               </div>
               <h2>Guía de entrevista</h2>
@@ -107,7 +104,10 @@ import {
           </a>
 
           @if (topTopic()) {
-            <a [routerLink]="['/', technology()!.slug, 'tema', topTopic()!.slug]" class="entry-link">
+            <a
+              [routerLink]="['/', technology()!.slug, 'tema', topTopic()!.slug]"
+              class="entry-link"
+            >
               <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
                 <div class="entry-top">
                   <span class="entry-eyebrow">Tema principal</span>
@@ -120,7 +120,10 @@ import {
           }
 
           @if (topLevel()) {
-            <a [routerLink]="['/', technology()!.slug, 'nivel', topLevel()!.slug]" class="entry-link">
+            <a
+              [routerLink]="['/', technology()!.slug, 'nivel', topLevel()!.slug]"
+              class="entry-link"
+            >
               <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
                 <div class="entry-top">
                   <span class="entry-eyebrow">Nivel activo</span>
@@ -367,17 +370,18 @@ export class TechnologyComponent {
   readonly topTopic = computed(() => {
     const tech = this.technology();
     return tech
-      ? this.store.getTopicClustersByTechnology(tech.slug, MIN_TOPIC_QUESTIONS).find((cluster) => cluster.isIndexable) ??
-          null
+      ? (this.store
+          .getTopicClustersByTechnology(tech.slug, MIN_TOPIC_QUESTIONS)
+          .find((cluster) => cluster.isIndexable) ?? null)
       : null;
   });
 
   readonly topLevel = computed(() => {
     const tech = this.technology();
     return tech
-      ? this.store
+      ? (this.store
           .getSeniorityClustersByTechnology(tech.slug, MIN_LEVEL_QUESTIONS)
-          .find((cluster) => cluster.isIndexable) ?? null
+          .find((cluster) => cluster.isIndexable) ?? null)
       : null;
   });
 
@@ -391,7 +395,7 @@ export class TechnologyComponent {
 
       const url = this.seo.absoluteUrl(`/${tech.slug}`);
       const indexable = this.questions().length > 0;
-      const description = `Explora la ruta de preparación para ${tech.name} con preguntas de entrevista, recursos específicos y clusters temáticos en una misma landing.`;
+      const description = `Explora la ruta de preparación para ${tech.name} con preguntas de entrevista, recursos específicos y bloques temáticos en una misma página.`;
 
       this.seo.setPageMeta({
         title: `${tech.name} · Preguntas y recursos`,

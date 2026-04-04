@@ -4,10 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MfCardComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
-import {
-  buildBreadcrumbSchema,
-  buildCollectionPageSchema,
-} from '../../core/seo/structured-data';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../core/seo/structured-data';
 import { MIN_LEVEL_QUESTIONS } from '../../core/utils/question-taxonomy';
 import { Seniority } from '../../domain/models/question.model';
 
@@ -30,7 +27,7 @@ import { Seniority } from '../../domain/models/question.model';
 
       @if (levelCluster()) {
         <section class="hero">
-          <p class="kicker">Preparación por seniority</p>
+          <p class="kicker">Preparación por nivel</p>
           <h1>{{ levelLabel() }} en {{ technology()!.name }}</h1>
           <p class="description">{{ levelCluster()!.description }}</p>
           <div class="hero-meta">{{ levelCluster()!.questionCount }} preguntas</div>
@@ -184,9 +181,9 @@ export class TechnologyLevelComponent {
   readonly levelCluster = computed(() => {
     const tech = this.technology();
     return tech
-      ? this.store
+      ? (this.store
           .getSeniorityClustersByTechnology(tech.slug, MIN_LEVEL_QUESTIONS)
-          .find((cluster) => cluster.slug === this.levelSlug()) ?? null
+          .find((cluster) => cluster.slug === this.levelSlug()) ?? null)
       : null;
   });
 
@@ -219,7 +216,9 @@ export class TechnologyLevelComponent {
         title: cluster ? `${cluster.label} de ${tech.name}` : `Nivel de ${tech.name}`,
         description,
         canonical: url,
-        keywords: cluster ? `${tech.name.toLowerCase()}, ${cluster.label.toLowerCase()}, entrevista técnica` : undefined,
+        keywords: cluster
+          ? `${tech.name.toLowerCase()}, ${cluster.label.toLowerCase()}, entrevista técnica`
+          : undefined,
         robots: cluster?.isIndexable ? 'index,follow' : 'noindex,follow',
         schema: cluster
           ? [
