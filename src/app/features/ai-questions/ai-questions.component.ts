@@ -584,6 +584,8 @@ export class AiQuestionsComponent {
       title: 'Generar Preguntas IA',
       description: 'Genera preguntas de entrevista personalizadas analizando ofertas de empleo con inteligencia artificial.',
       keywords: 'ia, inteligencia artificial, preguntas entrevista, oferta empleo',
+      canonical: this.seo.absoluteUrl('/ai-questions'),
+      robots: 'noindex,follow',
     });
 
     effect(() => {

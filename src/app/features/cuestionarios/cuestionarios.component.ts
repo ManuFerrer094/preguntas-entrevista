@@ -713,6 +713,8 @@ export class CuestionariosComponent {
   constructor() {
     this.seo.setPageMeta({
       title: 'Cuestionarios - Preguntas de Entrevista',
+      canonical: this.seo.absoluteUrl('/cuestionarios'),
+      robots: 'noindex,follow',
       description: 'Genera un examen tipo test personalizado con IA a partir de una oferta de empleo. Practica para tu entrevista técnica.'
     });
   }

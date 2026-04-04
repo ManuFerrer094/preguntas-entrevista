@@ -20,8 +20,6 @@ describe('MarkdownParserService', () => {
     service = TestBed.inject(MarkdownParserService);
   });
 
-  // ─── parseFrontmatter ──────────────────────────────────────────────────────
-
   describe('parseFrontmatter', () => {
     it('should return empty metadata for content without frontmatter', () => {
       const content = '# Hello World\nSome content here.';
@@ -39,7 +37,8 @@ describe('MarkdownParserService', () => {
     });
 
     it('should parse tags array from frontmatter', () => {
-      const content = '---\ntitle: Hooks\ndifficulty: medium\ntags: [useState, useEffect]\n---\nContent';
+      const content =
+        '---\ntitle: Hooks\ndifficulty: medium\ntags: [useState, useEffect]\n---\nContent';
       const result = service.parseFrontmatter(content);
       expect(result.metadata.tags).toEqual(['useState', 'useEffect']);
     });
@@ -58,17 +57,22 @@ describe('MarkdownParserService', () => {
     });
   });
 
-  // ─── parseQuestionFile ────────────────────────────────────────────────────
-
   describe('parseQuestionFile', () => {
-    it('should parse a question with full frontmatter', () => {
-      const content = '---\ntitle: ¿Qué es Angular?\ndifficulty: easy\ntags: [Framework, DI]\n---\n# ¿Qué es Angular?\n\nAngular is a framework.';
+    it('should parse a question with derived metadata', () => {
+      const content =
+        '---\ntitle: ¿Qué es Angular?\ndifficulty: easy\ntags: [Framework, DI]\n---\n# ¿Qué es Angular?\n\nAngular is a framework.';
       const question = service.parseQuestionFile(content, 'angular', 0);
+
       expect(question).not.toBeNull();
       expect(question!.title).toBe('¿Qué es Angular?');
       expect(question!.technology).toBe('angular');
       expect(question!.difficulty).toBe('easy');
+      expect(question!.seniority).toBe('junior');
       expect(question!.tags).toEqual(['Framework', 'DI']);
+      expect(question!.topicSlug).toBe(generateSlug('Framework'));
+      expect(question!.summary).toContain('Angular is a framework');
+      expect(question!.readingTime).toBeGreaterThan(0);
+      expect(question!.isIndexable).toBe(true);
       expect(question!.slug).toBe(generateSlug('¿Qué es Angular?'));
       expect(question!.id).toBe(`angular-${question!.slug}`);
       expect(question!.index).toBe(0);
@@ -77,10 +81,12 @@ describe('MarkdownParserService', () => {
     it('should fall back to extracting title from body when no frontmatter', () => {
       const content = '# What are Hooks?\n\nHooks are functions.';
       const question = service.parseQuestionFile(content, 'react', 1);
+
       expect(question).not.toBeNull();
       expect(question!.title).toBe('What are Hooks?');
       expect(question!.technology).toBe('react');
       expect(question!.index).toBe(1);
+      expect(question!.summary).toContain('Hooks are functions');
     });
 
     it('should return null when content has no title', () => {
@@ -89,20 +95,29 @@ describe('MarkdownParserService', () => {
       expect(question).toBeNull();
     });
 
-    it('should default difficulty to "medium" for invalid values', () => {
+    it('should default difficulty to medium for invalid values', () => {
       const content = '---\ntitle: Test Question\ndifficulty: unknown\n---\nContent';
       const question = service.parseQuestionFile(content, 'typescript', 0);
       expect(question!.difficulty).toBe('medium');
+      expect(question!.seniority).toBe('mid');
     });
 
-    it('should default to empty tags array when tags are absent', () => {
+    it('should default tags and topic slug when tags are absent', () => {
       const content = '---\ntitle: Test\ndifficulty: hard\n---\nContent';
       const question = service.parseQuestionFile(content, 'vue', 0);
       expect(question!.tags).toEqual([]);
+      expect(question!.topicSlug).toBe('general');
+      expect(question!.seniority).toBe('senior');
+    });
+
+    it('should keep explicit summary and lastReviewed when present', () => {
+      const content =
+        '---\ntitle: Test\ndifficulty: hard\nsummary: "Resumen personalizado"\nlastReviewed: "2026-04-04"\n---\nContenido';
+      const question = service.parseQuestionFile(content, 'vue', 0);
+      expect(question!.summary).toBe('Resumen personalizado');
+      expect(question!.lastReviewed).toBe('2026-04-04');
     });
   });
-
-  // ─── renderMarkdown ───────────────────────────────────────────────────────
 
   describe('renderMarkdown', () => {
     it('should convert a markdown heading to HTML', () => {

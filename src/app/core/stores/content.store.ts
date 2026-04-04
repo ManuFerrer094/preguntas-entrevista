@@ -6,6 +6,16 @@ import { MarkdownParserService } from '../../infrastructure/markdown/markdown-pa
 import { Question } from '../../domain/models/question.model';
 import { Technology } from '../../domain/models/technology.model';
 import { TechnologyResource } from '../../domain/models/technology-resource.model';
+import {
+  buildSeniorityClusters,
+  buildTopicClusters,
+  getRelatedQuestions,
+  MIN_GUIDE_QUESTIONS,
+  MIN_LEVEL_QUESTIONS,
+  MIN_TOPIC_QUESTIONS,
+  SeniorityCluster,
+  TopicCluster,
+} from '../utils/question-taxonomy';
 
 const TECHNOLOGIES: Technology[] = [
   // — Lenguajes principales —
@@ -488,7 +498,6 @@ export class ContentStore {
   }
 
   loadQuestionsForTechnology(technology: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     if (
       this.questionsByTechnology().has(technology) ||
       this.loadedQuestionTechs.has(technology) ||
@@ -527,8 +536,65 @@ export class ContentStore {
     return this.technologies().find((t) => t.slug === slug);
   }
 
+  isTechnologyIndexable(slug: string): boolean {
+    return (this.getTechnology(slug)?.questionCount ?? 0) > 0;
+  }
+
+  isGuideIndexable(slug: string): boolean {
+    return (this.getTechnology(slug)?.questionCount ?? 0) >= MIN_GUIDE_QUESTIONS;
+  }
+
+  getTopicClustersByTechnology(
+    technology: string,
+    minQuestions = MIN_TOPIC_QUESTIONS,
+  ): TopicCluster[] {
+    return buildTopicClusters(this.getQuestionsByTechnology(technology), minQuestions);
+  }
+
+  getTopicClusterByTechnology(
+    technology: string,
+    topicSlug: string,
+    minQuestions = MIN_TOPIC_QUESTIONS,
+  ): TopicCluster | undefined {
+    return this.getTopicClustersByTechnology(technology, minQuestions).find(
+      (cluster) => cluster.slug === topicSlug,
+    );
+  }
+
+  getQuestionsByTopic(technology: string, topicSlug: string): Question[] {
+    return (
+      this.getTopicClusterByTechnology(technology, topicSlug, 1)?.questions ?? []
+    );
+  }
+
+  getSeniorityClustersByTechnology(
+    technology: string,
+    minQuestions = MIN_LEVEL_QUESTIONS,
+  ): SeniorityCluster[] {
+    const tech = this.getTechnology(technology);
+    if (!tech) return [];
+    return buildSeniorityClusters(this.getQuestionsByTechnology(technology), tech.name, minQuestions);
+  }
+
+  getQuestionsBySeniority(technology: string, seniority: SeniorityCluster['slug']): Question[] {
+    return this.getQuestionsByTechnology(technology).filter(
+      (question) => question.seniority === seniority,
+    );
+  }
+
+  getFeaturedQuestions(technology: string, limit = 6): Question[] {
+    return this.getQuestionsByTechnology(technology)
+      .slice()
+      .sort((a, b) => b.readingTime - a.readingTime || a.index - b.index)
+      .slice(0, limit);
+  }
+
+  getRelatedQuestions(question: Question, limit = 4): Question[] {
+    return getRelatedQuestions(question, this.getQuestionsByTechnology(question.technology), limit);
+  }
+
   loadAllResourceCounts(): void {
-    if (!isPlatformBrowser(this.platformId) || this.resourceCountsLoaded) return;
+    if (this.resourceCountsLoaded) return;
     this.resourceCountsLoaded = true;
     this.http
       .get<Record<string, number>>('/resources/manifest.json')
@@ -541,7 +607,6 @@ export class ContentStore {
   }
 
   loadResourcesForTechnology(technology: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     if (this.loadedResourceTechs.has(technology) || this.loadingResourceTechs.has(technology))
       return;
     this.loadingResourceTechs.add(technology);
@@ -575,7 +640,7 @@ export class ContentStore {
   }
 
   loadAllQuestionCounts(): void {
-    if (!isPlatformBrowser(this.platformId) || this.questionCountsLoaded) return;
+    if (this.questionCountsLoaded) return;
     this.questionCountsLoaded = true;
     const techs = this.technologies();
     const requests = techs.map((t) =>

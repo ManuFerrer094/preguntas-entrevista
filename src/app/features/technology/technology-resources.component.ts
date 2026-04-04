@@ -5,6 +5,10 @@ import { MfCardComponent, MfIconComponent, MfProgressSpinnerComponent } from 'ng
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
 import { TechnologyResource } from '../../domain/models';
+import {
+  buildBreadcrumbSchema,
+  buildCollectionPageSchema,
+} from '../../core/seo/structured-data';
 
 interface ResourceGroup {
   id: string;
@@ -392,6 +396,20 @@ export class TechnologyResourcesComponent {
       this.store.loadResourcesForTechnology(tech.slug);
       this.seo.setPageMeta({
         title: `Recursos para entrevistas de ${tech.name}`,
+        canonical: this.seo.absoluteUrl(`/${tech.slug}/recursos`),
+        robots: 'noindex,follow',
+        schema: [
+          buildBreadcrumbSchema([
+            { name: 'Inicio', url: this.seo.absoluteUrl('/') },
+            { name: tech.name, url: this.seo.absoluteUrl(`/${tech.slug}`) },
+            { name: 'Recursos', url: this.seo.absoluteUrl(`/${tech.slug}/recursos`) },
+          ]),
+          buildCollectionPageSchema({
+            name: `Recursos para entrevistas de ${tech.name}`,
+            description: `Recursos externos curados para reforzar conceptos de ${tech.name}.`,
+            url: this.seo.absoluteUrl(`/${tech.slug}/recursos`),
+          }),
+        ],
         description: `Recursos específicos de ${tech.name} para reforzar conceptos, buenas prácticas y preparación de entrevistas técnicas.`,
         keywords: `${tech.name.toLowerCase()}, recursos, entrevistas técnicas, guía, enlaces`,
       });

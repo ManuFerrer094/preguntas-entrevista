@@ -5,6 +5,39 @@ import { PLATFORM_ID } from '@angular/core';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ContentStore } from './content.store';
 
+function makeQuestion(
+  partial: Partial<{
+    id: string;
+    title: string;
+    slug: string;
+    technology: string;
+    index: number;
+    difficulty: 'easy' | 'medium' | 'hard';
+    seniority: 'junior' | 'mid' | 'senior';
+    tags: string[];
+    topicSlug: string;
+    summary: string;
+    readingTime: number;
+    isIndexable: boolean;
+  }> = {},
+) {
+  return {
+    id: partial.id ?? 'angular-q1',
+    title: partial.title ?? 'Q1',
+    slug: partial.slug ?? 'q1',
+    content: '',
+    technology: partial.technology ?? 'angular',
+    index: partial.index ?? 0,
+    difficulty: partial.difficulty ?? 'medium',
+    seniority: partial.seniority ?? 'mid',
+    tags: partial.tags ?? [],
+    topicSlug: partial.topicSlug ?? 'general',
+    summary: partial.summary ?? 'Resumen',
+    readingTime: partial.readingTime ?? 1,
+    isIndexable: partial.isIndexable ?? true,
+  };
+}
+
 describe('ContentStore', () => {
   let store: ContentStore;
   let httpMock: HttpTestingController;
@@ -79,42 +112,21 @@ describe('ContentStore', () => {
   });
 
   it('questionsByTechnology computed should group questions by technology', () => {
-    const q1 = {
-      id: 'angular-q1',
-      title: 'Q1',
-      slug: 'q1',
-      content: '',
-      technology: 'angular',
-      index: 0,
-      difficulty: 'easy' as const,
-      tags: [],
-    };
-    const q2 = {
+    const q1 = makeQuestion({ technology: 'angular', difficulty: 'easy', seniority: 'junior' });
+    const q2 = makeQuestion({
       id: 'react-q1',
       title: 'Q2',
-      slug: 'q1',
-      content: '',
       technology: 'react',
-      index: 0,
-      difficulty: 'medium' as const,
-      tags: [],
-    };
+      difficulty: 'medium',
+      seniority: 'mid',
+    });
     store.questions.set([q1, q2]);
     expect(store.getQuestionsByTechnology('angular')).toEqual([q1]);
     expect(store.getQuestionsByTechnology('react')).toEqual([q2]);
   });
 
   it('getQuestion should find a specific question by technology and slug', () => {
-    const q1 = {
-      id: 'angular-q1',
-      title: 'Q1',
-      slug: 'q1',
-      content: '',
-      technology: 'angular',
-      index: 0,
-      difficulty: 'easy' as const,
-      tags: [],
-    };
+    const q1 = makeQuestion({ difficulty: 'easy', seniority: 'junior' });
     store.questions.set([q1]);
     expect(store.getQuestion('angular', 'q1')).toEqual(q1);
     expect(store.getQuestion('angular', 'nonexistent')).toBeUndefined();
@@ -151,16 +163,7 @@ describe('ContentStore', () => {
   });
 
   it('loadQuestionsForTechnology should not make a second request when already loaded', () => {
-    const q1 = {
-      id: 'angular-q1',
-      title: 'Q1',
-      slug: 'q1',
-      content: '',
-      technology: 'angular',
-      index: 0,
-      difficulty: 'easy' as const,
-      tags: [],
-    };
+    const q1 = makeQuestion({ difficulty: 'easy', seniority: 'junior' });
     store.questions.set([q1]);
 
     // Calling load for a technology already in the map should be a no-op
@@ -214,5 +217,121 @@ describe('ContentStore', () => {
 
     store.loadResourcesForTechnology('winforms');
     httpMock.expectNone('/resources/winforms.json');
+  });
+
+  it('should derive topic and seniority clusters from loaded questions', () => {
+    store.questions.set([
+      makeQuestion({
+        id: 'vue-1',
+        technology: 'vue',
+        slug: 'vue-1',
+        tags: ['architecture'],
+        topicSlug: 'architecture',
+        difficulty: 'hard',
+        seniority: 'senior',
+      }),
+      makeQuestion({
+        id: 'vue-2',
+        technology: 'vue',
+        slug: 'vue-2',
+        tags: ['architecture'],
+        topicSlug: 'architecture',
+        difficulty: 'hard',
+        seniority: 'senior',
+        index: 1,
+      }),
+      makeQuestion({
+        id: 'vue-3',
+        technology: 'vue',
+        slug: 'vue-3',
+        tags: ['architecture'],
+        topicSlug: 'architecture',
+        difficulty: 'hard',
+        seniority: 'senior',
+        index: 2,
+      }),
+      makeQuestion({
+        id: 'vue-4',
+        technology: 'vue',
+        slug: 'vue-4',
+        tags: ['architecture'],
+        topicSlug: 'architecture',
+        difficulty: 'hard',
+        seniority: 'senior',
+        index: 3,
+      }),
+      makeQuestion({
+        id: 'vue-5',
+        technology: 'vue',
+        slug: 'vue-5',
+        tags: ['pinia'],
+        topicSlug: 'pinia',
+        difficulty: 'medium',
+        seniority: 'mid',
+        index: 4,
+      }),
+      makeQuestion({
+        id: 'vue-6',
+        technology: 'vue',
+        slug: 'vue-6',
+        tags: ['pinia'],
+        topicSlug: 'pinia',
+        difficulty: 'medium',
+        seniority: 'mid',
+        index: 5,
+      }),
+      makeQuestion({
+        id: 'vue-7',
+        technology: 'vue',
+        slug: 'vue-7',
+        tags: ['pinia'],
+        topicSlug: 'pinia',
+        difficulty: 'medium',
+        seniority: 'mid',
+        index: 6,
+      }),
+      makeQuestion({
+        id: 'vue-8',
+        technology: 'vue',
+        slug: 'vue-8',
+        tags: ['pinia'],
+        topicSlug: 'pinia',
+        difficulty: 'medium',
+        seniority: 'mid',
+        index: 7,
+      }),
+      makeQuestion({
+        id: 'vue-9',
+        technology: 'vue',
+        slug: 'vue-9',
+        tags: ['pinia'],
+        topicSlug: 'pinia',
+        difficulty: 'medium',
+        seniority: 'mid',
+        index: 8,
+      }),
+      makeQuestion({
+        id: 'vue-10',
+        technology: 'vue',
+        slug: 'vue-10',
+        tags: ['pinia'],
+        topicSlug: 'pinia',
+        difficulty: 'medium',
+        seniority: 'mid',
+        index: 9,
+      }),
+    ]);
+    store.technologies.update((techs) =>
+      techs.map((tech) => (tech.slug === 'vue' ? { ...tech, questionCount: 10 } : tech)),
+    );
+
+    const topics = store.getTopicClustersByTechnology('vue');
+    const levels = store.getSeniorityClustersByTechnology('vue');
+
+    expect(topics[0].slug).toBe('pinia');
+    expect(topics[0].questionCount).toBe(6);
+    expect(levels.find((level) => level.slug === 'senior')?.questionCount).toBe(4);
+    expect(levels.find((level) => level.slug === 'mid')?.questionCount).toBe(6);
+    expect(store.isGuideIndexable('vue')).toBe(false);
   });
 });

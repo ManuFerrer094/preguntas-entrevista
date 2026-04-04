@@ -4,8 +4,11 @@ import { Observable, forkJoin, map, catchError, of, switchMap } from 'rxjs';
 import { marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
-import { Question, Difficulty } from '../../domain/models/question.model';
-import { generateSlug } from '../../core/utils/slug-generator';
+import { Question } from '../../domain/models/question.model';
+import {
+  parseFrontmatter,
+  parseQuestionFileContent,
+} from './question-file.parser';
 
 marked.use(markedHighlight({
   emptyLangClass: 'hljs',
@@ -14,14 +17,6 @@ marked.use(markedHighlight({
     return hljs.highlight(code, { language }).value;
   }
 }));
-
-interface Frontmatter {
-  title?: string;
-  difficulty?: Difficulty;
-  tags?: string[];
-  author?: string;
-  authorUrl?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class MarkdownParserService {
@@ -50,67 +45,11 @@ export class MarkdownParserService {
   }
 
   parseQuestionFile(content: string, technology: string, index: number): Question | null {
-    const { metadata, body } = this.parseFrontmatter(content);
-
-    const title = metadata.title ?? this.extractTitleFromBody(body);
-    if (!title) return null;
-
-    const slug = generateSlug(title);
-    const id = `${technology}-${slug}`;
-    const difficulty: Difficulty = (['easy', 'medium', 'hard'] as Difficulty[]).includes(
-      metadata.difficulty as Difficulty,
-    )
-      ? (metadata.difficulty as Difficulty)
-      : 'medium';
-    const tags: string[] = Array.isArray(metadata.tags) ? metadata.tags : [];
-
-    const unquote = (v?: unknown) => {
-      if (!v || typeof v !== 'string') return undefined;
-      return v.replace(/^"|"$/g, '').trim();
-    };
-
-    const author = unquote(metadata.author);
-    const authorUrl = unquote(metadata.authorUrl);
-
-    return { id, title, slug, content: body, technology, index, difficulty, tags, author, authorUrl };
+    return parseQuestionFileContent(content, technology, index);
   }
 
-  parseFrontmatter(content: string): { metadata: Frontmatter; body: string } {
-    if (!content.startsWith('---')) {
-      return { metadata: {}, body: content };
-    }
-    const end = content.indexOf('\n---', 3);
-    if (end === -1) {
-      return { metadata: {}, body: content };
-    }
-
-    const raw = content.slice(4, end);
-    const body = content.slice(end + 4).trim();
-    const metadata: Frontmatter = {};
-
-    for (const line of raw.split('\n')) {
-      const colonIdx = line.indexOf(':');
-      if (colonIdx === -1) continue;
-      const key = line.slice(0, colonIdx).trim() as keyof Frontmatter;
-      const value = line.slice(colonIdx + 1).trim();
-      if (key === 'tags') {
-        const inner = value.replace(/^\[|\]$/g, '');
-        (metadata as Record<string, unknown>)[key] = inner
-          .split(',')
-          .map(v => v.trim())
-          .filter(v => v.length > 0);
-      } else {
-        (metadata as Record<string, unknown>)[key] = value;
-      }
-    }
-
-    return { metadata, body };
-  }
-
-  private extractTitleFromBody(body: string): string | null {
-    const lines = body.split(/\r?\n/);
-    const titleLine = lines.find(l => l.trim().startsWith('# '));
-    return titleLine ? titleLine.replace(/^#\s+/, '').trim() : null;
+  parseFrontmatter(content: string) {
+    return parseFrontmatter(content);
   }
 
   renderMarkdown(content: string): string {

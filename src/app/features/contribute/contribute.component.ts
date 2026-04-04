@@ -19,6 +19,7 @@ import { MfIconComponent, MfProgressSpinnerComponent, MfSelectComponent, MfSelec
 import { MatStepperModule } from '@angular/material/stepper';
 import { ContentStore } from '../../core/stores/content.store';
 import { GitHubAuthService } from '../../core/services/github-auth.service';
+import { SeoService } from '../../core/services/seo.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 import { TECHNOLOGY_TAGS } from './technology-tags';
 
@@ -907,6 +908,7 @@ export class ContributeComponent {
   private readonly store = inject(ContentStore);
   private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly seo = inject(SeoService);
   private readonly markdownParser = inject(MarkdownParserService);
 
   readonly authService = inject(GitHubAuthService);
@@ -980,6 +982,13 @@ export class ContributeComponent {
   }
 
   constructor() {
+    this.seo.setPageMeta({
+      title: 'Contribuir',
+      description: 'Propón nuevas preguntas para la biblioteca abierta de entrevistas técnicas.',
+      canonical: this.seo.absoluteUrl('/contribuir'),
+      robots: 'noindex,follow',
+    });
+
     if (isPlatformBrowser(this.platformId)) {
       const code = this.route.snapshot.queryParams['code'];
       if (code) {

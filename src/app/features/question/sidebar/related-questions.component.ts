@@ -137,8 +137,7 @@ export class RelatedQuestionsComponent {
         .map((ref) => this.store.getQuestion(ref.technology, ref.slug))
         .filter((x): x is Question => x !== undefined);
     }
-    const questions = this.store.getQuestionsByTechnology(q.technology);
-    return questions.filter((x) => x.slug !== q.slug).slice(0, 3);
+    return this.store.getRelatedQuestions(q, 4);
   }
 
   get technology(): string {

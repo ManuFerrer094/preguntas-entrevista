@@ -20,6 +20,15 @@ class TechnologyQuestionsStubComponent {}
 @Component({ selector: 'app-resources-stub', standalone: true, template: '<p>resources</p>' })
 class TechnologyResourcesStubComponent {}
 
+@Component({ selector: 'app-guide-stub', standalone: true, template: '<p>guide</p>' })
+class TechnologyGuideStubComponent {}
+
+@Component({ selector: 'app-topic-stub', standalone: true, template: '<p>topic</p>' })
+class TechnologyTopicStubComponent {}
+
+@Component({ selector: 'app-level-stub', standalone: true, template: '<p>level</p>' })
+class TechnologyLevelStubComponent {}
+
 @Component({ selector: 'app-detail-stub', standalone: true, template: '<p>detail</p>' })
 class QuestionDetailStubComponent {}
 
@@ -33,6 +42,12 @@ function componentForPath(path: string | undefined): Type<unknown> {
       return TechnologyQuestionsStubComponent;
     case ':technology/recursos':
       return TechnologyResourcesStubComponent;
+    case 'guia/:technology':
+      return TechnologyGuideStubComponent;
+    case ':technology/tema/:tag':
+      return TechnologyTopicStubComponent;
+    case ':technology/nivel/:level':
+      return TechnologyLevelStubComponent;
     case ':technology/:slug':
       return QuestionDetailStubComponent;
     default:
@@ -77,9 +92,27 @@ describe('app routes', () => {
     await harness.navigateByUrl('/vue/recursos', TechnologyResourcesStubComponent);
   });
 
+  it('routes /guia/vue to the guide page', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/guia/vue', TechnologyGuideStubComponent);
+  });
+
+  it('routes /vue/tema/architecture to the topic page', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/vue/tema/architecture', TechnologyTopicStubComponent);
+  });
+
+  it('routes /vue/nivel/senior to the level page', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/vue/nivel/senior', TechnologyLevelStubComponent);
+  });
+
   it('keeps question detail routing after the reserved subroutes', async () => {
     const harness = await RouterTestingHarness.create();
 
+    await harness.navigateByUrl('/guia/vue', TechnologyGuideStubComponent);
+    await harness.navigateByUrl('/vue/tema/architecture', TechnologyTopicStubComponent);
+    await harness.navigateByUrl('/vue/nivel/senior', TechnologyLevelStubComponent);
     await harness.navigateByUrl('/vue/preguntas', TechnologyQuestionsStubComponent);
     await harness.navigateByUrl('/vue/recursos', TechnologyResourcesStubComponent);
     await harness.navigateByUrl('/vue/que-es-vue', QuestionDetailStubComponent);

@@ -18,6 +18,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { MarkdownParserService } from '../../infrastructure/markdown/markdown-parser.service';
 import { AiQuestionsService } from '../../core/services/ai-questions.service';
+import { buildArticleSchema, buildBreadcrumbSchema } from '../../core/seo/structured-data';
 
 import { difficultyLabel } from '../../core/utils/difficulty';
 
@@ -61,6 +62,11 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
         <article class="main-col" aria-labelledby="question-title">
           <header class="question-header">
             <h1 id="question-title">{{ question()!.title }}</h1>
+            <p class="question-summary">{{ question()!.summary }}</p>
+            <div class="question-meta-row">
+              <span>{{ question()!.readingTime }} min de lectura</span>
+              <span>{{ seniorityLabel(question()!.seniority) }}</span>
+            </div>
             @if (question()) {}
             <div class="question-badges">
               <span class="difficulty-badge" [class]="'badge-' + question()!.difficulty">
@@ -208,6 +214,23 @@ import { ActionsCardComponent } from './sidebar/actions-card.component';
         font-weight: 800;
         margin: 0 0 14px;
         line-height: 1.25;
+      }
+      .question-summary {
+        margin: 0 0 12px;
+        color: var(--app-text-muted);
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .question-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+        color: var(--app-text-muted);
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
       }
       .question-badges {
         display: flex;
@@ -501,6 +524,10 @@ export class QuestionComponent {
   });
 
   readonly difficultyLabel = difficultyLabel;
+  readonly currentQuestionUrl = computed(() => {
+    const q = this.question();
+    return q ? this.seo.absoluteUrl(`/${q.technology}/${q.slug}`) : this.seo.absoluteUrl('/');
+  });
 
   constructor() {
     effect(() => {
@@ -512,11 +539,48 @@ export class QuestionComponent {
       if (q) {
         this.seo.setPageMeta({
           title: q.title,
-          description: q.content.slice(0, 160).replace(/[#`*]/g, ''),
+          description: q.summary,
+          canonical: this.currentQuestionUrl(),
+          type: 'article',
+          robots: q.isIndexable && !this.isAiMode() ? 'index,follow' : 'noindex,follow',
+          modifiedTime: q.lastReviewed,
+          schema: this.isAiMode()
+            ? undefined
+            : [
+                buildBreadcrumbSchema([
+                  { name: 'Inicio', url: this.seo.absoluteUrl('/') },
+                  { name: this.technologyName(), url: this.seo.absoluteUrl(`/${q.technology}`) },
+                  {
+                    name: 'Preguntas',
+                    url: this.seo.absoluteUrl(`/${q.technology}/preguntas`),
+                  },
+                  { name: q.title, url: this.currentQuestionUrl() },
+                ]),
+                buildArticleSchema({
+                  headline: q.title,
+                  description: q.summary,
+                  url: this.currentQuestionUrl(),
+                  keywords: [q.technology, ...q.tags, 'entrevista tecnica'],
+                  authorName: q.author,
+                  authorUrl: q.authorUrl,
+                  dateModified: q.lastReviewed,
+                }),
+              ],
           keywords: `${q.technology}, ${q.title}, ${q.tags.join(', ')}, entrevista técnica`,
         });
       }
     });
+  }
+
+  seniorityLabel(value: string): string {
+    switch (value) {
+      case 'junior':
+        return 'Junior';
+      case 'senior':
+        return 'Senior';
+      default:
+        return 'Mid';
+    }
   }
 
   toggleRead(): void {

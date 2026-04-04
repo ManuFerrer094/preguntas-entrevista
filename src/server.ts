@@ -13,6 +13,7 @@ import { createAiQuestionsRouter } from './api/ai-questions.router';
 import { createSubmitQuestionRouter } from './api/submit-question.router';
 import { createAuthGitHubRouter } from './api/auth-github.router';
 import { createQuizRouter } from './api/quiz.router';
+import { createSeoRouter } from './api/seo.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 // In production the questions are copied to the browser bundle output;
@@ -63,6 +64,11 @@ app.use('/api/auth/github', authRouter);
  */
 const quizRouter = createQuizRouter();
 app.use('/api/quiz', quizRouter);
+
+/**
+ * SEO surfaces â€” robots.txt and sitemap index/sections.
+ */
+app.use(createSeoRouter());
 
 /**
  * Serve static files from /browser

@@ -23,6 +23,10 @@ import { ProgressService } from '../../core/services/progress.service';
 import { SeoService } from '../../core/services/seo.service';
 import { Difficulty } from '../../domain/models/question.model';
 import { difficultyLabel } from '../../core/utils/difficulty';
+import {
+  buildBreadcrumbSchema,
+  buildCollectionPageSchema,
+} from '../../core/seo/structured-data';
 
 const PAGE_SIZE = 10;
 
@@ -730,6 +734,20 @@ export class TechnologyQuestionsComponent {
       this.store.loadQuestionsForTechnology(tech.slug);
       this.seo.setPageMeta({
         title: `Preguntas de entrevista de ${tech.name}`,
+        canonical: this.seo.absoluteUrl(`/${tech.slug}/preguntas`),
+        robots: this.allQuestions().length > 0 ? 'index,follow' : 'noindex,follow',
+        schema: [
+          buildBreadcrumbSchema([
+            { name: 'Inicio', url: this.seo.absoluteUrl('/') },
+            { name: tech.name, url: this.seo.absoluteUrl(`/${tech.slug}`) },
+            { name: 'Preguntas', url: this.seo.absoluteUrl(`/${tech.slug}/preguntas`) },
+          ]),
+          buildCollectionPageSchema({
+            name: `Preguntas de entrevista de ${tech.name}`,
+            description: `Practica preguntas de entrevista de ${tech.name}.`,
+            url: this.seo.absoluteUrl(`/${tech.slug}/preguntas`),
+          }),
+        ],
         description: `Practica preguntas de entrevista de ${tech.name}, filtra por dificultad y sigue tu progreso de preparación.`,
         keywords: `${tech.name.toLowerCase()}, preguntas de entrevista, preguntas técnicas, práctica`,
       });

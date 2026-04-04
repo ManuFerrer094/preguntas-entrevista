@@ -4,6 +4,15 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MfCardComponent, MfIconComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
+import {
+  buildBreadcrumbSchema,
+  buildCollectionPageSchema,
+} from '../../core/seo/structured-data';
+import {
+  MIN_GUIDE_QUESTIONS,
+  MIN_LEVEL_QUESTIONS,
+  MIN_TOPIC_QUESTIONS,
+} from '../../core/utils/question-taxonomy';
 
 @Component({
   selector: 'app-technology',
@@ -34,7 +43,7 @@ import { SeoService } from '../../core/services/seo.service';
         <div class="landing-stats">
           <span class="stat-pill">
             <mf-icon name="quiz" color="inherit" />
-            {{ technology()!.questionCount }} preguntas
+            {{ questions().length }} preguntas
           </span>
           <span class="stat-pill subtle">
             <mf-icon name="library_books" color="inherit" />
@@ -56,7 +65,7 @@ import { SeoService } from '../../core/services/seo.service';
               {{ technology()!.name }}.
             </p>
             <div class="entry-footer">
-              <span class="entry-count">{{ technology()!.questionCount }} preguntas</span>
+              <span class="entry-count">{{ questions().length }} preguntas</span>
               <span class="entry-cta">Entrar</span>
             </div>
           </mf-card>
@@ -80,6 +89,50 @@ import { SeoService } from '../../core/services/seo.service';
           </mf-card>
         </a>
       </section>
+
+      @if (questions().length >= minGuideQuestions) {
+        <section class="clusters-grid" aria-label="Clusters de {{ technology()!.name }}">
+          <a [routerLink]="['/guia', technology()!.slug]" class="entry-link">
+            <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
+              <div class="entry-top">
+                <span class="entry-eyebrow">Evergreen</span>
+                <mf-icon name="north_east" color="inherit" />
+              </div>
+              <h2>Guía de entrevista</h2>
+              <p>
+                Ruta editorial con temas fuertes, bloques por nivel y preguntas destacadas para
+                preparar {{ technology()!.name }} con más intención.
+              </p>
+            </mf-card>
+          </a>
+
+          @if (topTopic()) {
+            <a [routerLink]="['/', technology()!.slug, 'tema', topTopic()!.slug]" class="entry-link">
+              <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
+                <div class="entry-top">
+                  <span class="entry-eyebrow">Tema principal</span>
+                  <mf-icon name="north_east" color="inherit" />
+                </div>
+                <h2>{{ topTopic()!.label }}</h2>
+                <p>{{ topTopic()!.questionCount }} preguntas conectadas sobre un mismo patrón.</p>
+              </mf-card>
+            </a>
+          }
+
+          @if (topLevel()) {
+            <a [routerLink]="['/', technology()!.slug, 'nivel', topLevel()!.slug]" class="entry-link">
+              <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
+                <div class="entry-top">
+                  <span class="entry-eyebrow">Nivel activo</span>
+                  <mf-icon name="north_east" color="inherit" />
+                </div>
+                <h2>{{ topLevel()!.label }}</h2>
+                <p>{{ topLevel()!.description }}</p>
+              </mf-card>
+            </a>
+          }
+        </section>
+      }
 
       <section class="support-grid" aria-label="Qué encontrarás">
         <mf-card variant="outlined" padding="lg">
@@ -199,13 +252,18 @@ import { SeoService } from '../../core/services/seo.service';
         color: var(--app-text-muted);
       }
       .entry-grid,
-      .support-grid {
+      .support-grid,
+      .clusters-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 18px;
       }
-      .entry-grid {
+      .entry-grid,
+      .clusters-grid {
         margin-bottom: 18px;
+      }
+      .clusters-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
       .entry-link {
         text-decoration: none;
@@ -277,7 +335,8 @@ import { SeoService } from '../../core/services/seo.service';
           justify-content: flex-start;
         }
         .entry-grid,
-        .support-grid {
+        .support-grid,
+        .clusters-grid {
           grid-template-columns: 1fr;
         }
       }
@@ -289,6 +348,8 @@ export class TechnologyComponent {
   readonly store = inject(ContentStore);
   private readonly seo = inject(SeoService);
 
+  readonly minGuideQuestions = MIN_GUIDE_QUESTIONS;
+
   private readonly routeParams = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -298,17 +359,57 @@ export class TechnologyComponent {
     return this.store.getTechnology(slug) ?? null;
   });
 
+  readonly questions = computed(() => {
+    const tech = this.technology();
+    return tech ? this.store.getQuestionsByTechnology(tech.slug) : [];
+  });
+
+  readonly topTopic = computed(() => {
+    const tech = this.technology();
+    return tech
+      ? this.store.getTopicClustersByTechnology(tech.slug, MIN_TOPIC_QUESTIONS).find((cluster) => cluster.isIndexable) ??
+          null
+      : null;
+  });
+
+  readonly topLevel = computed(() => {
+    const tech = this.technology();
+    return tech
+      ? this.store
+          .getSeniorityClustersByTechnology(tech.slug, MIN_LEVEL_QUESTIONS)
+          .find((cluster) => cluster.isIndexable) ?? null
+      : null;
+  });
+
   constructor() {
     effect(() => {
       const tech = this.technology();
       if (!tech) return;
 
-      this.store.loadAllQuestionCounts();
-      this.store.loadAllResourceCounts();
+      this.store.loadQuestionsForTechnology(tech.slug);
+      this.store.loadResourcesForTechnology(tech.slug);
+
+      const url = this.seo.absoluteUrl(`/${tech.slug}`);
+      const indexable = this.questions().length > 0;
+      const description = `Explora la ruta de preparación para ${tech.name} con preguntas de entrevista, recursos específicos y clusters temáticos en una misma landing.`;
+
       this.seo.setPageMeta({
         title: `${tech.name} · Preguntas y recursos`,
-        description: `Explora la ruta de preparación para ${tech.name} con preguntas de entrevista y recursos específicos en una misma landing.`,
-        keywords: `${tech.name.toLowerCase()}, preguntas, recursos, entrevistas técnicas`,
+        description,
+        canonical: url,
+        keywords: `${tech.name.toLowerCase()}, preguntas, recursos, entrevistas tecnicas`,
+        robots: indexable ? 'index,follow' : 'noindex,follow',
+        schema: [
+          buildBreadcrumbSchema([
+            { name: 'Inicio', url: this.seo.absoluteUrl('/') },
+            { name: tech.name, url },
+          ]),
+          buildCollectionPageSchema({
+            name: tech.name,
+            description,
+            url,
+          }),
+        ],
       });
     });
   }

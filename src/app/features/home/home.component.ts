@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 import { MfCardComponent, MfIconComponent, MfInputComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
+import { buildCollectionPageSchema, buildWebsiteSchema } from '../../core/seo/structured-data';
 
 @Component({
   selector: 'app-home',
@@ -338,7 +339,14 @@ export class HomeComponent implements OnInit {
     const query = this.searchQuery().toLowerCase();
     const techs = this.store
       .technologies()
-      .filter((t) => t.questionCount > 0 || t.resourceCount > 0);
+      .filter((t) => t.questionCount > 0 || t.resourceCount > 0)
+      .slice()
+      .sort(
+        (a, b) =>
+          b.questionCount - a.questionCount ||
+          b.resourceCount - a.resourceCount ||
+          a.name.localeCompare(b.name),
+      );
     if (!query) return techs;
     return techs.filter(
       (tech) =>

@@ -7,6 +7,30 @@ export const routes: Routes = [
     title: 'Inicio - Preguntas de Entrevista',
   },
   {
+    path: 'privacidad',
+    loadComponent: () =>
+      import('./features/site-page/site-page.component').then((m) => m.SitePageComponent),
+    data: { page: 'privacy' },
+  },
+  {
+    path: 'cookies',
+    loadComponent: () =>
+      import('./features/site-page/site-page.component').then((m) => m.SitePageComponent),
+    data: { page: 'cookies' },
+  },
+  {
+    path: 'sobre-nosotros',
+    loadComponent: () =>
+      import('./features/site-page/site-page.component').then((m) => m.SitePageComponent),
+    data: { page: 'about' },
+  },
+  {
+    path: 'contacto',
+    loadComponent: () =>
+      import('./features/site-page/site-page.component').then((m) => m.SitePageComponent),
+    data: { page: 'contact' },
+  },
+  {
     path: 'ai-questions',
     loadComponent: () =>
       import('./features/ai-questions/ai-questions.component').then((m) => m.AiQuestionsComponent),
@@ -25,6 +49,27 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/contribute/contribute.component').then((m) => m.ContributeComponent),
     title: 'Contribuir - Preguntas de Entrevista',
+  },
+  {
+    path: 'guia/:technology',
+    loadComponent: () =>
+      import('./features/technology/technology-guide.component').then(
+        (m) => m.TechnologyGuideComponent,
+      ),
+  },
+  {
+    path: ':technology/tema/:tag',
+    loadComponent: () =>
+      import('./features/technology/technology-topic.component').then(
+        (m) => m.TechnologyTopicComponent,
+      ),
+  },
+  {
+    path: ':technology/nivel/:level',
+    loadComponent: () =>
+      import('./features/technology/technology-level.component').then(
+        (m) => m.TechnologyLevelComponent,
+      ),
   },
   {
     path: ':technology/preguntas',

@@ -1,0 +1,22 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="40" fill="#0F172A"/>
+  <rect x="40" y="40" width="1120" height="550" rx="32" fill="url(#paint0_linear)"/>
+  <rect x="88" y="92" width="180" height="180" rx="32" fill="#1D4ED8" fill-opacity="0.15"/>
+  <path d="M148 194H208" stroke="#38BDF8" stroke-width="24" stroke-linecap="round"/>
+  <path d="M178 164V224" stroke="#38BDF8" stroke-width="24" stroke-linecap="round"/>
+  <text x="88" y="354" fill="#E2E8F0" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="700">
+    Preguntas Entrevista
+  </text>
+  <text x="88" y="428" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="34">
+    Preguntas reales, guías y clusters SEO para entrevistas técnicas
+  </text>
+  <text x="88" y="486" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="28">
+    Angular · React · Vue · Node.js · TypeScript · JavaScript · .NET · Java
+  </text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="40" y1="40" x2="1074.5" y2="680.689" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+</svg>
