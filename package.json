@@ -11,6 +11,7 @@
     "serve:ssr:preguntas-entrevista": "node dist/preguntas-entrevista/server/server.mjs",
     "dev": "ng serve",
     "sync:resources": "node scripts/sync-tech-resources.mjs",
+    "curate:questions": "node scripts/curate-question-corpus.mjs",
     "check:copy": "node scripts/check-copy.mjs",
     "build:ssr": "ng build",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\""
