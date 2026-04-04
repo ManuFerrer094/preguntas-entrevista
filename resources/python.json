@@ -1,0 +1,92 @@
+[
+  {
+    "id": "python-solid-en-python-ingles-9eb9056e8a",
+    "technology": "python",
+    "title": "SOLID en Python - Inglés",
+    "url": "https://realpython.com/solid-principles-python/",
+    "section": "Buenas prácticas",
+    "subsection": "Principios SOLID",
+    "host": "realpython.com"
+  },
+  {
+    "id": "python-clean-code-en-python-espanol-7fa02d8366",
+    "technology": "python",
+    "title": "Clean Code en Python - Español",
+    "url": "https://github.com/sryvcr/clean-code-python-es",
+    "section": "Buenas prácticas",
+    "subsection": "Clean Code",
+    "host": "github.com"
+  },
+  {
+    "id": "python-clean-code-en-python-ingles-32f5888508",
+    "technology": "python",
+    "title": "Clean Code en Python - Inglés",
+    "url": "https://github.com/zedr/clean-code-python",
+    "section": "Buenas prácticas",
+    "subsection": "Clean Code",
+    "host": "github.com"
+  },
+  {
+    "id": "python-code-style-in-python-379cc11b2d",
+    "technology": "python",
+    "title": "Code Style in Python",
+    "url": "https://docs.python-guide.org/writing/style/",
+    "section": "Buenas prácticas en:",
+    "subsection": "Python",
+    "host": "docs.python-guide.org"
+  },
+  {
+    "id": "python-python-best-practices-to-follow-in-2023-1c0f4695c8",
+    "technology": "python",
+    "title": "Python Best Practices to Follow in 2023",
+    "url": "https://aglowiditsolutions.com/blog/python-best-practices/",
+    "section": "Buenas prácticas en:",
+    "subsection": "Python",
+    "host": "aglowiditsolutions.com"
+  },
+  {
+    "id": "python-algoritmos-en-python-0e50846a74",
+    "technology": "python",
+    "title": "Algoritmos en Python",
+    "url": "https://github.com/TheAlgorithms/Python",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Algoritmos",
+    "host": "github.com"
+  },
+  {
+    "id": "python-python-data-structures-f36401856e",
+    "technology": "python",
+    "title": "Python Data Structures",
+    "url": "https://www.geeksforgeeks.org/python-data-structures/",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Estructuras de datos",
+    "host": "geeksforgeeks.org"
+  },
+  {
+    "id": "python-understanding-clean-architecture-in-python-deep-dive-on-the-code-dca90265ff",
+    "technology": "python",
+    "title": "Understanding clean architecture in Python — Deep dive on the code",
+    "url": "https://medium.com/@surajit.das0320/understanding-clean-architecture-in-python-deep-dive-on-the-code-17141dc5761a",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Python",
+    "host": "medium.com"
+  },
+  {
+    "id": "python-python-clean-architecture-9ea20f6e3c",
+    "technology": "python",
+    "title": "Python Clean Architecture",
+    "url": "https://github.com/pcah/python-clean-architecture",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Python",
+    "host": "github.com"
+  },
+  {
+    "id": "python-python-interview-questions-2ce9bee218",
+    "technology": "python",
+    "title": "Python Interview questions",
+    "url": "https://github.com/Devinterview-io/python-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

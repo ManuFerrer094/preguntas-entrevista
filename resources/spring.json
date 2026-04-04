@@ -1,0 +1,20 @@
+[
+  {
+    "id": "spring-clean-architecture-with-spring-boot-a-good-idea-894bac6232",
+    "technology": "spring",
+    "title": "Clean Architecture with Spring Boot: A good idea?",
+    "url": "https://medium.com/@viniciusromualdobusiness/clean-architecture-with-spring-boot-a-good-idea-d6f97e450130",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Java",
+    "host": "medium.com"
+  },
+  {
+    "id": "spring-java-spring-interview-questions-325365d214",
+    "technology": "spring",
+    "title": "Java Spring Interview questions",
+    "url": "https://github.com/altafjava/spring-interview-questions-answers",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

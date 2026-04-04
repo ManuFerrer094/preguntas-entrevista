@@ -1,0 +1,110 @@
+[
+  {
+    "id": "javascript-solid-en-javascript-vanilla-ingles-4393113d92",
+    "technology": "javascript",
+    "title": "SOLID en Javascript Vanilla - Inglés",
+    "url": "https://github.com/ryanmcdermott/clean-code-javascript#openclosed-principle-ocp",
+    "section": "Buenas prácticas",
+    "subsection": "Principios SOLID",
+    "host": "github.com"
+  },
+  {
+    "id": "javascript-clean-code-en-javascript-espanol-7e42ef9ecd",
+    "technology": "javascript",
+    "title": "Clean Code en Javascript - Español",
+    "url": "https://github.com/andersontr15/clean-code-javascript-es",
+    "section": "Buenas prácticas",
+    "subsection": "Clean Code",
+    "host": "github.com"
+  },
+  {
+    "id": "javascript-guidelines-for-writing-javascript-code-examples-3fc72fa00a",
+    "technology": "javascript",
+    "title": "Guidelines For Writing JavaScript Code Examples",
+    "url": "https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Writing_style_guide/Code_style_guide/JavaScript",
+    "section": "Buenas prácticas en:",
+    "subsection": "Javascript",
+    "host": "developer.mozilla.org"
+  },
+  {
+    "id": "javascript-javascript-best-practices-by-w3-org-c1a4167d51",
+    "technology": "javascript",
+    "title": "JavaScript Best Practices by W3.org",
+    "url": "https://www.w3.org/wiki/JavaScript_best_practices",
+    "section": "Buenas prácticas en:",
+    "subsection": "Javascript",
+    "host": "w3.org"
+  },
+  {
+    "id": "javascript-javascript-best-practices-by-w3schools-e11e10f91c",
+    "technology": "javascript",
+    "title": "JavaScript Best Practices by W3Schools",
+    "url": "https://www.w3schools.com/js/js_best_practices.asp",
+    "section": "Buenas prácticas en:",
+    "subsection": "Javascript",
+    "host": "w3schools.com"
+  },
+  {
+    "id": "javascript-airbnb-javascript-style-guide-bbe48a4b0f",
+    "technology": "javascript",
+    "title": "Airbnb JavaScript Style Guide()",
+    "url": "https://github.com/airbnb/javascript",
+    "section": "Buenas prácticas en:",
+    "subsection": "Javascript",
+    "host": "github.com"
+  },
+  {
+    "id": "javascript-30-javascript-best-practices-for-beginners-7a319277a2",
+    "technology": "javascript",
+    "title": "30 JavaScript Best Practices for Beginners",
+    "url": "https://code.tutsplus.com/24-javascript-best-practices-for-beginners--net-5399t",
+    "section": "Buenas prácticas en:",
+    "subsection": "Javascript",
+    "host": "code.tutsplus.com"
+  },
+  {
+    "id": "javascript-algoritmos-en-javascript-8749fcdb09",
+    "technology": "javascript",
+    "title": "Algoritmos en Javascript",
+    "url": "https://github.com/TheAlgorithms/JavaScript",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Algoritmos",
+    "host": "github.com"
+  },
+  {
+    "id": "javascript-javascript-algorithms-and-data-structures-ab7753716d",
+    "technology": "javascript",
+    "title": "JavaScript Algorithms and Data Structures",
+    "url": "https://github.com/trekhleb/javascript-algorithms",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Estructuras de datos",
+    "host": "github.com"
+  },
+  {
+    "id": "javascript-patrones-de-diseno-en-javascript-c1424ae711",
+    "technology": "javascript",
+    "title": "Patrones de diseño en Javascript",
+    "url": "https://www.patterns.dev/posts",
+    "section": "Patrones de diseño",
+    "subsection": "Patrones de diseño",
+    "host": "patterns.dev"
+  },
+  {
+    "id": "javascript-javascript-interview-questions-e899a255e6",
+    "technology": "javascript",
+    "title": "Javascript Interview questions",
+    "url": "https://github.com/sudheerj/javascript-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  },
+  {
+    "id": "javascript-52-frontend-interview-questions-javascript-67654db1b6",
+    "technology": "javascript",
+    "title": "52 Frontend Interview Questions - JavaScript",
+    "url": "https://dev.to/m_midas/52-frontend-interview-questions-javascript-59h6",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas de Frontend",
+    "host": "dev.to"
+  }
+]

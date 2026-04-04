@@ -1,0 +1,92 @@
+[
+  {
+    "id": "react-solid-en-react-js-ingles-968ea75c7a",
+    "technology": "react",
+    "title": "SOLID en React.JS - Inglés",
+    "url": "https://medium.com/docler-engineering/applying-solid-to-react-ca6d1ff926a4",
+    "section": "Buenas prácticas",
+    "subsection": "Principios SOLID",
+    "host": "medium.com"
+  },
+  {
+    "id": "react-10-best-practices-for-writing-clean-react-code-c3ec95b1c2",
+    "technology": "react",
+    "title": "10 Best Practices for Writing Clean React Code",
+    "url": "https://www.turing.com/kb/writing-clean-react-code",
+    "section": "Buenas prácticas en:",
+    "subsection": "React.js",
+    "host": "turing.com"
+  },
+  {
+    "id": "react-react-best-practices-tips-for-writing-better-react-code-in-2022-16bfc10817",
+    "technology": "react",
+    "title": "React Best Practices – Tips for Writing Better React Code in 2022",
+    "url": "https://www.freecodecamp.org/news/best-practices-for-react/#tips-to-help-you-write-better-react-code-the-cherries-on-top",
+    "section": "Buenas prácticas en:",
+    "subsection": "React.js",
+    "host": "freecodecamp.org"
+  },
+  {
+    "id": "react-react-best-practices-and-patterns-to-reduce-code-f591978cca",
+    "technology": "react",
+    "title": "React best practices and patterns to reduce code",
+    "url": "https://devsmitra.medium.com/react-best-practices-and-patterns-to-reduce-code-3170f1913b26",
+    "section": "Buenas prácticas en:",
+    "subsection": "React.js",
+    "host": "devsmitra.medium.com"
+  },
+  {
+    "id": "react-react-best-practices-every-developer-have-to-follow-in-2023-a9cf999fbd",
+    "technology": "react",
+    "title": "React Best Practices Every Developer Have to Follow in 2023",
+    "url": "https://technostacks.com/blog/react-best-practices/",
+    "section": "Buenas prácticas en:",
+    "subsection": "React.js",
+    "host": "technostacks.com"
+  },
+  {
+    "id": "react-clean-architecture-with-react-e6d03fc4f2",
+    "technology": "react",
+    "title": "Clean Architecture With React",
+    "url": "https://betterprogramming.pub/clean-architecture-with-react-cc097a08b105",
+    "section": "Arquitectura de Software",
+    "subsection": "React Clean Architecture",
+    "host": "betterprogramming.pub"
+  },
+  {
+    "id": "react-clean-architecture-applying-with-react-1be856eee8",
+    "technology": "react",
+    "title": "Clean Architecture: Applying with React",
+    "url": "https://dev.to/rubemfsv/clean-architecture-applying-with-react-40h6",
+    "section": "Arquitectura de Software",
+    "subsection": "React Clean Architecture",
+    "host": "dev.to"
+  },
+  {
+    "id": "react-react-clean-architecture-75fe5e1dba",
+    "technology": "react",
+    "title": "React Clean Architecture",
+    "url": "https://github.com/eduardomoroni/react-clean-architecture",
+    "section": "Arquitectura de Software",
+    "subsection": "React Clean Architecture",
+    "host": "github.com"
+  },
+  {
+    "id": "react-clean-architecture-typescript-and-react-bcc9bd5ada",
+    "technology": "react",
+    "title": "Clean Architecture: Typescript and React",
+    "url": "https://paulallies.medium.com/clean-architecture-typescript-and-react-8e509098abfe",
+    "section": "Arquitectura de Software",
+    "subsection": "React Clean Architecture",
+    "host": "paulallies.medium.com"
+  },
+  {
+    "id": "react-react-interview-questions-3a41942be3",
+    "technology": "react",
+    "title": "React Interview questions",
+    "url": "https://github.com/sudheerj/reactjs-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

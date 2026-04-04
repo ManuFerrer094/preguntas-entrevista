@@ -79,15 +79,42 @@ describe('ContentStore', () => {
   });
 
   it('questionsByTechnology computed should group questions by technology', () => {
-    const q1 = { id: 'angular-q1', title: 'Q1', slug: 'q1', content: '', technology: 'angular', index: 0, difficulty: 'easy' as const, tags: [] };
-    const q2 = { id: 'react-q1', title: 'Q2', slug: 'q1', content: '', technology: 'react', index: 0, difficulty: 'medium' as const, tags: [] };
+    const q1 = {
+      id: 'angular-q1',
+      title: 'Q1',
+      slug: 'q1',
+      content: '',
+      technology: 'angular',
+      index: 0,
+      difficulty: 'easy' as const,
+      tags: [],
+    };
+    const q2 = {
+      id: 'react-q1',
+      title: 'Q2',
+      slug: 'q1',
+      content: '',
+      technology: 'react',
+      index: 0,
+      difficulty: 'medium' as const,
+      tags: [],
+    };
     store.questions.set([q1, q2]);
     expect(store.getQuestionsByTechnology('angular')).toEqual([q1]);
     expect(store.getQuestionsByTechnology('react')).toEqual([q2]);
   });
 
   it('getQuestion should find a specific question by technology and slug', () => {
-    const q1 = { id: 'angular-q1', title: 'Q1', slug: 'q1', content: '', technology: 'angular', index: 0, difficulty: 'easy' as const, tags: [] };
+    const q1 = {
+      id: 'angular-q1',
+      title: 'Q1',
+      slug: 'q1',
+      content: '',
+      technology: 'angular',
+      index: 0,
+      difficulty: 'easy' as const,
+      tags: [],
+    };
     store.questions.set([q1]);
     expect(store.getQuestion('angular', 'q1')).toEqual(q1);
     expect(store.getQuestion('angular', 'nonexistent')).toBeUndefined();
@@ -97,13 +124,13 @@ describe('ContentStore', () => {
     store.loadAllQuestionCounts();
 
     const techs = store.technologies();
-    techs.forEach(t => {
+    techs.forEach((t) => {
       const req = httpMock.expectOne(`/questions/${t.slug}/index.json`);
       req.flush(['q1.md', 'q2.md', 'q3.md']);
     });
 
     const updatedTechs = store.technologies();
-    updatedTechs.forEach(t => {
+    updatedTechs.forEach((t) => {
       expect(t.questionCount).toBe(3);
     });
   });
@@ -112,23 +139,80 @@ describe('ContentStore', () => {
     store.loadAllQuestionCounts();
 
     const techs = store.technologies();
-    techs.forEach(t => {
+    techs.forEach((t) => {
       const req = httpMock.expectOne(`/questions/${t.slug}/index.json`);
       req.error(new ProgressEvent('error'));
     });
 
     // All question counts should remain 0 (initial value)
-    store.technologies().forEach(t => {
+    store.technologies().forEach((t) => {
       expect(t.questionCount).toBe(0);
     });
   });
 
   it('loadQuestionsForTechnology should not make a second request when already loaded', () => {
-    const q1 = { id: 'angular-q1', title: 'Q1', slug: 'q1', content: '', technology: 'angular', index: 0, difficulty: 'easy' as const, tags: [] };
+    const q1 = {
+      id: 'angular-q1',
+      title: 'Q1',
+      slug: 'q1',
+      content: '',
+      technology: 'angular',
+      index: 0,
+      difficulty: 'easy' as const,
+      tags: [],
+    };
     store.questions.set([q1]);
 
     // Calling load for a technology already in the map should be a no-op
     store.loadQuestionsForTechnology('angular');
     httpMock.expectNone('/questions/angular/index.json');
+  });
+
+  it('loadAllResourceCounts should update technology resource counts', () => {
+    store.loadAllResourceCounts();
+
+    const req = httpMock.expectOne('/resources/manifest.json');
+    req.flush({ angular: 5, vue: 3, mongodb: 1 });
+
+    expect(store.getTechnology('angular')?.resourceCount).toBe(5);
+    expect(store.getTechnology('vue')?.resourceCount).toBe(3);
+    expect(store.getTechnology('mongodb')?.resourceCount).toBe(1);
+    expect(store.getTechnology('csharp')?.resourceCount).toBe(0);
+  });
+
+  it('loadResourcesForTechnology should load and cache resources', () => {
+    store.loadResourcesForTechnology('vue');
+
+    const req = httpMock.expectOne('/resources/vue.json');
+    req.flush([
+      {
+        id: 'vue-resource-1',
+        technology: 'vue',
+        title: 'Vue Interview questions',
+        url: 'https://example.com/vue',
+        section: 'Preguntas más frecuentes',
+        subsection: 'Preguntas más frecuentes',
+        host: 'example.com',
+      },
+    ]);
+
+    expect(store.getResourcesByTechnology('vue')).toHaveLength(1);
+    expect(store.getTechnology('vue')?.resourceCount).toBe(1);
+
+    store.loadResourcesForTechnology('vue');
+    httpMock.expectNone('/resources/vue.json');
+  });
+
+  it('loadResourcesForTechnology should cache empty results too', () => {
+    store.loadResourcesForTechnology('winforms');
+
+    const req = httpMock.expectOne('/resources/winforms.json');
+    req.flush([]);
+
+    expect(store.getResourcesByTechnology('winforms')).toEqual([]);
+    expect(store.getTechnology('winforms')?.resourceCount).toBe(0);
+
+    store.loadResourcesForTechnology('winforms');
+    httpMock.expectNone('/resources/winforms.json');
   });
 });

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "django-django-best-practices-2022-373d3b5847",
+    "technology": "django",
+    "title": "Django Best Practices 2022",
+    "url": "https://www.linkedin.com/pulse/django-best-practices-2022-akshata-murudkar/",
+    "section": "Buenas prácticas en:",
+    "subsection": "Django",
+    "host": "linkedin.com"
+  },
+  {
+    "id": "django-django-model-best-practices-tips-and-tricks-for-clean-and-efficient-code-871b330102",
+    "technology": "django",
+    "title": "Django Model Best Practices: Tips and Tricks for Clean and Efficient Code",
+    "url": "https://medium.com/@schopade333/django-model-best-practices-c5c8a142dfc",
+    "section": "Buenas prácticas en:",
+    "subsection": "Django",
+    "host": "medium.com"
+  },
+  {
+    "id": "django-the-4-clean-code-principles-in-django-5c0a790dda",
+    "technology": "django",
+    "title": "The 4 Clean Code Principles in Django",
+    "url": "https://betterprogramming.pub/clean-code-principles-in-django-b0563a4e12f5",
+    "section": "Buenas prácticas en:",
+    "subsection": "Django",
+    "host": "betterprogramming.pub"
+  },
+  {
+    "id": "django-clean-architecture-in-django-0e9361720b",
+    "technology": "django",
+    "title": "Clean Architecture in Django",
+    "url": "https://medium.com/21buttons-tech/clean-architecture-in-django-d326a4ab86a9",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Python",
+    "host": "medium.com"
+  },
+  {
+    "id": "django-django-clean-architecture-e7b4ad673d",
+    "technology": "django",
+    "title": "Django Clean Architecture",
+    "url": "https://github.com/jacob-y/django-clean-architecture",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Python",
+    "host": "github.com"
+  },
+  {
+    "id": "django-django-interview-questions-5d789f9c89",
+    "technology": "django",
+    "title": "Django Interview questions",
+    "url": "https://github.com/Ujjawal-Anand/django-interview",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

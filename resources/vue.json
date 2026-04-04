@@ -1,0 +1,74 @@
+[
+  {
+    "id": "vue-solid-en-vue-js-ingles-d710590fc0",
+    "technology": "vue",
+    "title": "SOLID en Vue.JS - Inglés",
+    "url": "https://medium.com/@moein.mirkiani/solid-principles-in-vue-29ecc988f968",
+    "section": "Buenas prácticas",
+    "subsection": "Principios SOLID",
+    "host": "medium.com"
+  },
+  {
+    "id": "vue-12-vuejs-best-practices-0c9bea4270",
+    "technology": "vue",
+    "title": "12 VueJS Best Practices",
+    "url": "https://learnvue.co/articles/vue-best-practices",
+    "section": "Buenas prácticas en:",
+    "subsection": "Vue.js",
+    "host": "learnvue.co"
+  },
+  {
+    "id": "vue-vue-patterns-3527f88093",
+    "technology": "vue",
+    "title": "Vue Patterns",
+    "url": "https://learn-vuejs.github.io/vue-patterns/patterns/#component-declaration",
+    "section": "Buenas prácticas en:",
+    "subsection": "Vue.js",
+    "host": "learn-vuejs.github.io"
+  },
+  {
+    "id": "vue-clean-architecture-with-vuejs-475baaff2c",
+    "technology": "vue",
+    "title": "Clean Architecture with VueJS",
+    "url": "https://www.linkedin.com/pulse/clean-architecture-vuejs-ahsan-riaz/",
+    "section": "Arquitectura de Software",
+    "subsection": "Vue JS Clean Architecture",
+    "host": "linkedin.com"
+  },
+  {
+    "id": "vue-clean-architecture-vuejs-045bce3809",
+    "technology": "vue",
+    "title": "Clean Architecture VueJS",
+    "url": "https://github.com/thanhchungbtc/vue-shopping-clean-architecture",
+    "section": "Arquitectura de Software",
+    "subsection": "Vue JS Clean Architecture",
+    "host": "github.com"
+  },
+  {
+    "id": "vue-vue-clean-architecture-github-df58153eb8",
+    "technology": "vue",
+    "title": "Vue Clean Architecture Github",
+    "url": "https://github.com/smotastic/vue-clean-architecture",
+    "section": "Arquitectura de Software",
+    "subsection": "Vue JS Clean Architecture",
+    "host": "github.com"
+  },
+  {
+    "id": "vue-separating-business-logic-from-ui-frameworks-react-vue-svelte-angular-etc-using-clean-architecture-pattern-68012c56ed",
+    "technology": "vue",
+    "title": "Separating business logic from UI frameworks (React, Vue, Svelte, Angular, etc.) using clean architecture pattern",
+    "url": "https://github.com/shamscorner/bloc-vue-3-clean-pattern",
+    "section": "Arquitectura de Software",
+    "subsection": "Vue JS Clean Architecture",
+    "host": "github.com"
+  },
+  {
+    "id": "vue-vue-interview-questions-82ef92f4c6",
+    "technology": "vue",
+    "title": "Vue Interview questions",
+    "url": "https://github.com/sudheerj/vuejs-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

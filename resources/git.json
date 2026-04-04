@@ -1,0 +1,65 @@
+[
+  {
+    "id": "git-la-guia-para-principiantes-de-git-y-github-78771e562f",
+    "technology": "git",
+    "title": "La guía para principiantes de Git y Github",
+    "url": "https://www.freecodecamp.org/espanol/news/guia-para-principiantes-de-git-y-github/",
+    "section": "Control de Versiones",
+    "subsection": "Control de Versiones",
+    "host": "freecodecamp.org"
+  },
+  {
+    "id": "git-git-avanzado-comandos-avanzados-ademas-de-los-basicos-f42e4310ef",
+    "technology": "git",
+    "title": "Git Avanzado: Comandos Avanzados Además de los Básicos",
+    "url": "https://kinsta.com/es/blog/git-avanzado/",
+    "section": "Control de Versiones",
+    "subsection": "Control de Versiones",
+    "host": "kinsta.com"
+  },
+  {
+    "id": "git-comparing-git-workflows-what-you-should-know-5eaaa8f437",
+    "technology": "git",
+    "title": "Comparing Git workflows: What you should know",
+    "url": "https://www.atlassian.com/git/tutorials/comparing-workflows",
+    "section": "Control de Versiones",
+    "subsection": "Control de Versiones",
+    "host": "atlassian.com"
+  },
+  {
+    "id": "git-cinco-git-workflows-para-mejorar-nuestros-proyectos-f62da97ee5",
+    "technology": "git",
+    "title": "Cinco Git Workflows para mejorar nuestros proyectos",
+    "url": "https://www.babelgroup.com/es/Media/Blog/Abril-2021/Cinco-Git-Workflows-para-mejores-proyectos",
+    "section": "Control de Versiones",
+    "subsection": "Workflows",
+    "host": "babelgroup.com"
+  },
+  {
+    "id": "git-git-feature-branch-workflow-bfb691c895",
+    "technology": "git",
+    "title": "Git feature branch workflow",
+    "url": "https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow",
+    "section": "Control de Versiones",
+    "subsection": "Workflows",
+    "host": "atlassian.com"
+  },
+  {
+    "id": "git-gitflow-workflow-ba58099280",
+    "technology": "git",
+    "title": "Gitflow workflow",
+    "url": "https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow",
+    "section": "Control de Versiones",
+    "subsection": "Workflows",
+    "host": "atlassian.com"
+  },
+  {
+    "id": "git-forking-workflow-60e2232498",
+    "technology": "git",
+    "title": "Forking workflow",
+    "url": "https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow",
+    "section": "Control de Versiones",
+    "subsection": "Workflows",
+    "host": "atlassian.com"
+  }
+]

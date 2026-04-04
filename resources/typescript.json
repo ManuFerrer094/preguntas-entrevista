@@ -1,0 +1,29 @@
+[
+  {
+    "id": "typescript-typescript-best-practices-by-aws-3dd850e1b3",
+    "technology": "typescript",
+    "title": "TypeScript best practices by AWS",
+    "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/best-practices-cdk-typescript-iac/typescript-best-practices.html",
+    "section": "Buenas prácticas en:",
+    "subsection": "Typescript",
+    "host": "docs.aws.amazon.com"
+  },
+  {
+    "id": "typescript-typescript-best-practices-2021-18ce12ff80",
+    "technology": "typescript",
+    "title": "TypeScript Best Practices 2021",
+    "url": "https://medium.com/@warkiringoda/typescript-best-practices-2021-a58aee199661",
+    "section": "Buenas prácticas en:",
+    "subsection": "Typescript",
+    "host": "medium.com"
+  },
+  {
+    "id": "typescript-algoritmos-en-typescript-566a38e49f",
+    "technology": "typescript",
+    "title": "Algoritmos en Typescript",
+    "url": "https://github.com/TheAlgorithms/TypeScript",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Algoritmos",
+    "host": "github.com"
+  }
+]

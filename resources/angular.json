@@ -1,0 +1,38 @@
+[
+  {
+    "id": "angular-10-best-practices-for-building-scalable-angular-applications-with-examples-cca9933928",
+    "technology": "angular",
+    "title": "10 Best Practices for Building Scalable Angular Applications — With examples",
+    "url": "https://medium.com/@mattias.trnqvist/10-best-practices-for-building-scalable-angular-applications-with-examples-efdfe2a5b4e8",
+    "section": "Buenas prácticas en:",
+    "subsection": "Angular",
+    "host": "medium.com"
+  },
+  {
+    "id": "angular-angular-optimization-and-best-practices-1363c3c906",
+    "technology": "angular",
+    "title": "Angular Optimization and Best Practices",
+    "url": "https://www.tatvasoft.com/blog/angular-optimization-and-best-practices/",
+    "section": "Buenas prácticas en:",
+    "subsection": "Angular",
+    "host": "tatvasoft.com"
+  },
+  {
+    "id": "angular-angular-coding-style-guide-89827e63dd",
+    "technology": "angular",
+    "title": "Angular coding style guide",
+    "url": "https://angular.io/guide/styleguide",
+    "section": "Buenas prácticas en:",
+    "subsection": "Angular",
+    "host": "angular.io"
+  },
+  {
+    "id": "angular-angular-interview-questions-fa2f9bd03a",
+    "technology": "angular",
+    "title": "Angular Interview questions",
+    "url": "https://github.com/sudheerj/angular-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

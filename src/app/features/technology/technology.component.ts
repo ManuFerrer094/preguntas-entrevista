@@ -1,20 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, computed, effect, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ViewportScroller } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MfIconComponent, MfProgressSpinnerComponent, MfProgressBarComponent, MfCardComponent, MfInputComponent, MfButtonComponent } from 'ng-comps';
+import { MfCardComponent, MfIconComponent } from 'ng-comps';
 import { ContentStore } from '../../core/stores/content.store';
 import { SeoService } from '../../core/services/seo.service';
-import { ProgressService } from '../../core/services/progress.service';
-import { Difficulty } from '../../domain/models/question.model';
-import { difficultyLabel } from '../../core/utils/difficulty';
-
-const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-technology',
   standalone: true,
-  imports: [RouterLink, MfIconComponent, MfProgressSpinnerComponent, MfProgressBarComponent, MfCardComponent, MfInputComponent, MfButtonComponent],
+  imports: [RouterLink, MfCardComponent, MfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (technology()) {
@@ -24,509 +18,298 @@ const PAGE_SIZE = 10;
         <span>{{ technology()!.name }}</span>
       </nav>
 
-      <div class="tech-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <mf-card variant="outlined" padding="md">
-            <div class="progress-header">
-              <span>Tu Progreso</span>
-              <strong class="progress-pct">{{ progressPct() }}%</strong>
+      <section class="landing-hero">
+        <div class="landing-hero-main">
+          <div class="landing-icon" [style.background]="technology()!.color + '15'">
+            <i [class]="technology()!.devicon" [style.color]="technology()!.color"></i>
+          </div>
+          <div class="landing-copy">
+            <p class="landing-kicker">Ruta de preparación</p>
+            <h1>{{ technology()!.name }}</h1>
+            <p class="landing-desc">{{ technology()!.description }}</p>
+            <p class="landing-keywords">{{ technology()!.keywords }}</p>
+          </div>
+        </div>
+
+        <div class="landing-stats">
+          <span class="stat-pill">
+            <mf-icon name="quiz" color="inherit" />
+            {{ technology()!.questionCount }} preguntas
+          </span>
+          <span class="stat-pill subtle">
+            <mf-icon name="library_books" color="inherit" />
+            {{ technology()!.resourceCount }} recursos
+          </span>
+        </div>
+      </section>
+
+      <section class="entry-grid" aria-label="Explorar {{ technology()!.name }}">
+        <a [routerLink]="['/', technology()!.slug, 'preguntas']" class="entry-link">
+          <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
+            <div class="entry-top">
+              <span class="entry-eyebrow">Practicar</span>
+              <mf-icon name="arrow_forward" color="inherit" />
             </div>
-            <mf-progress-bar mode="determinate" [value]="progressPct()" color="brand" [showValue]="false" [height]="8" />
-            <span class="progress-detail">
-              {{ readCount() }} de {{ allQuestions().length }} completadas
-            </span>
-          </mf-card>
-
-          <nav class="sidebar-nav">
-            <mf-button label="Todas" [variant]="filter() === 'all' ? 'filled' : 'text'" leadingIcon="list" [fullWidth]="true" (mfClick)="filter.set('all')" />
-            <mf-button label="Completadas" [variant]="filter() === 'completed' ? 'filled' : 'text'" leadingIcon="check_circle" [fullWidth]="true" (mfClick)="filter.set('completed')" />
-            <mf-button label="Pendientes" [variant]="filter() === 'pending' ? 'filled' : 'text'" leadingIcon="radio_button_unchecked" [fullWidth]="true" (mfClick)="filter.set('pending')" />
-          </nav>
-
-          <!-- Difficulty filter -->
-          <mf-card variant="outlined" padding="md">
-            <p class="filter-label">Dificultad</p>
-            <div class="difficulty-filters">
-              <button
-                class="diff-btn"
-                [class.active]="difficultyFilter() === null"
-                (click)="difficultyFilter.set(null)"
-              >Todas</button>
-              <button
-                class="diff-btn easy"
-                [class.active]="difficultyFilter() === 'easy'"
-                (click)="difficultyFilter.set('easy')"
-              >Fácil</button>
-              <button
-                class="diff-btn medium"
-                [class.active]="difficultyFilter() === 'medium'"
-                (click)="difficultyFilter.set('medium')"
-              >Media</button>
-              <button
-                class="diff-btn hard"
-                [class.active]="difficultyFilter() === 'hard'"
-                (click)="difficultyFilter.set('hard')"
-              >Difícil</button>
+            <h2>Preguntas de entrevista</h2>
+            <p>
+              Accede al listado filtrable, marca progreso y navega por preguntas reales de
+              {{ technology()!.name }}.
+            </p>
+            <div class="entry-footer">
+              <span class="entry-count">{{ technology()!.questionCount }} preguntas</span>
+              <span class="entry-cta">Entrar</span>
             </div>
           </mf-card>
+        </a>
 
-          <!-- Tag filter -->
-          @if (availableTags().length > 0) {
-            <mf-card variant="outlined" padding="md">
-              <p class="filter-label">Etiquetas</p>
-              <div class="tag-filters">
-                @for (tag of availableTags(); track tag) {
-                  <button
-                    class="tag-chip"
-                    [class.active]="activeTag() === tag"
-                    (click)="toggleTag(tag)"
-                  >{{ tag }}</button>
-                }
-              </div>
-            </mf-card>
-          }
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-col">
-          <header class="tech-header">
-            <div class="tech-header-icon" [style.background]="technology()!.color + '15'">
-              <i [class]="technology()!.devicon" [style.color]="technology()!.color"></i>
+        <a [routerLink]="['/', technology()!.slug, 'recursos']" class="entry-link">
+          <mf-card variant="outlined" [interactive]="true" padding="lg" class="entry-card">
+            <div class="entry-top">
+              <span class="entry-eyebrow">Reforzar</span>
+              <mf-icon name="arrow_forward" color="inherit" />
             </div>
-            <div class="tech-header-info">
-              <h1>{{ technology()!.name }}</h1>
-              <p class="tech-desc">{{ technology()!.description }}</p>
+            <h2>Recursos</h2>
+            <p>
+              Consulta enlaces curados y materiales específicos para repasar conceptos, patrones y
+              entrevistas.
+            </p>
+            <div class="entry-footer">
+              <span class="entry-count">{{ technology()!.resourceCount }} recursos</span>
+              <span class="entry-cta">Explorar</span>
             </div>
-          </header>
+          </mf-card>
+        </a>
+      </section>
 
-          <mf-input type="search" placeholder="Buscar por palabra clave, tema o etiqueta..." leadingIcon="search" [value]="searchQuery()" [fullWidth]="true" (mfInput)="searchQuery.set($event)" label="Buscar preguntas" />
+      <section class="support-grid" aria-label="Qué encontrarás">
+        <mf-card variant="outlined" padding="lg">
+          <p class="support-kicker">Qué encontrarás</p>
+          <h3>Preparación guiada</h3>
+          <p>
+            Empieza con práctica o refuerza conceptos con recursos específicos sin salir del flujo
+            por tecnología.
+          </p>
+        </mf-card>
 
-          @if (store.loading()) {
-            <div class="loading-container">
-              <mf-progress-spinner mode="indeterminate" [diameter]="40" label="Cargando preguntas..." />
-            </div>
-          } @else {
-            <div class="questions-list" role="list" aria-label="Lista de preguntas">
-              @for (question of pagedQuestions(); track question.id) {
-                <a
-                  [routerLink]="['/', technology()!.slug, question.slug]"
-                  class="question-row"
-                  [class.is-read]="progress.isRead(question.id)"
-                  role="listitem"
-                >
-                  <div class="question-status">
-                    @if (progress.isRead(question.id)) {
-                      <mf-icon name="check_circle" color="inherit" class="status-done" />
-                    } @else {
-                      <mf-icon name="radio_button_unchecked" color="inherit" class="status-pending" />
-                    }
-                  </div>
-                  <div class="question-info">
-                    <span class="question-title">{{ question.title }}</span>
-                    <div class="question-meta">
-                      <span class="difficulty-badge" [class]="'badge-' + question.difficulty">
-                        {{ difficultyLabel(question.difficulty) }}
-                      </span>
-                      @for (tag of question.tags.slice(0, 3); track tag) {
-                        <span class="tag-badge">{{ tag }}</span>
-                      }
-                      <span class="read-status">
-                        @if (progress.isRead(question.id)) {
-                          <mf-icon name="visibility" size="sm" color="inherit" class="meta-icon" /> Leída
-                        } @else {
-                          <mf-icon name="visibility_off" size="sm" color="inherit" class="meta-icon" /> Sin leer
-                        }
-                      </span>
-                    </div>
-                  </div>
-                  <mf-icon name="chevron_right" color="inherit" class="chevron" />
-                </a>
-              } @empty {
-                <div class="empty-message">
-                  <mf-icon name="search_off" color="inherit" />
-                  <p>No se encontraron preguntas.</p>
-                </div>
-              }
-            </div>
-
-            <!-- Pagination -->
-            @if (totalPages() > 1) {
-              <nav class="pagination" aria-label="Paginación">
-                <mf-button label="" variant="outlined" leadingIcon="chevron_left" [disabled]="currentPage() === 1" (mfClick)="goToPage(currentPage() - 1)" aria-label="Página anterior" />
-
-                @for (page of pageNumbers(); track page) {
-                  <mf-button [label]="'' + page" [variant]="page === currentPage() ? 'filled' : 'outlined'" (mfClick)="goToPage(page)" [attr.aria-label]="'Página ' + page" [attr.aria-current]="page === currentPage() ? 'page' : null" />
-                }
-
-                <mf-button label="" variant="outlined" leadingIcon="chevron_right" [disabled]="currentPage() === totalPages()" (mfClick)="goToPage(currentPage() + 1)" aria-label="Página siguiente" />
-              </nav>
-            }
-          }
-        </main>
-      </div>
+        <mf-card variant="outlined" padding="lg">
+          <p class="support-kicker">Estado actual</p>
+          <h3>Sección viva y ampliable</h3>
+          <p>
+            Si alguna de las dos áreas está vacía, la vista mostrará el estado correspondiente y
+            quedará preparada para futuras aportaciones.
+          </p>
+        </mf-card>
+      </section>
     } @else {
       <p>Tecnología no encontrada.</p>
       <a routerLink="/" class="back-link">Volver al inicio</a>
     }
   `,
-  styles: [`
-    .breadcrumb {
-      margin-bottom: 24px;
-      font-size: 0.85rem;
-    }
-    .breadcrumb a {
-      color: var(--app-primary);
-      text-decoration: none;
-    }
-    .breadcrumb a:hover { text-decoration: underline; }
-
-    .tech-layout {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 32px;
-      align-items: start;
-    }
-
-    .sidebar {
-      position: sticky;
-      top: 80px;
-    }
-    mf-card { display: block; margin-bottom: 12px; }
-    mf-progress-bar { display: block; margin-bottom: 8px; }
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-    .progress-pct { color: var(--app-primary); }
-    .progress-detail { font-size: 0.78rem; opacity: 0.6; }
-
-    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
-
-
-    .filter-label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      opacity: 0.55;
-      margin: 0 0 10px;
-    }
-
-    .difficulty-filters { display: flex; flex-wrap: wrap; gap: 6px; }
-    .diff-btn {
-      padding: 4px 12px;
-      border-radius: 20px;
-      border: 1px solid var(--app-border);
-      background: transparent;
-      font-size: 0.8rem;
-      font-family: inherit;
-      cursor: pointer;
-      color: inherit;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .diff-btn:hover { background: var(--app-surface-variant); }
-    .diff-btn.active { border-color: currentColor; font-weight: 600; }
-    .diff-btn.easy.active { background: #e8f5e9; color: #2e7d32; border-color: #2e7d32; }
-    .diff-btn.medium.active { background: #fff3e0; color: #e65100; border-color: #e65100; }
-    .diff-btn.hard.active { background: #fce4ec; color: #c62828; border-color: #c62828; }
-
-    .tag-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      max-height: 180px;
-      overflow-y: auto;
-      padding-right: 2px;
-    }
-    .tag-chip {
-      padding: 3px 10px;
-      border-radius: 20px;
-      border: 1px solid var(--app-border);
-      background: transparent;
-      font-size: 0.77rem;
-      font-family: inherit;
-      cursor: pointer;
-      color: inherit;
-      transition: background 0.15s;
-    }
-    .tag-chip:hover { background: var(--app-surface-variant); }
-    .tag-chip.active {
-      background: var(--app-primary);
-      color: var(--app-on-primary);
-      border-color: var(--app-primary);
-      font-weight: 600;
-    }
-
-    .tech-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .tech-header-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .tech-header-icon i { font-size: 30px; }
-    .tech-header-info { flex: 1; }
-    .tech-header-info h1 { margin: 0 0 4px; font-size: 1.5rem; }
-    .tech-desc { margin: 0; opacity: 0.7; font-size: 0.9rem; }
-
-    .pdf-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--app-border);
-      background: var(--app-surface);
-      color: var(--app-text);
-      font-size: 0.85rem;
-      font-family: inherit;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-    }
-    .pdf-btn:hover {
-      background: var(--app-surface-variant);
-      border-color: var(--app-primary);
-      box-shadow: var(--app-shadow-sm);
-    }
-    .pdf-btn mf-icon { font-size: 18px; width: 18px; height: 18px; }
-
-
-    .questions-list { display: flex; flex-direction: column; gap: 8px; }
-    .question-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 20px;
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      border-radius: 12px;
-      text-decoration: none;
-      color: var(--app-text);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .question-row:hover {
-      border-color: var(--app-primary);
-      box-shadow: var(--app-shadow-sm);
-    }
-    .question-row.is-read { opacity: 0.75; }
-    .status-done { color: #43a047; }
-    .status-pending { color: #bdbdbd; }
-    .question-info { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .question-title { font-weight: 600; font-size: 0.95rem; }
-    .question-meta {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 0.78rem;
-    }
-
-    .difficulty-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    .badge-easy { background: #e8f5e9; color: #2e7d32; }
-    .badge-medium { background: #fff3e0; color: #e65100; }
-    .badge-hard { background: #fce4ec; color: #c62828; }
-
-    .tag-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      background: var(--app-surface-variant);
-      color: var(--app-text-muted);
-      border: 1px solid var(--app-border);
-    }
-
-    .read-status {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      opacity: 0.55;
-      margin-left: auto;
-    }
-    .meta-icon { font-size: 14px; width: 14px; height: 14px; }
-    .chevron { color: var(--app-text-subtle); flex-shrink: 0; }
-
-    .loading-container { display: flex; justify-content: center; padding: 48px; }
-    .empty-message {
-      text-align: center;
-      padding: 48px;
-      opacity: 0.5;
-    }
-    .empty-message mf-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
-
-    /* Pagination */
-    .pagination {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 768px) {
-      .tech-layout {
-        grid-template-columns: 1fr;
+  styles: [
+    `
+      .breadcrumb {
+        margin-bottom: 24px;
+        font-size: 0.85rem;
       }
-      .sidebar { position: static; order: 2; }
-      .main-col { order: 1; }
-      .tech-header { flex-wrap: wrap; }
-      .pdf-btn { width: 100%; justify-content: center; }
-    }
-  `]
+      .breadcrumb a {
+        color: var(--app-primary);
+        text-decoration: none;
+      }
+      .breadcrumb a:hover {
+        text-decoration: underline;
+      }
+      .landing-hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 32px;
+        border: 1px solid var(--app-border);
+        border-radius: 28px;
+        background:
+          linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--app-primary) 8%, transparent),
+            transparent 55%
+          ),
+          var(--app-surface);
+        box-shadow: var(--app-shadow-sm);
+        margin-bottom: 24px;
+      }
+      .landing-hero-main {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        min-width: 0;
+      }
+      .landing-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .landing-icon i {
+        font-size: 38px;
+      }
+      .landing-copy h1 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+      }
+      .landing-kicker,
+      .support-kicker {
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--app-primary);
+      }
+      .landing-desc,
+      .landing-keywords {
+        margin: 0;
+        color: var(--app-text-muted);
+        line-height: 1.6;
+      }
+      .landing-keywords {
+        margin-top: 8px;
+      }
+      .landing-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .stat-pill,
+      .entry-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+        color: var(--app-primary);
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .stat-pill.subtle {
+        background: var(--app-surface-variant);
+        color: var(--app-text-muted);
+      }
+      .entry-grid,
+      .support-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .entry-grid {
+        margin-bottom: 18px;
+      }
+      .entry-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .entry-card {
+        display: block;
+        height: 100%;
+        border: 1px solid var(--app-border);
+        background: var(--app-surface);
+        transition:
+          transform 0.2s,
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .entry-link:hover .entry-card {
+        transform: translateY(-2px);
+        border-color: var(--app-primary);
+        box-shadow: var(--app-shadow-sm);
+      }
+      .entry-top,
+      .entry-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .entry-top {
+        margin-bottom: 16px;
+        color: var(--app-primary);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.75rem;
+      }
+      .entry-card h2 {
+        margin: 0 0 10px;
+        font-size: 1.25rem;
+      }
+      .entry-card p {
+        margin: 0 0 18px;
+        color: var(--app-text-muted);
+        line-height: 1.55;
+        min-height: 3.2em;
+      }
+      .entry-cta {
+        color: var(--app-primary);
+        font-weight: 700;
+      }
+      .support-grid mf-card {
+        display: block;
+      }
+      .support-grid h3 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+      }
+      .support-grid p:last-child {
+        margin: 0;
+        color: var(--app-text-muted);
+        line-height: 1.55;
+      }
+      @media (max-width: 900px) {
+        .landing-hero {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .landing-stats {
+          justify-content: flex-start;
+        }
+        .entry-grid,
+        .support-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
 })
 export class TechnologyComponent {
   private readonly route = inject(ActivatedRoute);
   readonly store = inject(ContentStore);
   private readonly seo = inject(SeoService);
-  readonly progress = inject(ProgressService);
-  private readonly viewportScroller = inject(ViewportScroller);
 
-  readonly searchQuery = signal('');
-  readonly filter = signal<'all' | 'completed' | 'pending'>('all');
-  readonly difficultyFilter = signal<Difficulty | null>(null);
-  readonly activeTag = signal<string | null>(null);
-  readonly currentPage = signal(1);
-
-  private readonly routeParams = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  private readonly routeParams = toSignal(this.route.paramMap, {
+    initialValue: this.route.snapshot.paramMap,
+  });
 
   readonly technology = computed(() => {
     const slug = this.routeParams().get('technology') ?? '';
-    return this.store.technologies().find(t => t.slug === slug) ?? null;
+    return this.store.getTechnology(slug) ?? null;
   });
-
-  readonly allQuestions = computed(() => {
-    const tech = this.technology();
-    if (!tech) return [];
-    return this.store.getQuestionsByTechnology(tech.slug);
-  });
-
-  readonly availableTags = computed(() => {
-    const tagSet = new Set<string>();
-    for (const q of this.allQuestions()) {
-      for (const t of q.tags) {
-        tagSet.add(t);
-      }
-    }
-    return Array.from(tagSet).sort();
-  });
-
-  readonly readCount = computed(() => {
-    const ids = this.allQuestions().map(q => q.id);
-    return this.progress.getReadCountForTechnology(ids);
-  });
-
-  readonly progressPct = computed(() => {
-    const ids = this.allQuestions().map(q => q.id);
-    return this.progress.getProgressPercentage(ids);
-  });
-
-  readonly filteredQuestions = computed(() => {
-    let questions = this.allQuestions();
-    const query = this.searchQuery().toLowerCase();
-    if (query) {
-      questions = questions.filter(
-        q =>
-          q.title.toLowerCase().includes(query) ||
-          q.tags.some(t => t.toLowerCase().includes(query)),
-      );
-    }
-    const diff = this.difficultyFilter();
-    if (diff) {
-      questions = questions.filter(q => q.difficulty === diff);
-    }
-    const tag = this.activeTag();
-    if (tag) {
-      questions = questions.filter(q => q.tags.includes(tag));
-    }
-    const f = this.filter();
-    if (f === 'completed') {
-      questions = questions.filter(q => this.progress.isRead(q.id));
-    } else if (f === 'pending') {
-      questions = questions.filter(q => !this.progress.isRead(q.id));
-    }
-    return questions;
-  });
-
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredQuestions().length / PAGE_SIZE)));
-
-  readonly pagedQuestions = computed(() => {
-    const page = this.currentPage();
-    const start = (page - 1) * PAGE_SIZE;
-    return this.filteredQuestions().slice(start, start + PAGE_SIZE);
-  });
-
-  readonly pageNumbers = computed(() => {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const pages: number[] = [];
-    const delta = 2;
-    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
-      pages.push(i);
-    }
-    return pages;
-  });
-
-  readonly difficultyLabel = difficultyLabel;
-
-  toggleTag(tag: string): void {
-    this.activeTag.update(current => (current === tag ? null : tag));
-  }
-
-
-  goToPage(page: number): void {
-    const total = this.totalPages();
-    if (page >= 1 && page <= total) {
-      this.currentPage.set(page);
-      this.viewportScroller.scrollToPosition([0, 0]);
-    }
-  }
 
   constructor() {
     effect(() => {
       const tech = this.technology();
-      if (tech) {
-        this.store.loadQuestionsForTechnology(tech.slug);
-        this.seo.setPageMeta({
-          title: tech.name,
-          description: `Preguntas de entrevista para ${tech.name}. ${tech.description}`,
-          keywords: `${tech.name.toLowerCase()}, entrevistas, preguntas técnicas`
-        });
-      }
-    });
+      if (!tech) return;
 
-    // Reset to page 1 whenever filters change
-    effect(() => {
-      this.searchQuery();
-      this.filter();
-      this.difficultyFilter();
-      this.activeTag();
-      untracked(() => this.currentPage.set(1));
+      this.store.loadAllQuestionCounts();
+      this.store.loadAllResourceCounts();
+      this.seo.setPageMeta({
+        title: `${tech.name} · Preguntas y recursos`,
+        description: `Explora la ruta de preparación para ${tech.name} con preguntas de entrevista y recursos específicos en una misma landing.`,
+        keywords: `${tech.name.toLowerCase()}, preguntas, recursos, entrevistas técnicas`,
+      });
     });
   }
 }

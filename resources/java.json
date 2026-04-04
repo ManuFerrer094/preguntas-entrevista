@@ -1,0 +1,101 @@
+[
+  {
+    "id": "java-solid-en-java-con-ejemplos-ingles-a01bd9f39b",
+    "technology": "java",
+    "title": "SOLID en Java con Ejemplos - Inglés",
+    "url": "https://www.javaguides.net/2020/01/solid-principles-in-java-with-examples.html",
+    "section": "Buenas prácticas",
+    "subsection": "Principios SOLID",
+    "host": "javaguides.net"
+  },
+  {
+    "id": "java-solid-en-java-ingles-eb453bfceb",
+    "technology": "java",
+    "title": "SOLID en Java - Inglés",
+    "url": "https://medium.com/@shavi22/solid-principles-in-java-cf9f5b167600",
+    "section": "Buenas prácticas",
+    "subsection": "Principios SOLID",
+    "host": "medium.com"
+  },
+  {
+    "id": "java-clean-code-en-java-espanol-339fec87c1",
+    "technology": "java",
+    "title": "Clean Code en Java - Español",
+    "url": "https://github.com/alansastre/java-clean-code",
+    "section": "Buenas prácticas",
+    "subsection": "Clean Code",
+    "host": "github.com"
+  },
+  {
+    "id": "java-clean-code-en-java-ingles-ee0fd65183",
+    "technology": "java",
+    "title": "Clean Code en Java - Inglés",
+    "url": "https://github.com/JuanCrg90/Clean-Code-Notes",
+    "section": "Buenas prácticas",
+    "subsection": "Clean Code",
+    "host": "github.com"
+  },
+  {
+    "id": "java-java-best-practices-recomendado-9d04a7ec97",
+    "technology": "java",
+    "title": "Java Best Practices (recomendado)",
+    "url": "https://github.com/in28minutes/java-best-practices",
+    "section": "Buenas prácticas en:",
+    "subsection": "Java",
+    "host": "github.com"
+  },
+  {
+    "id": "java-java-best-practices-dd99353c37",
+    "technology": "java",
+    "title": "Java Best Practices",
+    "url": "https://www.developer.com/languages/javascript/java-best-practices/",
+    "section": "Buenas prácticas en:",
+    "subsection": "Java",
+    "host": "developer.com"
+  },
+  {
+    "id": "java-10-best-practices-in-java-427d4f746d",
+    "technology": "java",
+    "title": "10 best practices in Java",
+    "url": "https://medium.com/@alexthedev/10-best-practices-in-java-dc0b06dda858",
+    "section": "Buenas prácticas en:",
+    "subsection": "Java",
+    "host": "medium.com"
+  },
+  {
+    "id": "java-algoritmos-en-java-8bb9b1bbd3",
+    "technology": "java",
+    "title": "Algoritmos en Java",
+    "url": "https://github.com/TheAlgorithms/Java",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Algoritmos",
+    "host": "github.com"
+  },
+  {
+    "id": "java-top-data-structures-algorithms-in-java-that-you-need-to-know-eec4753ced",
+    "technology": "java",
+    "title": "Top Data Structures & Algorithms in Java That You Need to Know",
+    "url": "https://medium.com/edureka/data-structures-algorithms-in-java-d27e915db1c5",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Estructuras de datos",
+    "host": "medium.com"
+  },
+  {
+    "id": "java-clean-architecture-en-la-vida-real-java-7a0cdbd435",
+    "technology": "java",
+    "title": "Clean Architecture en la vida real JAVA",
+    "url": "https://medium.com/@soyjuanmalopez/clean-architecture-en-la-vida-real-9da710e5ad4a",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Java",
+    "host": "medium.com"
+  },
+  {
+    "id": "java-java-interview-questions-15380c7654",
+    "technology": "java",
+    "title": "Java Interview questions",
+    "url": "https://github.com/Devinterview-io/java-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

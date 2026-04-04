@@ -31,6 +31,11 @@
               },
               {
                 "glob": "**/*",
+                "input": "resources",
+                "output": "/resources"
+              },
+              {
+                "glob": "**/*",
                 "input": "questions",
                 "output": "/questions"
               }
@@ -100,9 +105,7 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "tsconfig.spec.json",
-            "browsers": [
-              "chromium"
-            ]
+            "browsers": ["chromium"]
           }
         }
       }

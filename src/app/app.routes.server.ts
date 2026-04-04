@@ -4,11 +4,12 @@ import { join, basename } from 'node:path';
 import { generateSlug } from './core/utils/slug-generator';
 
 const QUESTIONS_DIR = join(process.cwd(), 'questions');
+const RESOURCES_DIR = join(process.cwd(), 'resources');
 
 function getTechnologiesWithQuestions(): string[] {
   try {
     return readdirSync(QUESTIONS_DIR, { withFileTypes: true })
-      .filter(d => {
+      .filter((d) => {
         if (!d.isDirectory()) return false;
         try {
           const index = JSON.parse(
@@ -19,10 +20,29 @@ function getTechnologiesWithQuestions(): string[] {
           return false;
         }
       })
-      .map(d => d.name);
+      .map((d) => d.name);
   } catch {
     return [];
   }
+}
+
+function getTechnologiesWithContent(): string[] {
+  const technologies = new Set(getTechnologiesWithQuestions());
+
+  try {
+    const manifest = JSON.parse(
+      readFileSync(join(RESOURCES_DIR, 'manifest.json'), 'utf-8'),
+    ) as Record<string, number>;
+    for (const [technology, count] of Object.entries(manifest)) {
+      if (count > 0) {
+        technologies.add(technology);
+      }
+    }
+  } catch {
+    // ignore missing resources manifest during local development
+  }
+
+  return Array.from(technologies);
 }
 
 // Parses the YAML frontmatter block delimited by '---' lines,
@@ -38,7 +58,7 @@ function extractTitle(content: string): string | null {
       }
     }
   }
-  const titleLine = content.split(/\r?\n/).find(l => l.trim().startsWith('# '));
+  const titleLine = content.split(/\r?\n/).find((l) => l.trim().startsWith('# '));
   return titleLine ? titleLine.replace(/^#\s+/, '').trim() : null;
 }
 
@@ -52,10 +72,24 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender,
   },
   {
+    path: ':technology/preguntas',
+    renderMode: RenderMode.Prerender,
+    async getPrerenderParams() {
+      return getTechnologiesWithContent().map((technology) => ({ technology }));
+    },
+  },
+  {
+    path: ':technology/recursos',
+    renderMode: RenderMode.Prerender,
+    async getPrerenderParams() {
+      return getTechnologiesWithContent().map((technology) => ({ technology }));
+    },
+  },
+  {
     path: ':technology',
     renderMode: RenderMode.Prerender,
     async getPrerenderParams() {
-      return getTechnologiesWithQuestions().map(technology => ({ technology }));
+      return getTechnologiesWithContent().map((technology) => ({ technology }));
     },
   },
   {

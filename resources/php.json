@@ -1,0 +1,65 @@
+[
+  {
+    "id": "php-php-programming-best-practices-and-coding-styles-0a5ab5dfb5",
+    "technology": "php",
+    "title": "PHP Programming Best Practices and Coding Styles",
+    "url": "https://medium.com/techlaboratory/php-programming-best-practices-and-coding-styles-e43234446fd3",
+    "section": "Buenas prácticas en:",
+    "subsection": "PHP",
+    "host": "medium.com"
+  },
+  {
+    "id": "php-php-best-practices-64f4e42091",
+    "technology": "php",
+    "title": "PHP Best Practices",
+    "url": "https://phpbestpractices.org/",
+    "section": "Buenas prácticas en:",
+    "subsection": "PHP",
+    "host": "phpbestpractices.org"
+  },
+  {
+    "id": "php-algoritmos-en-php-04e2f4f561",
+    "technology": "php",
+    "title": "Algoritmos en PHP",
+    "url": "https://github.com/TheAlgorithms/PHP",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Algoritmos",
+    "host": "github.com"
+  },
+  {
+    "id": "php-discovering-php-data-structures-arrays-linked-lists-and-binary-trees-ef998ecbdb",
+    "technology": "php",
+    "title": "Discovering PHP Data Structures: Arrays, Linked Lists, and Binary Trees",
+    "url": "https://medium.com/@london.lingo.01/discovering-php-data-structures-arrays-linked-lists-and-binary-trees-501566f83bad",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Estructuras de datos",
+    "host": "medium.com"
+  },
+  {
+    "id": "php-efficient-data-structures-for-php-7-bbda6da663",
+    "technology": "php",
+    "title": "Efficient data structures for PHP 7",
+    "url": "https://medium.com/@rtheunissen/efficient-data-structures-for-php-7-9dda7af674cd",
+    "section": "Algoritmos y estructuras de datos",
+    "subsection": "Estructuras de datos",
+    "host": "medium.com"
+  },
+  {
+    "id": "php-clean-architecture-with-php-aa6c5ce42e",
+    "technology": "php",
+    "title": "Clean Architecture with PHP",
+    "url": "https://medium.com/unil-ci-software-engineering/clean-architecture-with-php-22de915a6c50",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture PHP",
+    "host": "medium.com"
+  },
+  {
+    "id": "php-php-interview-questions-25592f0856",
+    "technology": "php",
+    "title": "PHP Interview questions",
+    "url": "https://github.com/Devinterview-io/php-interview-questions",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sql-20-ejemplos-de-consultas-sql-basicas-para-principiantes-una-vision-completa-d201401fbe",
+    "technology": "sql",
+    "title": "20 ejemplos de consultas SQL básicas para principiantes: Una visión completa",
+    "url": "https://learnsql.es/blog/20-ejemplos-de-consultas-sql-basicas-para-principiantes-una-vision-completa/",
+    "section": "Bases de datos",
+    "subsection": "Bases de datos",
+    "host": "learnsql.es"
+  },
+  {
+    "id": "sql-choosing-the-best-database-sql-vs-nosql-cfde312606",
+    "technology": "sql",
+    "title": "Choosing the Best Database: SQL vs NoSQL",
+    "url": "https://medium.com/codex/choosing-the-best-database-sql-vs-nosql-a816a7ec09fc",
+    "section": "Bases de datos",
+    "subsection": "Bases de datos",
+    "host": "medium.com"
+  },
+  {
+    "id": "sql-sql-interview-questions-645890f77e",
+    "technology": "sql",
+    "title": "SQL Interview questions",
+    "url": "https://github.com/kansiris/SQL-interview-questions/tree/master",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  },
+  {
+    "id": "sql-cracking-the-sql-interview-5411b4e5f9",
+    "technology": "sql",
+    "title": "Cracking the SQL interview",
+    "url": "https://github.com/xoraus/CrackingTheSQLInterview",
+    "section": "Preguntas más frecuentes",
+    "subsection": "Preguntas más frecuentes",
+    "host": "github.com"
+  }
+]

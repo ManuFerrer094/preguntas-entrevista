@@ -1,0 +1,29 @@
+[
+  {
+    "id": "flutter-flutter-best-practices-4a641c492e",
+    "technology": "flutter",
+    "title": "Flutter Best Practices",
+    "url": "https://itnext.io/flutter-best-practices-part-1-e89467ea4823",
+    "section": "Buenas prácticas en:",
+    "subsection": "Flutter",
+    "host": "itnext.io"
+  },
+  {
+    "id": "flutter-the-dart-way-best-coding-practices-0d0ea4cfa9",
+    "technology": "flutter",
+    "title": "The Dart Way: Best Coding Practices",
+    "url": "https://articles.wesionary.team/the-dart-way-best-coding-practices-6ac693736090",
+    "section": "Buenas prácticas en:",
+    "subsection": "Flutter",
+    "host": "articles.wesionary.team"
+  },
+  {
+    "id": "flutter-10-best-practices-every-flutter-developer-should-follow-b5f56531f4",
+    "technology": "flutter",
+    "title": "10 Best Practices Every Flutter Developer Should Follow",
+    "url": "https://somniosoftware.com/post/top-10-flutter-best-practices",
+    "section": "Buenas prácticas en:",
+    "subsection": "Flutter",
+    "host": "somniosoftware.com"
+  }
+]

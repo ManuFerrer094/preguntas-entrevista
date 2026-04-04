@@ -1,0 +1,29 @@
+[
+  {
+    "id": "nodejs-clean-architecture-en-node-y-express-96c2858dcc",
+    "technology": "nodejs",
+    "title": "Clean Architecture en Node y Express",
+    "url": "https://www.linkedin.com/pulse/clean-architecture-en-node-y-express-odannys-de-la-cruz/?originalSubdomain=es",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Express JS",
+    "host": "linkedin.com"
+  },
+  {
+    "id": "nodejs-clean-architecture-in-node-js-439689d424",
+    "technology": "nodejs",
+    "title": "Clean Architecture in Node.js",
+    "url": "https://medium.com/@ben.dev.io/clean-architecture-in-node-js-39c3358d46f3",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Express JS",
+    "host": "medium.com"
+  },
+  {
+    "id": "nodejs-node-js-clean-architecture-8814bde478",
+    "technology": "nodejs",
+    "title": "Node.js Clean Architecture",
+    "url": "https://github.com/panagiop/node.js-clean-architecture",
+    "section": "Arquitectura de Software",
+    "subsection": "Clean Architecture Express JS",
+    "host": "github.com"
+  }
+]
