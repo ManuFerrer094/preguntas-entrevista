@@ -106,5 +106,86 @@
     "section": "Preguntas más frecuentes",
     "subsection": "Preguntas de Frontend",
     "host": "dev.to"
+  },
+  {
+    "id": "javascript-a-deep-dive-into-javascript-s-prototype-chain-and-the-foundational-role-of-functions-df2ee45ec5",
+    "technology": "javascript",
+    "title": "A Deep Dive into JavaScript's Prototype Chain and the Foundational Role of Functions",
+    "url": "https://dev.to/satyajitgain/a-deep-dive-into-javascripts-prototype-chain-and-the-foundational-role-of-functions-1b62",
+    "section": "JavaScript avanzado",
+    "subsection": "Prototipos y herencia",
+    "host": "dev.to"
+  },
+  {
+    "id": "javascript-memory-management-javascript-mdn-web-docs-dd5f353a65",
+    "technology": "javascript",
+    "title": "Memory management - JavaScript (MDN Web Docs)",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management",
+    "section": "JavaScript avanzado",
+    "subsection": "Memoria y rendimiento",
+    "host": "developer.mozilla.org"
+  },
+  {
+    "id": "javascript-javascript-the-definitive-guide-7th-edition-2f149c11ac",
+    "technology": "javascript",
+    "title": "JavaScript: The Definitive Guide, 7th Edition",
+    "url": "https://www.oreilly.com/library/view/javascript-the-definitive/9781491952016/ch16.html",
+    "section": "Libros y referencias",
+    "subsection": "JavaScript avanzado",
+    "host": "oreilly.com"
+  },
+  {
+    "id": "javascript-community-component-libraries-open-web-components-a5085ee0fa",
+    "technology": "javascript",
+    "title": "Community: Component Libraries (Open Web Components)",
+    "url": "https://open-wc.org/guides/community/component-libraries/",
+    "section": "Web Components",
+    "subsection": "Librerías y ecosistema",
+    "host": "open-wc.org"
+  },
+  {
+    "id": "javascript-ing-open-sources-lion-its-white-label-web-component-library-2dbc07f80e",
+    "technology": "javascript",
+    "title": "ING Open-Sources Lion, Its White-Label Web Component Library",
+    "url": "https://www.infoq.com/articles/ing-open-sources-lion-web-component/",
+    "section": "Web Components",
+    "subsection": "Casos reales y librerías",
+    "host": "infoq.com"
+  },
+  {
+    "id": "javascript-leveraging-the-power-of-custom-elements-in-gutenberg-5bcc1b0400",
+    "technology": "javascript",
+    "title": "Leveraging the Power of Custom Elements in Gutenberg",
+    "url": "https://wordpress.tv/2019/09/12/felix-arntz-leveraging-the-power-of-custom-elements-in-gutenberg/",
+    "section": "Web Components",
+    "subsection": "Interoperabilidad",
+    "host": "wordpress.tv"
+  },
+  {
+    "id": "javascript-testing-accessibility-with-shadow-roots-705f5b8b44",
+    "technology": "javascript",
+    "title": "Testing Accessibility with Shadow Roots",
+    "url": "https://dev.to/westbrook/testing-accessibility-with-shadow-roots-55cm",
+    "section": "Accesibilidad",
+    "subsection": "Shadow DOM y testing",
+    "host": "dev.to"
+  },
+  {
+    "id": "javascript-what-is-lit-784d673f4d",
+    "technology": "javascript",
+    "title": "What is Lit?",
+    "url": "https://lit.dev/docs/v3/",
+    "section": "Web Components",
+    "subsection": "Lit",
+    "host": "lit.dev"
+  },
+  {
+    "id": "javascript-oferta-de-empleo-de-sopra-steria-desarrollador-a-frontend-javascript-y-web-components-1be188a877",
+    "technology": "javascript",
+    "title": "Oferta de empleo de Sopra Steria: Desarrollador/a Frontend Javascript y Web Components",
+    "url": "https://careers.soprasteria.com/job/desarrollador-a-frontend-javascript-y-web-components-in-madrid-spain-jid-6071",
+    "section": "Mercado laboral",
+    "subsection": "Ofertas de empleo y perfil",
+    "host": "careers.soprasteria.com"
   }
 ]
