@@ -4,6 +4,12 @@ import { basename, join } from 'node:path';
 import type { QuestionData } from './interfaces/generate-dossier.interfaces.js';
 import type { Segment } from './interfaces/pdf.interfaces.js';
 
+export interface DossierTechnologySection {
+  slug: string;
+  technologyName: string;
+  questions: QuestionData[];
+}
+
 // createRequire is the standard way to use require() from ESM.
 // pdfkit must NOT be bundled because it reads .afm font files via
 // fs.readFileSync(__dirname + '/data/...') at runtime.
@@ -556,7 +562,10 @@ function renderMarkdown(doc: Doc, markdown: string): void {
 // Public API
 // ---------------------------------------------------------------------------
 
-export function generateDossierPdf(questionsDir: string, technologyName: string): Promise<Buffer> {
+function generateLegacyTechnologyDossierPdf(
+  questionsDir: string,
+  technologyName: string,
+): Promise<Buffer> {
   const questions = readQuestions(questionsDir);
 
   if (questions.length === 0) {
@@ -663,6 +672,371 @@ export function generateDossierPdf(questionsDir: string, technologyName: string)
         renderMarkdown(doc, question.content);
       }
     });
+
+    doc.end();
+  });
+}
+
+interface TocEntry {
+  label: string;
+  pageNumber: number;
+  level: 0 | 1;
+}
+
+const HEADER_SPACE = 80;
+const TOC_ENTRIES_PER_PAGE = 28;
+
+function truncateText(
+  doc: Doc,
+  text: string,
+  maxWidth: number,
+  font: string,
+  fontSize: number,
+): string {
+  doc.font(font).fontSize(fontSize);
+  if (doc.widthOfString(text) <= maxWidth) return text;
+
+  const ellipsis = '...';
+  let output = text;
+  while (output.length > 0 && doc.widthOfString(`${output}${ellipsis}`) > maxWidth) {
+    output = output.slice(0, -1);
+  }
+
+  return output.length > 0 ? `${output}${ellipsis}` : ellipsis;
+}
+
+function currentLogicalPageNumber(doc: Doc): number {
+  return Math.max(1, doc.bufferedPageRange().count - 1);
+}
+
+function sectionTitleForCover(sections: DossierTechnologySection[]): string {
+  return sections.length === 1 ? sections[0].technologyName : 'Dosier de tecnologias';
+}
+
+function renderCoverPage(
+  doc: Doc,
+  sections: DossierTechnologySection[],
+  totalQuestions: number,
+): void {
+  doc.addPage();
+  const pageWidth = doc.page.width;
+  const subtitle =
+    sections.length === 1 ? 'Libro de preguntas de entrevista' : 'Libro combinado de tecnologias';
+  const technologiesLine = sections.map((section) => section.technologyName).join(' · ');
+  const date = new Date().toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  doc.save().rect(0, 0, pageWidth, 6).fill(C.primary).restore();
+  doc.save().rect(0, doc.page.height - 6, pageWidth, 6).fill(C.primary).restore();
+
+  doc.y = doc.page.height / 2 - 120;
+
+  doc.font('Helvetica').fontSize(11).fillColor(C.textMuted).text(
+    'preguntas-entrevista.dev',
+    MARGIN,
+    doc.y,
+    { width: contentW(doc), align: 'center' },
+  );
+  doc.moveDown(1.2);
+  doc.font('Helvetica-Bold').fontSize(40).fillColor(C.primary).text(
+    sectionTitleForCover(sections),
+    MARGIN,
+    doc.y,
+    { width: contentW(doc), align: 'center' },
+  );
+  doc.moveDown(0.6);
+  doc.font('Helvetica').fontSize(17).fillColor(C.text).text(subtitle, MARGIN, doc.y, {
+    width: contentW(doc),
+    align: 'center',
+  });
+  doc.moveDown(1.4);
+  doc.font('Helvetica').fontSize(11).fillColor(C.textMuted).text(technologiesLine, MARGIN, doc.y, {
+    width: contentW(doc),
+    align: 'center',
+  });
+  doc.moveDown(1.8);
+
+  const centerX = pageWidth / 2;
+  doc.moveTo(centerX - 60, doc.y).lineTo(centerX + 60, doc.y).strokeColor(C.border).lineWidth(1)
+    .stroke();
+  doc.moveDown(1.2);
+
+  doc.font('Helvetica-Bold').fontSize(13).fillColor(C.textMuted).text(
+    `${sections.length} tecnologias · ${totalQuestions} preguntas`,
+    MARGIN,
+    doc.y,
+    { width: contentW(doc), align: 'center' },
+  );
+  doc.moveDown(0.5);
+  doc.font('Helvetica').fontSize(10).fillColor(C.textSubtle).text(date, MARGIN, doc.y, {
+    width: contentW(doc),
+    align: 'center',
+  });
+}
+
+function reserveTocPages(doc: Doc, count: number): number[] {
+  const pageIndexes: number[] = [];
+
+  for (let index = 0; index < count; index++) {
+    doc.addPage();
+    pageIndexes.push(doc.bufferedPageRange().count - 1);
+  }
+
+  return pageIndexes;
+}
+
+function renderTechnologySectionHeader(
+  doc: Doc,
+  section: DossierTechnologySection,
+  sectionIndex: number,
+  totalSections: number,
+): void {
+  doc.font('Helvetica').fontSize(10).fillColor(C.textMuted).text(
+    `Tecnologia ${sectionIndex + 1} de ${totalSections}`,
+    MARGIN,
+    doc.y,
+    { width: contentW(doc) },
+  );
+  doc.moveDown(0.4);
+  doc.font('Helvetica-Bold').fontSize(26).fillColor(C.primary).text(
+    section.technologyName,
+    MARGIN,
+    doc.y,
+    { width: contentW(doc), lineGap: 2 },
+  );
+  doc.moveDown(0.5);
+  doc.font('Helvetica').fontSize(11).fillColor(C.text).text(
+    `${section.questions.length} preguntas seleccionadas para esta tecnologia.`,
+    MARGIN,
+    doc.y,
+    { width: contentW(doc), lineGap: 2 },
+  );
+  doc.moveDown(0.6);
+  doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + contentW(doc), doc.y).strokeColor(C.border)
+    .lineWidth(0.7).stroke();
+  doc.moveDown(0.8);
+  resetCursor(doc);
+}
+
+function renderQuestionHeader(doc: Doc, question: QuestionData, questionIndex: number): void {
+  const headerY = doc.y;
+
+  doc.save().rect(MARGIN - 8, headerY - 2, 3, 22).fill(C.primary).restore();
+
+  doc.font('Helvetica-Bold').fontSize(13).fillColor(C.text).text(
+    `${questionIndex + 1}. ${question.title}`,
+    MARGIN,
+    doc.y,
+    { width: contentW(doc), lineGap: 3 },
+  );
+  doc.moveDown(0.5);
+
+  const diffLabel = DIFFICULTY_LABELS[question.difficulty] ?? question.difficulty;
+  const diffTextColor =
+    question.difficulty === 'easy'
+      ? C.easyText
+      : question.difficulty === 'hard'
+        ? C.hardText
+        : C.mediumText;
+  const diffBgColor =
+    question.difficulty === 'easy'
+      ? C.easyBg
+      : question.difficulty === 'hard'
+        ? C.hardBg
+        : C.mediumBg;
+
+  let badgeX = MARGIN;
+  const badgeY = doc.y;
+  badgeX += drawBadge(doc, badgeX, badgeY, diffLabel, diffBgColor, diffTextColor) + 5;
+  for (const tag of question.tags.slice(0, 5)) {
+    if (badgeX > MARGIN + contentW(doc) - 50) break;
+    badgeX += drawBadge(doc, badgeX, badgeY, tag, C.tagBg, C.tagText) + 4;
+  }
+
+  doc.x = MARGIN;
+  doc.y = badgeY + 18;
+  doc.moveDown(0.5);
+  doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + contentW(doc), doc.y).strokeColor(C.border)
+    .lineWidth(0.4).stroke();
+  doc.moveDown(0.7);
+  resetCursor(doc);
+}
+
+function renderTableOfContents(
+  doc: Doc,
+  pageIndexes: number[],
+  entries: TocEntry[],
+  technologyCount: number,
+  questionCount: number,
+): void {
+  pageIndexes.forEach((pageIndex, chunkIndex) => {
+    const chunkStart = chunkIndex * TOC_ENTRIES_PER_PAGE;
+    const chunk = entries.slice(chunkStart, chunkStart + TOC_ENTRIES_PER_PAGE);
+
+    doc.switchToPage(pageIndex);
+    doc.save().rect(0, 0, doc.page.width, 4).fill(C.primary).restore();
+
+    doc.x = MARGIN;
+    doc.y = MARGIN;
+
+    doc.font('Helvetica-Bold').fontSize(24).fillColor(C.text).text(
+      chunkIndex === 0 ? 'Indice' : 'Indice (cont.)',
+      MARGIN,
+      doc.y,
+      { width: contentW(doc) },
+    );
+    doc.moveDown(0.4);
+
+    if (chunkIndex === 0) {
+      doc.font('Helvetica').fontSize(10).fillColor(C.textMuted).text(
+        `${technologyCount} tecnologias · ${questionCount} preguntas`,
+        MARGIN,
+        doc.y,
+        { width: contentW(doc) },
+      );
+      doc.moveDown(1);
+    } else {
+      doc.moveDown(0.8);
+    }
+
+    let cursorY = doc.y;
+
+    for (const entry of chunk) {
+      const indent = entry.level === 0 ? 0 : 18;
+      const font = entry.level === 0 ? 'Helvetica-Bold' : 'Helvetica';
+      const fontSize = entry.level === 0 ? 10.8 : 9.4;
+      const pageLabel = String(entry.pageNumber);
+
+      doc.font(font).fontSize(fontSize).fillColor(entry.level === 0 ? C.text : C.textMuted);
+      const pageLabelWidth = doc.widthOfString(pageLabel);
+      const maxTextWidth = contentW(doc) - indent - pageLabelWidth - 28;
+      const label = truncateText(doc, entry.label, maxTextWidth, font, fontSize);
+      const textX = MARGIN + indent;
+      const baselineY = cursorY + fontSize + 1;
+
+      doc.text(label, textX, cursorY, { width: maxTextWidth, lineBreak: false });
+
+      const labelWidth = doc.widthOfString(label);
+      const dotsStartX = textX + labelWidth + 8;
+      const dotsEndX = MARGIN + contentW(doc) - pageLabelWidth - 8;
+      if (dotsEndX > dotsStartX) {
+        doc.save().dash(1, { space: 2 }).moveTo(dotsStartX, baselineY).lineTo(dotsEndX, baselineY)
+          .strokeColor(C.border).lineWidth(0.7).stroke().undash().restore();
+      }
+
+      doc.font('Helvetica-Bold').fontSize(fontSize).fillColor(C.textMuted).text(
+        pageLabel,
+        MARGIN,
+        cursorY,
+        { width: contentW(doc), align: 'right', lineBreak: false },
+      );
+
+      cursorY += entry.level === 0 ? 20 : 16;
+    }
+  });
+}
+
+function renderPageNumbers(doc: Doc): void {
+  const range = doc.bufferedPageRange();
+
+  for (let pageIndex = range.start + 1; pageIndex < range.start + range.count; pageIndex++) {
+    doc.switchToPage(pageIndex);
+    doc.font('Helvetica').fontSize(9).fillColor(C.textSubtle).text(
+      String(pageIndex),
+      MARGIN,
+      doc.page.height - 30,
+      { width: contentW(doc), align: 'right', lineBreak: false },
+    );
+  }
+}
+
+export function generateDossierPdf(sections: DossierTechnologySection[]): Promise<Buffer> {
+  const normalizedSections = sections.filter((section) => section.questions.length > 0);
+  const totalQuestions = normalizedSections.reduce(
+    (acc, section) => acc + section.questions.length,
+    0,
+  );
+
+  if (normalizedSections.length === 0 || totalQuestions === 0) {
+    throw new Error('No questions found');
+  }
+
+  const tocEntriesEstimate = normalizedSections.reduce(
+    (acc, section) => acc + 1 + section.questions.length,
+    0,
+  );
+  const tocPageCount = Math.max(1, Math.ceil(tocEntriesEstimate / TOC_ENTRIES_PER_PAGE));
+
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({
+      margin: MARGIN,
+      size: 'A4',
+      autoFirstPage: false,
+      bufferPages: true,
+      info: {
+        Title: `${sectionTitleForCover(normalizedSections)} - Preguntas de Entrevista`,
+        Author: 'Manuel Ferrer',
+        Subject: `${totalQuestions} preguntas de entrevista en formato dosier`,
+      },
+    });
+
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    renderCoverPage(doc, normalizedSections, totalQuestions);
+    const tocPageIndexes = reserveTocPages(doc, tocPageCount);
+    const tocEntries: TocEntry[] = [];
+
+    normalizedSections.forEach((section, sectionIndex) => {
+      freshPage(doc);
+      tocEntries.push({
+        label: section.technologyName,
+        pageNumber: currentLogicalPageNumber(doc),
+        level: 0,
+      });
+
+      renderTechnologySectionHeader(doc, section, sectionIndex, normalizedSections.length);
+
+      section.questions.forEach((question, questionIndex) => {
+        if (questionIndex === 0) {
+          if (doc.y + HEADER_SPACE > bottomY(doc)) {
+            freshPage(doc);
+          }
+        } else if (doc.y + HEADER_SPACE > bottomY(doc)) {
+          freshPage(doc);
+        } else {
+          doc.moveDown(1);
+          doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + contentW(doc), doc.y).strokeColor(C.border)
+            .lineWidth(0.5).stroke();
+          doc.moveDown(1);
+        }
+
+        tocEntries.push({
+          label: `${questionIndex + 1}. ${question.title}`,
+          pageNumber: currentLogicalPageNumber(doc),
+          level: 1,
+        });
+
+        renderQuestionHeader(doc, question, questionIndex);
+        if (question.content) {
+          renderMarkdown(doc, question.content);
+        }
+      });
+    });
+
+    renderTableOfContents(
+      doc,
+      tocPageIndexes,
+      tocEntries,
+      normalizedSections.length,
+      totalQuestions,
+    );
+    renderPageNumbers(doc);
 
     doc.end();
   });

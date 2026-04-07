@@ -25,6 +25,7 @@ import { Difficulty } from '../../domain/models/question.model';
 import { difficultyLabel } from '../../core/utils/difficulty';
 import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../core/seo/structured-data';
 import { getTagLabel } from '../../core/utils/tag-labels';
+import { TechnologyDossierTriggerComponent } from './technology-dossier-trigger.component';
 
 const PAGE_SIZE = 10;
 
@@ -39,6 +40,7 @@ const PAGE_SIZE = 10;
     MfCardComponent,
     MfInputComponent,
     MfButtonComponent,
+    TechnologyDossierTriggerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -164,6 +166,10 @@ const PAGE_SIZE = 10;
                 <mf-icon name="dashboard" color="inherit" />
                 Resumen
               </a>
+              <app-technology-dossier-trigger
+                [currentTechnologySlug]="technology()!.slug"
+                [currentTechnologyName]="technology()!.name"
+              />
               <a [routerLink]="['/', technology()!.slug, 'recursos']" class="header-link accent">
                 <mf-icon name="library_books" color="inherit" />
                 Recursos

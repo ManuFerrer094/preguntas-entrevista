@@ -9,6 +9,7 @@ import {
   buildBreadcrumbSchema,
   buildCollectionPageSchema,
 } from '../../core/seo/structured-data';
+import { TechnologyDossierTriggerComponent } from './technology-dossier-trigger.component';
 
 interface ResourceGroup {
   id: string;
@@ -20,7 +21,13 @@ interface ResourceGroup {
 @Component({
   selector: 'app-technology-resources',
   standalone: true,
-  imports: [RouterLink, MfCardComponent, MfIconComponent, MfProgressSpinnerComponent],
+  imports: [
+    RouterLink,
+    MfCardComponent,
+    MfIconComponent,
+    MfProgressSpinnerComponent,
+    TechnologyDossierTriggerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (technology()) {
@@ -52,6 +59,10 @@ interface ResourceGroup {
             <mf-icon name="dashboard" color="inherit" />
             Resumen
           </a>
+          <app-technology-dossier-trigger
+            [currentTechnologySlug]="technology()!.slug"
+            [currentTechnologyName]="technology()!.name"
+          />
           <a [routerLink]="['/', technology()!.slug, 'preguntas']" class="hero-link accent">
             <mf-icon name="quiz" color="inherit" />
             Ver preguntas

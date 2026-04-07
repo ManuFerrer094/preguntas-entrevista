@@ -25,6 +25,7 @@ const questionsDir = existsSync(builtQuestionsDir)
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+app.use(express.json({ limit: '100kb' }));
 
 /**
  * PDF generation API — returns a downloadable PDF with all questions for a technology.
@@ -39,7 +40,6 @@ app.use('/api/dossier', pdfRouter);
  * AI-powered question generation — analyses a job description and returns relevant questions.
  * POST /api/ai-questions
  */
-app.use(express.json({ limit: '100kb' }));
 const aiRouter = createAiQuestionsRouter(questionsDir);
 app.use('/api/ai-questions', aiRouter);
 
