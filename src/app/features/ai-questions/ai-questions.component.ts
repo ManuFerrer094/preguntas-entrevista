@@ -25,6 +25,7 @@ import { generateSlug } from '../../core/utils/slug-generator';
 import { getTagLabel } from '../../core/utils/tag-labels';
 import { Difficulty } from '../../domain/models/question.model';
 import { Technology } from '../../domain/models/technology.model';
+import { TechnologyDossierTriggerComponent } from '../technology/technology-dossier-trigger.component';
 
 @Component({
   selector: 'app-ai-questions',
@@ -38,6 +39,7 @@ import { Technology } from '../../domain/models/technology.model';
     MfCardComponent,
     MfInputComponent,
     MfButtonComponent,
+    TechnologyDossierTriggerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -165,6 +167,10 @@ import { Technology } from '../../domain/models/technology.model';
             </p>
           </div>
           <div class="results-header-actions">
+            <app-technology-dossier-trigger
+              [preferredTechnologies]="dossierTechnologySlugs()"
+              selectionLabel="tecnologías detectadas"
+            />
             <mf-button
               [label]="sessionAlreadySaved() ? 'Guardado' : 'Guardar'"
               variant="outlined"
@@ -720,6 +726,7 @@ export class AiQuestionsComponent {
     const techs = new Set(this.questions().map((q) => q.technology));
     return Array.from(techs).sort();
   });
+  readonly dossierTechnologySlugs = computed(() => this.availableTechnologies());
 
   readonly filteredQuestions = computed(() => {
     let qs = this.questions();

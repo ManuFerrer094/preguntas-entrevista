@@ -1,46 +1,11 @@
 import { Request, Response, Router } from 'express';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { generateDossierPdf } from '../../lib/generate-dossier.js';
 import {
-  generateDossierPdf,
-  readQuestions,
-  technologyNameFromSlug,
-} from '../../lib/generate-dossier.js';
-
-function hasQuestionCatalog(questionsDir: string, technology: string): boolean {
-  const techDir = join(questionsDir, technology);
-  const indexPath = join(techDir, 'index.json');
-  return existsSync(techDir) && existsSync(indexPath);
-}
-
-function normalizeTechnologies(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-
-  return value
-    .filter((entry): entry is string => typeof entry === 'string')
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean)
-    .filter((entry, index, entries) => entries.indexOf(entry) === index);
-}
-
-function buildFilename(technologies: string[]): string {
-  if (technologies.length === 1) {
-    return `preguntas-entrevista-${technologies[0]}.pdf`;
-  }
-
-  return `preguntas-entrevista-dossier-${technologies.length}-tecnologias.pdf`;
-}
-
-function buildSections(questionsDir: string, technologies: string[]) {
-  return technologies
-    .filter((technology) => hasQuestionCatalog(questionsDir, technology))
-    .map((technology) => ({
-      slug: technology,
-      technologyName: technologyNameFromSlug(technology),
-      questions: readQuestions(join(questionsDir, technology)),
-    }))
-    .filter((section) => section.questions.length > 0);
-}
+  buildDossierFilename,
+  buildDossierSections,
+  hasQuestionCatalog,
+  normalizeTechnologies,
+} from '../../lib/dossier-sections.js';
 
 function sendPdf(res: Response, pdfBuffer: Buffer, filename: string): void {
   res.setHeader('Content-Type', 'application/pdf');
@@ -61,7 +26,7 @@ export function createPdfRouter(questionsDir: string): Router {
       return;
     }
 
-    const sections = buildSections(questionsDir, technologies);
+    const sections = buildDossierSections(questionsDir, technologies);
     if (sections.length === 0) {
       res.status(404).json({ error: 'No se encontraron tecnologias validas para el dosier' });
       return;
@@ -72,7 +37,7 @@ export function createPdfRouter(questionsDir: string): Router {
       sendPdf(
         res,
         pdfBuffer,
-        buildFilename(sections.map((section) => section.slug)),
+        buildDossierFilename(sections.map((section) => section.slug)),
       );
     } catch (err) {
       console.error('[pdf-router] Failed to generate combined dossier:', err);
@@ -88,11 +53,11 @@ export function createPdfRouter(questionsDir: string): Router {
       return;
     }
 
-    const sections = buildSections(questionsDir, [technology]);
+    const sections = buildDossierSections(questionsDir, [technology]);
 
     try {
       const pdfBuffer = await generateDossierPdf(sections);
-      sendPdf(res, pdfBuffer, buildFilename([technology]));
+      sendPdf(res, pdfBuffer, buildDossierFilename([technology]));
     } catch (err) {
       console.error(`[pdf-router] Failed to generate PDF for "${technology}":`, err);
       res.status(500).json({ error: `Error al generar el PDF para ${technology}` });

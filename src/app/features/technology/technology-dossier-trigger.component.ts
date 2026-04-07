@@ -53,10 +53,10 @@ import { DossierService } from '../../core/services/dossier.service';
             <button
               type="button"
               class="toolbar-button"
-              (click)="selectOnlyCurrent()"
+              (click)="selectSuggested()"
               [disabled]="dossier.generating()"
             >
-              Solo {{ currentTechnologyName() }}
+              {{ shortcutLabel() }}
             </button>
             <button
               type="button"
@@ -89,8 +89,10 @@ import { DossierService } from '../../core/services/dossier.service';
                   <div class="technology-copy">
                     <div class="technology-line">
                       <span class="technology-name">{{ technology.name }}</span>
-                      @if (technology.slug === currentTechnologySlug()) {
+                      @if (currentTechnologySlug() && technology.slug === currentTechnologySlug()) {
                         <span class="current-badge">Actual</span>
+                      } @else if (isPreferred(technology.slug)) {
+                        <span class="current-badge">Sugerida</span>
                       }
                     </div>
                     <span class="technology-meta">{{ technology.questionCount }} preguntas</span>
@@ -339,8 +341,10 @@ import { DossierService } from '../../core/services/dossier.service';
   ],
 })
 export class TechnologyDossierTriggerComponent {
-  readonly currentTechnologySlug = input.required<string>();
-  readonly currentTechnologyName = input.required<string>();
+  readonly currentTechnologySlug = input<string | null>(null);
+  readonly currentTechnologyName = input<string | null>(null);
+  readonly preferredTechnologies = input<string[]>([]);
+  readonly selectionLabel = input('selección sugerida');
 
   protected readonly store = inject(ContentStore);
   protected readonly dossier = inject(DossierService);
@@ -348,17 +352,33 @@ export class TechnologyDossierTriggerComponent {
 
   protected readonly isOpen = signal(false);
   protected readonly selectedSlugs = signal<string[]>([]);
+  protected readonly preferredSlugs = computed(() =>
+    this.preferredTechnologies()
+      .map((slug) => slug.trim().toLowerCase())
+      .filter(Boolean)
+      .filter((slug, index, entries) => entries.indexOf(slug) === index),
+  );
 
   protected readonly availableTechnologies = computed(() => {
     const currentSlug = this.currentTechnologySlug();
+    const preferredOrder = new Map(
+      this.preferredSlugs().map((slug, index) => [slug, index] as const),
+    );
 
     return this.store
       .technologies()
       .filter((technology) => technology.questionCount > 0)
       .slice()
       .sort((left, right) => {
-        if (left.slug === currentSlug) return -1;
-        if (right.slug === currentSlug) return 1;
+        if (currentSlug && left.slug === currentSlug) return -1;
+        if (currentSlug && right.slug === currentSlug) return 1;
+        const leftPreferred = preferredOrder.get(left.slug);
+        const rightPreferred = preferredOrder.get(right.slug);
+        if (leftPreferred !== undefined && rightPreferred !== undefined) {
+          return leftPreferred - rightPreferred;
+        }
+        if (leftPreferred !== undefined) return -1;
+        if (rightPreferred !== undefined) return 1;
         return left.name.localeCompare(right.name, 'es');
       });
   });
@@ -371,10 +391,18 @@ export class TechnologyDossierTriggerComponent {
       0,
     );
   });
+  protected readonly shortcutLabel = computed(() => {
+    const currentName = this.currentTechnologyName()?.trim();
+    if (currentName) {
+      return `Solo ${currentName}`;
+    }
+
+    return `Solo ${this.selectionLabel()}`;
+  });
 
   protected openModal(): void {
     this.store.loadAllQuestionCounts();
-    this.selectOnlyCurrent();
+    this.selectSuggested();
     this.isOpen.set(true);
   }
 
@@ -387,14 +415,28 @@ export class TechnologyDossierTriggerComponent {
     return this.selectedSlugs().includes(slug);
   }
 
+  protected isPreferred(slug: string): boolean {
+    return this.preferredSlugs().includes(slug);
+  }
+
   protected toggleTechnology(slug: string): void {
     this.selectedSlugs.update((current) =>
       current.includes(slug) ? current.filter((entry) => entry !== slug) : [...current, slug],
     );
   }
 
-  protected selectOnlyCurrent(): void {
-    this.selectedSlugs.set([this.currentTechnologySlug()]);
+  protected selectSuggested(): void {
+    const preferred = this.preferredSlugs().filter((slug) =>
+      this.availableTechnologies().some((technology) => technology.slug === slug),
+    );
+
+    if (preferred.length > 0) {
+      this.selectedSlugs.set(preferred);
+      return;
+    }
+
+    const currentSlug = this.currentTechnologySlug();
+    this.selectedSlugs.set(currentSlug ? [currentSlug] : []);
   }
 
   protected selectAll(): void {

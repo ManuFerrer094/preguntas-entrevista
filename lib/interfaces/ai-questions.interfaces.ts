@@ -3,6 +3,7 @@ export interface QuestionSummary {
   title: string;
   difficulty: string;
   tags: string[];
+  summary?: string;
 }
 
 export interface AiQuestionsConfig {

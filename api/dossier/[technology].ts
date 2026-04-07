@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import { existsSync } from 'node:fs';
-import { generateDossierPdf, technologyNameFromSlug } from '../../lib/generate-dossier.js';
+import { buildDossierFilename, buildDossierSections, hasQuestionCatalog } from '../../lib/dossier-sections.js';
+import { generateDossierPdf } from '../../lib/generate-dossier.js';
 
 interface HandlerRequest {
   method?: string;
@@ -27,29 +27,27 @@ export default async function handler(req: HandlerRequest, res: HandlerResponse)
     return;
   }
 
-  const questionsDir = join(process.cwd(), 'questions', technology);
-  console.log('Generating PDF for', technology, 'questionsDir=', questionsDir);
-
-  if (!existsSync(questionsDir) || !existsSync(join(questionsDir, 'index.json'))) {
+  const questionsDir = join(process.cwd(), 'questions');
+  if (!hasQuestionCatalog(questionsDir, technology)) {
     res.status(404).json({ error: 'Technology not found' });
     return;
   }
 
   try {
-    const pdfBuffer = await generateDossierPdf(questionsDir, technologyNameFromSlug(technology));
+    const sections = buildDossierSections(questionsDir, [technology]);
+    const pdfBuffer = await generateDossierPdf(sections);
 
     res.status(200);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${technology}-dossier.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${buildDossierFilename([technology])}"`);
     res.setHeader('Content-Length', pdfBuffer.length);
 
     res.send(pdfBuffer);
-
   } catch (err) {
-  console.error('PDF generation error:', err);
-  res.status(500).json({
-    error: 'Failed to generate PDF',
-    details: String(err)
-  });
-}
+    console.error('PDF generation error:', err);
+    res.status(500).json({
+      error: 'Failed to generate PDF',
+      details: String(err),
+    });
+  }
 }
