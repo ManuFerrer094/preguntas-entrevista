@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-export const REVIEW_DATE = '2026-04-04';
+export const REVIEW_DATE = '2026-04-09';
 
 export const TECHNOLOGY_LABELS = {
   angular: 'Angular',
