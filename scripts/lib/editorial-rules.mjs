@@ -23,6 +23,14 @@ export const REQUIRED_HEADINGS = [
   '## Frase corta de entrevista',
 ];
 
+export const VUE_REQUIRED_HEADINGS = [
+  '## Respuesta',
+  '## Puntos clave',
+  '## Errores comunes',
+  '## Ejemplo o caso real',
+  '## Idea clave',
+];
+
 export const CODE_HEADING = '## Ejemplo de código';
 
 export const BANNED_VISIBLE_PATTERNS = [
@@ -481,6 +489,10 @@ export function technologyFromFile(file) {
 export function technologyLabelFromFile(file) {
   const technology = technologyFromFile(file);
   return TECHNOLOGY_LABELS[technology] ?? technology;
+}
+
+export function requiredHeadingsFor(file) {
+  return technologyFromFile(file) === 'vue' ? VUE_REQUIRED_HEADINGS : REQUIRED_HEADINGS;
 }
 
 export function parseFrontmatter(source) {

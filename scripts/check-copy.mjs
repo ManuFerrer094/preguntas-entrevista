@@ -3,7 +3,7 @@ import { globSync } from 'glob';
 import {
   BANNED_VISIBLE_PATTERNS,
   CODE_HEADING,
-  REQUIRED_HEADINGS,
+  requiredHeadingsFor,
   collectParagraphs,
   findBrokenCharacters,
   hasValidCodeBlock,
@@ -60,7 +60,7 @@ for (const file of QUESTION_FILES) {
     addFailure(`${file}: lastReviewed debe tener formato YYYY-MM-DD`);
   }
 
-  for (const heading of REQUIRED_HEADINGS) {
+  for (const heading of requiredHeadingsFor(file)) {
     if (!body.includes(heading)) {
       addFailure(`${file}: falta el heading obligatorio "${heading}"`);
     }
